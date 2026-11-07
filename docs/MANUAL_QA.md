@@ -51,3 +51,31 @@ Appearance and accessibility
 
 Resources
 - [ ] Idle in background: ~0% CPU in Activity Monitor; memory stays small with the panel closed.
+
+## M2 — Lens and selection actions
+
+Apps: TextEdit, Mail (compose), Notes, Safari (a `<textarea>`, e.g. a feedback form), VS Code (Electron).
+
+- [ ] First launch without Accessibility: the permissions window opens; "Consenti…" shows the system
+      prompt and System Settings; the row turns green within a second of enabling Lampo.
+- [ ] Each built-in hotkey (⌥⇧C Correggi, ⌥⇧F Più formale, ⌥⇧B Più breve, ⌥⇧T Traduci in inglese,
+      ⌥⇧R Riassumi) opens the Lens under the selection (above it near the bottom of the screen),
+      with the arrow pointing at the selection and the triggered action highlighted.
+- [ ] Header shows "Testo selezionato · N parole · <App>" and the "Sul Mac" badge.
+- [ ] Tab / ⇧Tab / ← → switch action and regenerate; clicking a chip does too.
+- [ ] For every app above: "Più formale" + ↩ replaces the selection in place; ⌘Z in that app restores
+      the original in one step; the clipboard (text *and* an image copied beforehand) is unchanged.
+- [ ] Italian text stays Italian for Correggi / Più formale / Più breve.
+- [ ] Esc closes the Lens without touching the text; clicking elsewhere closes it too.
+- [ ] Riprova regenerates; Copia puts the result on the clipboard ("Copiato" flash).
+- [ ] No selection: HUD "Seleziona prima del testo, poi riprova."
+- [ ] Silent mode (set an action's output to replaceSilently in actions.json until M3's editor):
+      HUD "Correggi…" then "Fatto · ⌘Z per annullare"; ⌘Z restores.
+- [ ] Menu › Azioni rapide lists every action with its shortcut and runs it on the current selection.
+- [ ] "Spiega" opens the Glass panel with the selection as context and streams the explanation.
+- [ ] Glass panel over a selection shows the "Selezione · N parole" chip; ✕ or Backspace (empty field)
+      removes it; the question uses it; ⌘⇧V adds an "Appunti" chip.
+- [ ] Panel "Inserisci ⌘↩" replaces the selection the answer is about, or pastes at the cursor; ⌘Z undoes.
+- [ ] Lampo disabled: no action hotkey responds and Azioni rapide is disabled.
+- [ ] Password field selected: nothing is read.
+- [ ] VoiceOver: Lens chips announce selection state; HUD messages are announced.

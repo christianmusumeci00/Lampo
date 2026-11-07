@@ -43,4 +43,22 @@ struct HotkeyManagerTests {
         state.isEnabled = true
         #expect(backend.disabled.isEmpty)
     }
+
+    @Test func syncAddsAndRemovesActionHotkeys() {
+        let backend = MockHotkeyBackend()
+        let manager = HotkeyManager(backend: backend, isEnabled: true)
+        let a = KeyboardShortcuts.Name("action-test-a")
+        let b = KeyboardShortcuts.Name("action-test-b")
+        var fired: [String] = []
+        manager.register(.togglePanel) {}
+        manager.sync([a, b], prefix: "action-") { fired.append($0.rawValue) }
+        backend.press(a)
+        #expect(fired == ["action-test-a"])
+
+        manager.sync([b], prefix: "action-") { fired.append($0.rawValue) }
+        backend.press(a)
+        backend.press(b)
+        #expect(fired == ["action-test-a", "action-test-b"])
+        #expect(manager.registeredNames.map(\.rawValue) == ["togglePanel", "action-test-b"])
+    }
 }

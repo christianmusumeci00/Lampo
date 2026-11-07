@@ -22,6 +22,8 @@ struct ConversationTurn: Identifiable, Equatable {
     var route: ModelRoute
     var kind: Kind
     var state: State
+    /// Short description of the context sent with this question ("Selection · 12 words").
+    var contextSummary: String?
     /// True for "Go deeper" follow-ups, whose prompt is synthetic.
     var isGoDeeper = false
 
@@ -37,6 +39,9 @@ final class PanelViewModel {
 
     var query = ""
     private(set) var turns: [ConversationTurn] = []
+    /// Chips shown in the input row; sent with the next question.
+    private(set) var contextItems: [ContextItem] = []
+    private(set) var isAccessibilityGranted = true
     private(set) var availability: ModelAvailability = .unknown
     /// Brief confirmation shown in the action bar ("Copied").
     private(set) var flash: String?
@@ -52,8 +57,13 @@ final class PanelViewModel {
     @ObservationIgnored private var lastActivity: ContinuousClock.Instant
     @ObservationIgnored private var flashTask: Task<Void, Never>?
 
+    /// The selection the current conversation is about; "Insert" replaces it.
+    @ObservationIgnored private(set) var activeSelection: SelectionContext?
+
     /// Called after a successful copy when "close after copy" is on.
     @ObservationIgnored var onRequestClose: (() -> Void)?
+    /// Called by "Insert ⌘↩" with the answer and the selection to replace (if any).
+    @ObservationIgnored var onInsert: ((String, SelectionContext?) -> Void)?
 
     init(
         model: any ModelService,
@@ -76,6 +86,7 @@ final class PanelViewModel {
     var hasContent: Bool { !turns.isEmpty }
     var canCopy: Bool { !(currentTurn?.answer.isEmpty ?? true) }
     var canFollowUp: Bool { conversation != nil && !isGenerating && currentTurn?.kind == .model }
+    var canInsert: Bool { canCopy && !isGenerating }
     var canThinkHarder: Bool { preferences.routingPolicy.allowsPrivateCloud && !isGenerating && currentTurn != nil }
 
     // MARK: Lifecycle
@@ -97,10 +108,46 @@ final class PanelViewModel {
         availability = model.availability()
     }
 
+    func setAccessibilityGranted(_ granted: Bool) {
+        isAccessibilityGranted = granted
+    }
+
+    // MARK: Context chips
+
+    func setContext(_ items: [ContextItem]) {
+        contextItems = items
+    }
+
+    func addContext(_ item: ContextItem) {
+        contextItems.removeAll { $0.id == item.id || ($0.isSelection && item.isSelection) }
+        contextItems.append(item)
+    }
+
+    func removeContext(id: String) {
+        contextItems.removeAll { $0.id == id }
+    }
+
+    /// Backspace in an empty field removes the last chip. Returns true if one was removed.
+    @discardableResult
+    func removeLastContextIfQueryEmpty() -> Bool {
+        guard query.isEmpty, !contextItems.isEmpty else { return false }
+        contextItems.removeLast()
+        return true
+    }
+
+    // MARK: Output
+
+    func insertCurrentAnswer() {
+        guard canInsert, let answer = currentTurn?.answer else { return }
+        onInsert?(answer, activeSelection)
+    }
+
     func resetConversation() {
         cancel()
         turns = []
         conversation = nil
+        contextItems = []
+        activeSelection = nil
         query = ""
         focusRequest += 1
     }
@@ -113,7 +160,7 @@ final class PanelViewModel {
         query = ""
         touch()
 
-        if let result = Calculator.evaluate(text) {
+        if contextItems.isEmpty, let result = Calculator.evaluate(text) {
             let answer: String
             switch result {
             case .success(let value): answer = Calculator.format(value)
@@ -123,7 +170,50 @@ final class PanelViewModel {
             return
         }
 
-        ask(ModelPrompt(text), displayedQuestion: text, route: .onDevice, reasoning: nil, explicitRoute: false)
+        let (prompt, summary) = consumeContext(question: text)
+        ask(ModelPrompt(prompt), displayedQuestion: text, route: .onDevice, reasoning: nil, explicitRoute: false,
+            contextSummary: summary)
+    }
+
+    /// Runs an action whose result belongs in the panel (e.g. "Explain").
+    func runAction(_ action: LampoAction, prompt: String, contextItems items: [ContextItem]) {
+        resetConversation()
+        contextItems = items
+        _ = consumeContext(question: "")
+        touch()
+        ask(ModelPrompt(prompt), displayedQuestion: action.name, route: action.route, reasoning: nil,
+            explicitRoute: false, contextSummary: items.first.map(Self.summary))
+    }
+
+    /// Builds the prompt from the chips (then clears them: the session now has the context).
+    private func consumeContext(question: String) -> (String, String?) {
+        guard !contextItems.isEmpty else { return (question, nil) }
+        var selectionText: String?
+        var app: String?
+        var clipboard: String?
+        for item in contextItems {
+            switch item {
+            case .selection(let selection):
+                selectionText = selection.text
+                app = selection.app?.name
+                activeSelection = selection
+            case .clipboard(let text):
+                clipboard = text
+            }
+        }
+        let summary = contextItems.map(Self.summary).joined(separator: " · ")
+        contextItems = []
+        let block = SystemInstructions.contextBlock(selection: selectionText, app: app, clipboard: clipboard)
+        return (question.isEmpty ? block : block + "\n\n" + question, summary)
+    }
+
+    static func summary(_ item: ContextItem) -> String {
+        switch item {
+        case .selection(let selection):
+            return String(localized: "Selection · \(selection.wordCount) words")
+        case .clipboard:
+            return String(localized: "Clipboard")
+        }
     }
 
     /// "Go deeper": a follow-up in the same session.
@@ -161,6 +251,7 @@ final class PanelViewModel {
         if clock() - lastActivity > Self.sessionTimeout {
             turns = []
             conversation = nil
+            activeSelection = nil
         }
         lastActivity = clock()
     }
@@ -178,7 +269,8 @@ final class PanelViewModel {
     }
 
     private func ask(_ prompt: ModelPrompt, displayedQuestion: String, route requested: ModelRoute,
-                     reasoning: ReasoningEffort?, explicitRoute: Bool, isGoDeeper: Bool = false) {
+                     reasoning: ReasoningEffort?, explicitRoute: Bool, isGoDeeper: Bool = false,
+                     contextSummary: String? = nil) {
         let route: ModelRoute
         do {
             route = try preferences.routingPolicy.resolve(requested, explicit: explicitRoute)
@@ -203,6 +295,7 @@ final class PanelViewModel {
 
         var turn = ConversationTurn(question: displayedQuestion, route: route, kind: .model, state: .streaming)
         turn.isGoDeeper = isGoDeeper
+        turn.contextSummary = contextSummary
         turns.append(turn)
         let turnID = turns[turns.count - 1].id
         let stream = conversation.stream(prompt, reasoning: reasoning)

@@ -21,6 +21,12 @@ struct PanelView: View {
                 .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
                 .padding(.vertical, 14)
             }
+            if !viewModel.isAccessibilityGranted && !viewModel.hasContent {
+                Divider()
+                AccessibilityHint()
+                    .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
+                    .padding(.vertical, 10)
+            }
             if viewModel.hasContent {
                 Divider()
                 ConversationView(viewModel: viewModel)
@@ -48,6 +54,10 @@ struct PanelView: View {
                 .font(.system(size: 19, weight: .semibold))
                 .foregroundStyle(DesignTokens.accent)
                 .accessibilityHidden(true)
+            ForEach(viewModel.contextItems) { item in
+                ContextChip(item: item) { viewModel.removeContext(id: item.id) }
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }
+            }
             TextField(text: $viewModel.query, axis: .vertical) {
                 Text(viewModel.hasContent ? "Ask a follow-up…" : "Ask Lampo…")
             }
@@ -153,6 +163,11 @@ struct CurrentTurnView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if let summary = turn.contextSummary {
+                Label(summary, systemImage: "text.quote")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
             HStack(alignment: .center, spacing: 10) {
                 Text(turn.question)
                     .font(.system(size: 13, weight: .semibold))
@@ -246,6 +261,16 @@ struct ActionBar: View {
             .accessibilityHint(Text("Copies the answer"))
 
             Button {
+                viewModel.insertCurrentAnswer()
+            } label: {
+                Label("Insert", systemImage: "arrow.uturn.left")
+                    .badgeShortcut("⌘↩")
+            }
+            .buttonStyle(LampoButtonStyle())
+            .disabled(!viewModel.canInsert)
+            .help(insertHelp)
+
+            Button {
                 viewModel.goDeeper()
             } label: {
                 Label("Go deeper", systemImage: "text.append")
@@ -278,6 +303,12 @@ struct ActionBar: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .animation(.easeOut(duration: 0.15), value: viewModel.flash)
+    }
+
+    private var insertHelp: LocalizedStringKey {
+        viewModel.activeSelection == nil
+            ? "Paste the answer at the cursor in the app you were using"
+            : "Replace the selected text with the answer"
     }
 
     private var thinkHarderHelp: LocalizedStringKey {
@@ -321,5 +352,72 @@ struct LampoButtonStyle: ButtonStyle {
             )
             .opacity(isEnabled ? (configuration.isPressed ? 0.75 : 1) : 0.45)
             .contentShape(Rectangle())
+    }
+}
+
+/// A removable context chip in the input row ("Selection · 12 words").
+struct ContextChip: View {
+    let item: ContextItem
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: symbol)
+                .font(.system(size: 11, weight: .semibold))
+            Text(PanelViewModel.summary(item))
+                .font(.system(size: 12, weight: .semibold))
+                .lineLimit(1)
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .bold))
+                    .frame(width: 14, height: 14)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Remove"))
+        }
+        .foregroundStyle(DesignTokens.accent)
+        .padding(.leading, 9)
+        .padding(.trailing, 6)
+        .frame(height: 26)
+        .background(Capsule().fill(DesignTokens.accent.opacity(0.14)))
+        .fixedSize()
+        .accessibilityElement(children: .contain)
+        .help(helpText)
+    }
+
+    private var symbol: String {
+        switch item {
+        case .selection: return "text.cursor"
+        case .clipboard: return "doc.on.clipboard"
+        }
+    }
+
+    private var helpText: String {
+        switch item {
+        case .selection(let selection): return String(selection.text.prefix(300))
+        case .clipboard(let text): return String(text.prefix(300))
+        }
+    }
+}
+
+/// Shown when Accessibility is off: the selection can't be read.
+struct AccessibilityHint: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "hand.raised")
+                .foregroundStyle(DesignTokens.accent)
+                .accessibilityHidden(true)
+            Text("Allow Accessibility to use the text you select in other apps.")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Button("Allow…") {
+                let service = PermissionsService()
+                service.requestAccessibility()
+                service.openAccessibilitySettings()
+            }
+            .controlSize(.small)
+        }
     }
 }

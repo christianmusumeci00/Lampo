@@ -23,7 +23,7 @@ struct PanelViewModelTests {
         #expect(vm.isGenerating)
         await vm.generationTask?.value
 
-        let turn = try? #require(vm.currentTurn)
+        let turn = vm.currentTurn
         #expect(turn?.question == "Say hello")
         #expect(turn?.answer == "Hello!")
         #expect(turn?.state == .done)

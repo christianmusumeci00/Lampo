@@ -14,15 +14,25 @@ final class PanelPresentation {
 final class PanelController: NSObject, NSWindowDelegate {
     let viewModel: PanelViewModel
     private let preferences: Preferences
+    private let selectionReader: any SelectionReading
+    private let output: OutputService
+    private let permissions: any PermissionsChecking
+    private let pasteboard: any PasteboardClient
+    private var selectionTask: Task<Void, Never>?
     private let panel = LampoPanel()
     private let presentation = PanelPresentation()
     private var hostingView: NSHostingView<PanelView>?
     private var hideGeneration = 0
     private(set) var isVisible = false
 
-    init(viewModel: PanelViewModel, preferences: Preferences) {
+    init(viewModel: PanelViewModel, preferences: Preferences, selectionReader: any SelectionReading,
+         output: OutputService, permissions: any PermissionsChecking, pasteboard: any PasteboardClient) {
         self.viewModel = viewModel
         self.preferences = preferences
+        self.selectionReader = selectionReader
+        self.output = output
+        self.permissions = permissions
+        self.pasteboard = pasteboard
         super.init()
 
         let root = PanelView(
@@ -40,15 +50,54 @@ final class PanelController: NSObject, NSWindowDelegate {
         panel.delegate = self
         panel.keyDownHandler = { [weak self] event in self?.handleKeyDown(event) ?? false }
         viewModel.onRequestClose = { [weak self] in self?.hide() }
+        viewModel.onInsert = { [weak self] text, selection in self?.insert(text, replacing: selection) }
     }
 
     func toggle() {
-        isVisible ? hide() : show()
+        if isVisible {
+            hide()
+        } else {
+            show()
+            attachSelectionChip()
+        }
+    }
+
+    /// Opens the panel and runs an action whose answer belongs here (e.g. "Explain").
+    func showRunning(_ action: LampoAction, prompt: String, contextItems: [ContextItem]) {
+        show()
+        viewModel.runAction(action, prompt: prompt, contextItems: contextItems)
+    }
+
+    /// Adds a "Selection" chip when text is selected in the app underneath. Accessibility only:
+    /// the ⌘C fallback would have to steal focus from the panel, and the panel must open instantly.
+    private func attachSelectionChip() {
+        selectionTask?.cancel()
+        selectionTask = Task { [weak self] in
+            guard let self, let selection = await self.selectionReader.readSelection(allowClipboardFallback: false),
+                  self.isVisible, !Task.isCancelled else { return }
+            if !self.viewModel.hasContent || self.viewModel.activeSelection?.text != selection.text {
+                self.viewModel.addContext(.selection(selection))
+            }
+        }
+    }
+
+    private func insert(_ text: String, replacing selection: SelectionContext?) {
+        let target = selection?.app ?? SourceApp.frontmost()
+        hide()
+        Task { [output] in
+            try? await Task.sleep(for: .milliseconds(80))
+            if let selection {
+                await output.replaceSelection(text, in: selection)
+            } else {
+                await output.insert(text, into: target)
+            }
+        }
     }
 
     func show() {
         hideGeneration += 1
         viewModel.panelWillAppear()
+        viewModel.setAccessibilityGranted(permissions.isAccessibilityGranted)
         let screen = Self.screenUnderMouse()
         let size = NSSize(width: fullWidth, height: max(panel.frame.height, 120))
         panel.setFrame(frame(for: size, on: screen), display: false)
@@ -72,6 +121,7 @@ final class PanelController: NSObject, NSWindowDelegate {
     func hide() {
         guard isVisible else { return }
         isVisible = false
+        selectionTask?.cancel()
         viewModel.cancel()
         hideGeneration += 1
         let generation = hideGeneration
@@ -109,6 +159,17 @@ final class PanelController: NSObject, NSWindowDelegate {
             } else {
                 hide()
             }
+            return true
+        }
+        if event.keyCode == 51, modifiers.isEmpty || modifiers == .function {   // Backspace
+            return viewModel.removeLastContextIfQueryEmpty()
+        }
+        if modifiers == .command, event.keyCode == 36 || event.keyCode == 76 {   // ⌘↩ Insert
+            viewModel.insertCurrentAnswer()
+            return true
+        }
+        if modifiers == [.command, .shift], key == "v" {   // ⌘⇧V attach clipboard
+            if let text = pasteboard.string(), !text.isEmpty { viewModel.addContext(.clipboard(text)) }
             return true
         }
         guard modifiers == .command else { return false }

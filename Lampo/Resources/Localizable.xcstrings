@@ -1,6 +1,66 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ copy": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (copia)"
+          }
+        }
+      }
+    },
+    "%@…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@…"
+          }
+        }
+      }
+    },
+    "%lld words": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld word"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld words"
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld parola"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld parole"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "it": {
@@ -11,12 +71,52 @@
         }
       }
     },
+    "Accessibility": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibilità"
+          }
+        }
+      }
+    },
     "Active · model on this Mac": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Attivo · modello sul Mac"
+          }
+        }
+      }
+    },
+    "Allow Accessibility to use the text you select in other apps.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti l’accesso Accessibilità per usare il testo che selezioni nelle altre app."
+          }
+        }
+      }
+    },
+    "Allowed": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentito"
+          }
+        }
+      }
+    },
+    "Allow…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti…"
           }
         }
       }
@@ -151,6 +251,16 @@
         }
       }
     },
+    "Clipboard": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appunti"
+          }
+        }
+      }
+    },
     "Close the panel after copying": {
       "localizations": {
         "it": {
@@ -191,6 +301,16 @@
         }
       }
     },
+    "Correct": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correggi"
+          }
+        }
+      }
+    },
     "Couldn't change the login item. Try again from System Settings › General › Login Items.": {
       "localizations": {
         "it": {
@@ -211,6 +331,26 @@
         }
       }
     },
+    "Done": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto"
+          }
+        }
+      }
+    },
+    "Done · ⌘Z to undo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto · ⌘Z per annullare"
+          }
+        }
+      }
+    },
     "Enabled": {
       "localizations": {
         "it": {
@@ -227,6 +367,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inglese"
+          }
+        }
+      }
+    },
+    "Explain": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiega"
           }
         }
       }
@@ -261,6 +411,16 @@
         }
       }
     },
+    "Insert": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci"
+          }
+        }
+      }
+    },
     "Italian": {
       "localizations": {
         "it": {
@@ -281,6 +441,26 @@
         }
       }
     },
+    "Lampo Lens": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lente di Lampo"
+          }
+        }
+      }
+    },
+    "Lampo Permissions": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permessi di Lampo"
+          }
+        }
+      }
+    },
     "Lampo is still answering the previous request.": {
       "localizations": {
         "it": {
@@ -291,12 +471,42 @@
         }
       }
     },
+    "Lampo reads the text you select and writes the result back in place. Nothing leaves your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo legge il testo che selezioni e scrive il risultato al suo posto. Nessun dato lascia il Mac."
+          }
+        }
+      }
+    },
+    "Later": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più tardi"
+          }
+        }
+      }
+    },
     "Launch at login": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Apri al login"
+          }
+        }
+      }
+    },
+    "Let Lampo work where you are": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lascia che Lampo lavori dove sei"
           }
         }
       }
@@ -341,12 +551,32 @@
         }
       }
     },
+    "More formal": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più formale"
+          }
+        }
+      }
+    },
     "Near the pointer": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Vicino al puntatore"
+          }
+        }
+      }
+    },
+    "Not allowed": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non consentito"
           }
         }
       }
@@ -411,6 +641,36 @@
         }
       }
     },
+    "Paste the answer at the cursor in the app you were using": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incolla la risposta al cursore nell’app che stavi usando"
+          }
+        }
+      }
+    },
+    "Permissions": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permessi"
+          }
+        }
+      }
+    },
+    "Preview": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anteprima"
+          }
+        }
+      }
+    },
     "Previous question: %@": {
       "localizations": {
         "it": {
@@ -471,12 +731,32 @@
         }
       }
     },
+    "Quick Actions": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azioni rapide"
+          }
+        }
+      }
+    },
     "Quit Lampo": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Esci da Lampo"
+          }
+        }
+      }
+    },
+    "Read the selected text and replace it in any app.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggere il testo selezionato e sostituirlo in qualsiasi app."
           }
         }
       }
@@ -491,6 +771,46 @@
         }
       }
     },
+    "Remove": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi"
+          }
+        }
+      }
+    },
+    "Replace": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituisci"
+          }
+        }
+      }
+    },
+    "Replace the selected text with the answer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituisci il testo selezionato con la risposta"
+          }
+        }
+      }
+    },
+    "Replaces the selected text in the original app": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituisce il testo selezionato nell’app di origine"
+          }
+        }
+      }
+    },
     "Restore defaults": {
       "localizations": {
         "it": {
@@ -501,12 +821,108 @@
         }
       }
     },
+    "Retry": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprova"
+          }
+        }
+      }
+    },
     "Same as the question": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Come la domanda"
+          }
+        }
+      }
+    },
+    "Screen actions arrive in a later version.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le azioni sullo schermo arriveranno in una prossima versione."
+          }
+        }
+      }
+    },
+    "Select some text first, then try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona prima del testo, poi riprova."
+          }
+        }
+      }
+    },
+    "Selected text · %@": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testo selezionato · %@"
+          }
+        }
+      }
+    },
+    "Selected text · %@ · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Selected text · %1$@ · %2$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testo selezionato · %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "Selection · %lld words": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Selection · %lld word"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Selection · %lld words"
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Selezione · %lld parola"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Selezione · %lld parole"
+                }
+              }
+            }
           }
         }
       }
@@ -527,6 +943,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scorciatoie"
+          }
+        }
+      }
+    },
+    "Shorter": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più breve"
           }
         }
       }
@@ -557,6 +983,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Interrotto"
+          }
+        }
+      }
+    },
+    "Summarize": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riassumi"
           }
         }
       }
@@ -681,6 +1117,26 @@
         }
       }
     },
+    "Translate to English": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduci in inglese"
+          }
+        }
+      }
+    },
+    "Translate to Italian": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduci in italiano"
+          }
+        }
+      }
+    },
     "Turn on Apple Intelligence in System Settings to use Lampo.": {
       "localizations": {
         "it": {
@@ -731,6 +1187,26 @@
         }
       }
     },
+    "Writing…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sto scrivendo…"
+          }
+        }
+      }
+    },
+    "You can change this later in Lampo Settings › Privacy.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi cambiarlo in seguito in Impostazioni di Lampo › Privacy."
+          }
+        }
+      }
+    },
     "You reached the Private Cloud Compute limit for now. Try again later.": {
       "localizations": {
         "it": {
@@ -767,6 +1243,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "esc per fermare"
+          }
+        }
+      }
+    },
+    "tab next action · esc cancel": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tab azione successiva · esc annulla"
           }
         }
       }

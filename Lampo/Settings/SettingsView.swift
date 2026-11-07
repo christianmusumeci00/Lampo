@@ -110,6 +110,9 @@ struct PrivacySettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Section("Permissions") {
+                PermissionsView(style: .settings)
+            }
             if !BuildFeatures.isPrivateCloudCompiledIn {
                 Section {
                     Label("Private Cloud Compute is not available in this build.", systemImage: "cloud")

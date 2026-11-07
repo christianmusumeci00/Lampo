@@ -10,6 +10,7 @@ extension KeyboardShortcuts.Name {
 @MainActor
 protocol HotkeyBackend: AnyObject {
     func onKeyDown(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void)
+    func removeHandler(for name: KeyboardShortcuts.Name)
     func enable(_ names: [KeyboardShortcuts.Name])
     func disable(_ names: [KeyboardShortcuts.Name])
 }
@@ -20,6 +21,7 @@ final class KeyboardShortcutsBackend: HotkeyBackend {
         KeyboardShortcuts.onKeyDown(for: name) { action() }
     }
 
+    func removeHandler(for name: KeyboardShortcuts.Name) { KeyboardShortcuts.removeHandler(for: name) }
     func enable(_ names: [KeyboardShortcuts.Name]) { KeyboardShortcuts.enable(names) }
     func disable(_ names: [KeyboardShortcuts.Name]) { KeyboardShortcuts.disable(names) }
 }
@@ -42,6 +44,25 @@ final class HotkeyManager {
         registeredNames.append(name)
         backend.onKeyDown(for: name, action: action)
         if !isEnabled { backend.disable([name]) }
+    }
+
+    func unregister(_ name: KeyboardShortcuts.Name) {
+        guard let index = registeredNames.firstIndex(of: name) else { return }
+        registeredNames.remove(at: index)
+        backend.removeHandler(for: name)
+    }
+
+    /// Registers exactly `names` among names with `prefix`, removing stale ones
+    /// (e.g. deleted actions) and adding new ones.
+    func sync(_ names: [KeyboardShortcuts.Name], prefix: String,
+              action: @escaping @MainActor (KeyboardShortcuts.Name) -> Void) {
+        let wanted = Set(names.map(\.rawValue))
+        for name in registeredNames where name.rawValue.hasPrefix(prefix) && !wanted.contains(name.rawValue) {
+            unregister(name)
+        }
+        for name in names where !registeredNames.contains(where: { $0.rawValue == name.rawValue }) {
+            register(name) { action(name) }
+        }
     }
 
     func setEnabled(_ enabled: Bool) {

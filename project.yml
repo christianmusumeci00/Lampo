@@ -19,7 +19,8 @@ settings:
     DEAD_CODE_STRIPPING: YES
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: 9K3LNS3KHP
+    CODE_SIGN_STYLE: Manual
 
 packages:
   KeyboardShortcuts:
@@ -54,8 +55,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.lampo.Lampo
         PRODUCT_NAME: Lampo
         ENABLE_HARDENED_RUNTIME: YES
-        CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_IDENTITY: "Apple Development"
         GENERATE_INFOPLIST_FILE: NO
         # Set LAMPO_PCC in a build that carries the managed
         # com.apple.developer.private-cloud-compute entitlement. Without it,
@@ -64,6 +64,9 @@ targets:
       configs:
         Debug:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) DEBUG
+        Release:
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          OTHER_CODE_SIGN_FLAGS: --timestamp
 
   LampoTests:
     type: bundle.unit-test
@@ -78,7 +81,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/Lampo.app/Contents/MacOS/Lampo
         BUNDLE_LOADER: $(TEST_HOST)
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_IDENTITY: "Apple Development"
 
 schemes:
   Lampo:

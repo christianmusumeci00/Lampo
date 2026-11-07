@@ -40,6 +40,18 @@ struct MenuContent: View {
             .globalKeyboardShortcut(.togglePanel)
             .disabled(!state.isEnabled)
 
+        Menu("Quick Actions") {
+            ForEach(state.actionStore.actions.filter { $0.input != .screen }) { action in
+                Button {
+                    state.perform(action)
+                } label: {
+                    Label(action.name, systemImage: action.symbol)
+                }
+                .globalKeyboardShortcut(action.shortcutName)
+            }
+        }
+        .disabled(!state.isEnabled)
+
         Divider()
 
         Button("Settings…") {

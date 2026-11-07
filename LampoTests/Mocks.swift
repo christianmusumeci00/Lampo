@@ -1,3 +1,4 @@
+import ApplicationServices
 import Foundation
 import KeyboardShortcuts
 @testable import Lampo
@@ -59,15 +60,114 @@ final class MockConversation: ModelConversation, @unchecked Sendable {
 
 @MainActor
 final class MockPasteboard: PasteboardClient {
+    static let stringType = "public.utf8-plain-text"
     var contents: String?
+    /// Extra non-string data, to check full snapshots (e.g. an image the user copied).
+    var extra: [String: Data] = [:]
     private(set) var changeCount = 0
+    private(set) var transientWrites: [String] = []
 
     func string() -> String? { contents }
 
     func setString(_ string: String) {
         contents = string
+        extra = [:]
         changeCount += 1
     }
+
+    func setTransientString(_ string: String) {
+        setString(string)
+        transientWrites.append(string)
+    }
+
+    /// Another app writing to the clipboard.
+    func externalWrite(_ string: String) { setString(string) }
+
+    func snapshot() -> PasteboardSnapshot {
+        var item = extra
+        if let contents { item[Self.stringType] = Data(contents.utf8) }
+        return PasteboardSnapshot(items: item.isEmpty ? [] : [item])
+    }
+
+    func restore(_ snapshot: PasteboardSnapshot) {
+        changeCount += 1
+        let item = snapshot.items.first ?? [:]
+        contents = item[Self.stringType].map { String(decoding: $0, as: UTF8.self) }
+        extra = item.filter { $0.key != Self.stringType }
+    }
+}
+
+/// Simulates the frontmost app reacting to ⌘C / ⌘V.
+@MainActor
+final class MockKeystrokes: KeystrokeSending {
+    let pasteboard: MockPasteboard
+    /// What the app copies on ⌘C (nil: nothing selected, clipboard unchanged).
+    var selectedText: String?
+    var heldModifierChecks = 0
+    private(set) var posted: [Keystroke] = []
+    private(set) var pastedTexts: [String] = []
+
+    init(pasteboard: MockPasteboard) { self.pasteboard = pasteboard }
+
+    func post(_ keystroke: Keystroke) {
+        posted.append(keystroke)
+        switch keystroke {
+        case .copy:
+            if let selectedText { pasteboard.externalWrite(selectedText) }
+        case .paste:
+            pastedTexts.append(pasteboard.contents ?? "")
+        }
+    }
+
+    func modifiersHeld() -> Bool {
+        if heldModifierChecks > 0 {
+            heldModifierChecks -= 1
+            return true
+        }
+        return false
+    }
+}
+
+@MainActor
+final class MockAccessibility: AccessibilityClient {
+    var isTrusted = true
+    var selectedText: String?
+    var bounds: CGRect?
+    var replaceSucceeds = true
+    private(set) var replacements: [String] = []
+
+    func selection(in app: SourceApp) -> AXSelection? {
+        guard isTrusted, let selectedText else { return nil }
+        return AXSelection(text: selectedText, bounds: bounds,
+                           element: AXElementHandle(AXUIElementCreateSystemWide()))
+    }
+
+    func focusedElementBounds(in app: SourceApp) -> CGRect? { nil }
+
+    func replaceSelectedText(of element: AXElementHandle, with text: String) -> Bool {
+        guard replaceSucceeds else { return false }
+        replacements.append(text)
+        return true
+    }
+}
+
+@MainActor
+final class MockPermissions: PermissionsChecking {
+    var isAccessibilityGranted = true
+    private(set) var requests = 0
+    func requestAccessibility() { requests += 1 }
+    func openAccessibilitySettings() {}
+}
+
+extension SourceApp {
+    static let textEdit = SourceApp(name: "TextEdit", bundleIdentifier: "com.apple.TextEdit",
+                                    processIdentifier: 4242, isElectron: false)
+}
+
+/// Clipboard bridge whose sleeps return immediately.
+@MainActor
+func makeBridge(_ pasteboard: MockPasteboard, _ keystrokes: MockKeystrokes) -> ClipboardBridge {
+    ClipboardBridge(pasteboard: pasteboard, keystrokes: keystrokes, sleep: { _ in await Task.yield() })
 }
 
 @MainActor
@@ -79,6 +179,7 @@ final class MockHotkeyBackend: HotkeyBackend {
         handlers[name] = action
     }
 
+    func removeHandler(for name: KeyboardShortcuts.Name) { handlers[name] = nil }
     func enable(_ names: [KeyboardShortcuts.Name]) { disabled.subtract(names) }
     func disable(_ names: [KeyboardShortcuts.Name]) { disabled.formUnion(names) }
 

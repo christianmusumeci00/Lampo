@@ -60,3 +60,49 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 - **Signing.** Ad-hoc (`-`) for local builds; Developer ID + notarization in M5.
 - **Swift isolation.** Kept the default nonisolated isolation with explicit `@MainActor`, as the
   spec asks, rather than the module-wide MainActor default.
+
+## M2
+
+- **Signing.** Debug builds are signed "Apple Development", Release "Developer ID Application",
+  team 9K3LNS3KHP (manual style, no provisioning profile needed). A stable signature keeps the
+  Accessibility permission across rebuilds; ad-hoc signing would lose it every build.
+- **Reading the selection.** Accessibility first (`kAXFocusedUIElementAttribute` of the frontmost
+  app → `kAXSelectedTextAttribute`). Password fields are never read. For Electron apps Lampo sets
+  `AXManualAccessibility` once per process so later reads can work through AX.
+- **Clipboard fallback** (Lens and silent actions only): snapshot *every* pasteboard item and type,
+  wait until the hotkey modifiers are released (so ⌥⇧ don't merge into the synthetic ⌘C), post ⌘C,
+  poll `changeCount` up to 150 ms, read, restore the snapshot. ⌘C/⌘V use ANSI key codes, which is
+  right for QWERTY-family layouts (Italian included); other layouts are a known limitation.
+- **The Glass panel never uses the clipboard fallback**: it must open instantly and, once open, it
+  holds keyboard focus so a synthetic ⌘C would reach Lampo. The panel's "Selection" chip is AX-only.
+- **Replacing.** AX `kAXSelectedTextAttribute` write only for native text elements, then verified by
+  reading the value back. Inside web content (`AXWebArea` ancestor: Safari, Mail compose, Electron)
+  Lampo pastes instead, because web views can accept the AX write without registering it for undo.
+  The paste is one ⌘V of a transient pasteboard item (`org.nspasteboard.TransientType`, ignored by
+  clipboard managers); the user's clipboard is restored 300 ms later unless something else wrote to it.
+- **Lens focus.** The Lens is a non-activating key panel; before writing back it is ordered out and
+  Lampo waits 60 ms so keystrokes reach the source app. If the source app is no longer frontmost,
+  Lampo re-activates it first.
+- **Text language.** The small model translated Italian text into English on "More formal" despite
+  "keep its language". Built-in prompts now use a new `{{text_language}}` variable, detected on
+  device with `NLLanguageRecognizer` (≥ 12 characters, confidence ≥ 0.6), and the action
+  instructions repeat "same language as the text unless translating". Verified in TextEdit.
+- **Prompts** fence user text in `<text>…</text>` and the action instructions say to treat it as
+  content, not as instructions. `RewriteCleaner` strips preambles ("Ecco il testo corretto:"),
+  wrapping quotes and leftover tags, and keeps the original's trailing newline.
+- **Action names** of built-ins are seeded in the user's language on first launch and stored in
+  `actions.json` like any other action (renaming works; changing system language doesn't rename them).
+  Built-ins have fixed UUIDs; new built-ins in later versions are merged; deleted ones stay deleted.
+- **Default shortcuts** ⌥⇧C/F/B/T/R are set as KeyboardShortcuts initial values for the built-ins
+  only. Note they shadow the characters ⌥⇧ types (e.g. Ç) while Lampo is enabled.
+- **Output modes.** `preview` → Lens; `replaceSilently` → HUD "Correct…" then "Done · ⌘Z to undo";
+  `copy` → HUD "Copied"; `openPanel` → Glass panel with the selection as context ("Explain").
+  The Lens lists selection actions except `openPanel` ones. Screen actions arrive in M3.
+- **Panel extras.** "Insert ⌘↩" replaces the selection the conversation is about, or pastes at the
+  cursor. ⌘⇧V attaches the clipboard as a chip. Context chips are sent once with the next question
+  (the session keeps them), then cleared; the turn shows a "Selection · N words" tag.
+- **Onboarding.** A permissions window opens on first launch when Accessibility is missing, and
+  whenever a selection action is blocked by it. Status refreshes every second while visible.
+- **QA helpers (DEBUG only).** `LAMPO_QA_ACTION=<action UUID>` runs an action 1 s after launch;
+  `LAMPO_QA_AUTOREPLACE=1` confirms the Lens when the preview is ready. A Lampo started from a shell
+  that has Accessibility inherits it (TCC responsibility), which makes end-to-end checks possible.

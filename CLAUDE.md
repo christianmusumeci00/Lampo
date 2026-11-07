@@ -21,7 +21,10 @@ the process cwd is inside ~/Documents):
 ```bash
 cd / && LAMPO_OPEN_PANEL=1 LAMPO_QA_QUERY="..." ~/Documents/Lampo/build/DerivedData/Build/Products/Debug/Lampo.app/Contents/MacOS/Lampo
 ```
-`LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` are DEBUG-only helpers in `AppDelegate`.
+`LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` / `LAMPO_QA_ACTION=<uuid>` / `LAMPO_QA_AUTOREPLACE=1` are
+DEBUG-only helpers (`AppDelegate`, `LensViewModel`). Launched from a shell that has Accessibility,
+Lampo inherits it, so selection read/replace can be checked end to end (e.g. on a scratch TextEdit doc).
+Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Application" (Release).
 
 ## Conventions
 
@@ -45,8 +48,12 @@ cd / && LAMPO_OPEN_PANEL=1 LAMPO_QA_QUERY="..." ~/Documents/Lampo/build/DerivedD
 - Private Cloud Compute code compiles only with `LAMPO_PCC`: without the managed entitlement
   `com.apple.developer.private-cloud-compute` FoundationModels **traps** on any PCC call.
 - No App Sandbox (Accessibility); Hardened Runtime on; distribution outside the Mac App Store.
+- Selection: AX first, ⌘C clipboard fallback (Lens/silent only) with full clipboard snapshot/restore.
+  Replace: AX write for native text (verified), one ⌘V elsewhere (web content) so ⌘Z always works.
+- Built-in action prompts use `{{text_language}}` (NLLanguageRecognizer): the small model otherwise
+  drifts to English.
 
 ## Milestones
 
-M1 skeleton ✅ · M2 lens & selection actions · M3 screen context & full settings ·
+M1 skeleton ✅ · M2 lens & selection actions ✅ · M3 screen context & full settings ·
 M4 structured output & cloud · M5 polish & launch. One commit per milestone, green build and tests.
