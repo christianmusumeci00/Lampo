@@ -1,4 +1,5 @@
 import AppKit
+import KeyboardShortcuts
 import Observation
 
 /// Root state shared by the menu bar, the panel and Settings.
@@ -49,7 +50,9 @@ final class AppState {
         let selectionService = SelectionService(accessibility: accessibility, clipboard: clipboard)
         let output = OutputService(accessibility: accessibility, clipboard: clipboard, pasteboard: pasteboard)
 
-        let viewModel = PanelViewModel(model: modelService, preferences: preferences, pasteboard: pasteboard)
+        let screenCapture = ScreenCaptureService()
+        let viewModel = PanelViewModel(model: modelService, preferences: preferences, pasteboard: pasteboard,
+                                       screenCapture: screenCapture)
         let panel = PanelController(viewModel: viewModel, preferences: preferences, selectionReader: selectionService,
                                     output: output, permissions: permissions, pasteboard: pasteboard)
         panelController = panel
@@ -57,12 +60,14 @@ final class AppState {
         let coordinator = ActionCoordinator(
             store: actionStore, runner: ActionRunner(model: modelService, preferences: preferences),
             selectionReader: selectionService, output: output, permissions: permissions, pasteboard: pasteboard,
+            screenCapture: screenCapture, routingPolicy: { [preferences] in preferences.routingPolicy },
             lens: LensController(), hud: HUDController(), panel: panel)
-        coordinator.onNeedsAccessibility = { [weak self] in self?.onboarding.show() }
+        coordinator.onNeedsPermission = { [weak self] _ in self?.onboarding.show() }
         actionCoordinator = coordinator
 
         hotkeys.register(.togglePanel) { [weak self] in self?.togglePanel() }
         syncActionHotkeys()
+        actionStore.onActionsAddedOrRemoved = { [weak self] in self?.syncActionHotkeys() }
         onboarding.showIfFirstLaunch(accessibilityGranted: permissions.isAccessibilityGranted)
         refreshAvailability()
         activationObserver = NotificationCenter.default.addObserver(
@@ -85,6 +90,43 @@ final class AppState {
                   let action = self.actionStore.actions.first(where: { $0.shortcutName.rawValue == name.rawValue }) else { return }
             self.actionCoordinator?.perform(action.id)
         }
+    }
+
+    // MARK: Settings support
+
+    /// A runner for the action editor's "Try" button.
+    func makeRunner() -> ActionRunner {
+        ActionRunner(model: modelService, preferences: preferences)
+    }
+
+    /// Every global shortcut, in Settings order: the panel first, then the actions.
+    var shortcutNames: [(name: KeyboardShortcuts.Name, title: String)] {
+        [(KeyboardShortcuts.Name.togglePanel, String(localized: "Open Lampo"))]
+            + actionStore.actions.map { ($0.shortcutName, $0.name) }
+    }
+
+    var shortcutEntries: [ShortcutConflicts.Entry] {
+        shortcutNames.map { ShortcutConflicts.Entry(title: $0.title, shortcut: KeyboardShortcuts.getShortcut(for: $0.name)) }
+    }
+
+    /// Deletes an action and frees its shortcut.
+    func deleteAction(_ id: UUID) {
+        if let action = actionStore.action(id: id) {
+            KeyboardShortcuts.setShortcut(nil, for: action.shortcutName)
+        }
+        actionStore.delete(id)
+    }
+
+    /// Restores the built-in actions; those left without a shortcut get their default back.
+    func restoreBuiltInActions() {
+        actionStore.restoreBuiltIns()
+        let unassigned = BuiltInActions.all.map(\.shortcutName).filter { KeyboardShortcuts.getShortcut(for: $0) == nil }
+        if !unassigned.isEmpty { KeyboardShortcuts.reset(unassigned) }
+    }
+
+    /// Resets the panel and every action shortcut to its default (none for custom actions).
+    func restoreDefaultShortcuts() {
+        KeyboardShortcuts.reset(shortcutNames.map(\.name))
     }
 
     func perform(_ action: LampoAction) {

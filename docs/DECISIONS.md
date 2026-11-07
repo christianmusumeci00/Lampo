@@ -12,7 +12,7 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 | `SystemLanguageModel` | `SystemLanguageModel.default`, `.availability`, `.contextSize`, `.variant` | Unavailable reasons: `deviceNotEligible`, `appleIntelligenceNotEnabled`, `modelNotReady`. Context on the test Mac: 8192 tokens, variant "AFM 3 Core Advanced". |
 | `LanguageModelSession` | `init(model:instructions:)`, `init(model:transcript:)` (generic over `some LanguageModel`) | `@unchecked Sendable`. |
 | `streamResponse` | `streamResponse(to:options:contextOptions:metadata:)` | Snapshots are **cumulative**; `snapshot.content` is the full text so far. |
-| Image attachments | `Attachment(cgImage)` inside the `@PromptBuilder` closure (`Attachment<ImageAttachmentContent>`) | Use in M3. |
+| Image attachments | `Attachment(cgImage)` inside the `@PromptBuilder` closure (`Attachment<ImageAttachmentContent>`), sent with `streamResponse(contextOptions:) { … }` | The on-device model has the `.vision` capability (probe: read a rendered compiler error correctly). `tokenCount(for:)` **throws** on a prompt with an image (ModelManagerError 1001). |
 | `PrivateCloudComputeLanguageModel` | exists, `init()`, `.availability`, `.contextSize` (async), `.quotaUsage` | Requires managed entitlement, see below. |
 | `ContextOptions(reasoningLevel:)` | `ContextOptions(includeSchemaInPrompt:reasoningLevel:)`, levels `.light .moderate .deep .custom` | Passed per request, not per session. |
 | `tokenCount(for:)` | `SystemLanguageModel.tokenCount(for:)` async throws | Also overloads for instructions, tools, schema. |
@@ -106,3 +106,45 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 - **QA helpers (DEBUG only).** `LAMPO_QA_ACTION=<action UUID>` runs an action 1 s after launch;
   `LAMPO_QA_AUTOREPLACE=1` confirms the Lens when the preview is ready. A Lampo started from a shell
   that has Accessibility inherits it (TCC responsibility), which makes end-to-end checks possible.
+
+## M3
+
+- **Window capture.** ScreenCaptureKit `SCScreenshotManager.captureImage(contentFilter:configuration:)`
+  with `SCContentFilter(desktopIndependentWindow:)`: only that window is captured, so Lampo's panel and
+  Lens can't appear in it even when they overlap. The window is the frontmost layer-0 window of the
+  app that was frontmost when the panel opened (front-to-back order from `CGWindowListCopyWindowInfo`,
+  matched by window ID). Native resolution, scaled so the longest side is ≤ 1600 px; no cursor, no shadow.
+- **"Ask the screen"** is a built-in action (input `.screen`, output `.openPanel`, ⌥⇧S) with an **empty
+  template**: an empty template means "open the panel with the window chip and wait for the question".
+  A custom screen action with a template runs it on the screenshot right away. ⌘⇧S in the panel
+  toggles the window chip. The image is sent once, with the next question; follow-ups reuse the session.
+- **Screen Recording permission** is checked with `CGPreflightScreenCaptureAccess` and requested with
+  `CGRequestScreenCaptureAccess` + the Privacy_ScreenCapture pane. Missing permission shows an
+  actionable notice in the panel (not a silent failure). macOS may only report a new grant after
+  Lampo relaunches; the permissions view says so.
+- **Token budget.** Before sending, selection and clipboard are measured with `tokenCount(for:)` against
+  `contextSize` minus instructions, the template/question scaffold, the session history (panel), 1000
+  tokens for the answer and **1000 tokens per screenshot** (images can't be counted, see the table; a
+  rough probe suggested far fewer, so this is conservative). A text that doesn't fit keeps its first ⅔
+  and last ⅓, cut at word boundaries and joined by "[…]"; two texts share the room by size. If the model
+  can't count, ~3 UTF-8 bytes per token is assumed. The UI says "Testo lungo: usato un estratto."
+- **Truncated text is never written back.** The Lens disables Sostituisci (Copia still works) and silent
+  mode refuses with a clear message, because a rewrite of an excerpt would delete the middle of the
+  selection. "Pensa di più" is offered next to the notice when Private Cloud Compute is allowed; it
+  resends the *untruncated* prompt (the cloud window is larger).
+- **Answer language with context.** With a screenshot (or long English-looking context) the small model
+  answered an Italian question in English. When a question carries context, the prompt now ends the
+  context block with "Answer in <language>.": the forced language from Settings, else the question's
+  own language (`NLLanguageRecognizer`), else the system language. Verified with the acceptance test.
+- **Shortcut conflicts.** Recorders refuse a combination already used by another Lampo command
+  (KeyboardShortcuts `shortcutValidation`); duplicates that slip in anyway (imports, defaults) are listed
+  as warnings. "Ripristina predefinite" resets the panel and all action shortcuts. Deleting an action
+  frees its shortcut; hotkeys are re-registered whenever actions are added or removed.
+- **Action editor.** Edits are saved on every change (the JSON file is small). Built-ins are editable;
+  "Ripristina azioni predefinite" brings back their original definitions and default shortcuts (only
+  where the user hasn't set another). Actions without selection input (clipboard, screen, none) always
+  show their result in the panel, whatever the output mode, since there's nothing to replace.
+  "Prova" runs the action on an editable sample text with a fresh session; screen actions can't be
+  tried there.
+- **QA helper (DEBUG).** `LAMPO_QA_ACTION=<uuid>` + `LAMPO_QA_QUERY="…"` also submits the question to the
+  panel 2 s after the action (used for the acceptance test with "Ask the screen").

@@ -19,6 +19,8 @@ final class PanelController: NSObject, NSWindowDelegate {
     private let permissions: any PermissionsChecking
     private let pasteboard: any PasteboardClient
     private var selectionTask: Task<Void, Never>?
+    /// The app the user was in when the panel opened (⌘⇧S captures its window).
+    private var sourceApp: SourceApp?
     private let panel = LampoPanel()
     private let presentation = PanelPresentation()
     private var hostingView: NSHostingView<PanelView>?
@@ -51,6 +53,10 @@ final class PanelController: NSObject, NSWindowDelegate {
         panel.keyDownHandler = { [weak self] event in self?.handleKeyDown(event) ?? false }
         viewModel.onRequestClose = { [weak self] in self?.hide() }
         viewModel.onInsert = { [weak self] text, selection in self?.insert(text, replacing: selection) }
+        viewModel.onGrantPermission = { [weak self] kind in
+            self?.hide()
+            self?.permissions.grant(kind)
+        }
     }
 
     func toggle() {
@@ -63,9 +69,22 @@ final class PanelController: NSObject, NSWindowDelegate {
     }
 
     /// Opens the panel and runs an action whose answer belongs here (e.g. "Explain").
-    func showRunning(_ action: LampoAction, prompt: String, contextItems: [ContextItem]) {
+    func showRunning(_ action: LampoAction, prompt: String, wasTruncated: Bool = false, contextItems: [ContextItem]) {
         show()
-        viewModel.runAction(action, prompt: prompt, contextItems: contextItems)
+        viewModel.runAction(action, prompt: prompt, wasTruncated: wasTruncated, contextItems: contextItems)
+    }
+
+    /// "Ask the screen": opens the panel with the window chip, ready for a question.
+    func showScreenQuestion(_ capture: WindowCapture) {
+        show()
+        sourceApp = capture.app
+        viewModel.prepareScreenQuestion(capture)
+    }
+
+    /// Opens the panel with an actionable message (e.g. a missing permission).
+    func showNotice(_ notice: PanelNotice) {
+        show()
+        viewModel.showNotice(notice)
     }
 
     /// Adds a "Selection" chip when text is selected in the app underneath. Accessibility only:
@@ -95,6 +114,7 @@ final class PanelController: NSObject, NSWindowDelegate {
     }
 
     func show() {
+        if !isVisible { sourceApp = SourceApp.frontmost() }
         hideGeneration += 1
         viewModel.panelWillAppear()
         viewModel.setAccessibilityGranted(permissions.isAccessibilityGranted)
@@ -166,6 +186,10 @@ final class PanelController: NSObject, NSWindowDelegate {
         }
         if modifiers == .command, event.keyCode == 36 || event.keyCode == 76 {   // ⌘↩ Insert
             viewModel.insertCurrentAnswer()
+            return true
+        }
+        if modifiers == [.command, .shift], key == "s" {   // ⌘⇧S attach the window underneath
+            viewModel.toggleWindow(from: sourceApp, permitted: permissions.isScreenRecordingGranted)
             return true
         }
         if modifiers == [.command, .shift], key == "v" {   // ⌘⇧V attach clipboard

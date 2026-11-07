@@ -13,6 +13,7 @@ enum BuiltInActions {
     static let toItalianID = UUID(uuidString: "6C0A0005-0000-4000-8000-00000000C0DE")!
     static let summarizeID = UUID(uuidString: "6C0A0006-0000-4000-8000-00000000C0DE")!
     static let explainID = UUID(uuidString: "6C0A0007-0000-4000-8000-00000000C0DE")!
+    static let askScreenID = UUID(uuidString: "6C0A0008-0000-4000-8000-00000000C0DE")!
 
     static var all: [LampoAction] {
         [
@@ -76,6 +77,10 @@ enum BuiltInActions {
                 {{selection}}
                 """,
                 output: .openPanel, isBuiltIn: true),
+            // An empty template opens the panel with the window attached and waits for the question.
+            LampoAction(
+                id: askScreenID, name: String(localized: "Ask the screen"), symbol: "macwindow",
+                promptTemplate: "", input: .screen, output: .openPanel, isBuiltIn: true),
         ]
     }
 
@@ -86,6 +91,7 @@ enum BuiltInActions {
         shorterID: .init(.b, modifiers: [.option, .shift]),
         toEnglishID: .init(.t, modifiers: [.option, .shift]),
         summarizeID: .init(.r, modifiers: [.option, .shift]),
+        askScreenID: .init(.s, modifiers: [.option, .shift]),
     ]
 }
 

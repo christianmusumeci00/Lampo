@@ -18,9 +18,13 @@ final class LensViewModel {
     private(set) var phase: Phase = .streaming
     private(set) var route: ModelRoute = .onDevice
     private(set) var flash: String?
+    /// The selection was too long and only an excerpt was sent. Replace is then off,
+    /// so a rewrite of the excerpt can't overwrite the whole text.
+    private(set) var wasTruncated = false
 
     @ObservationIgnored private let runner: ActionRunner
     @ObservationIgnored private let pasteboard: any PasteboardClient
+    @ObservationIgnored private let routingPolicy: RoutingPolicy
     @ObservationIgnored private(set) var task: Task<Void, Never>?
     @ObservationIgnored private var flashTask: Task<Void, Never>?
 
@@ -28,8 +32,10 @@ final class LensViewModel {
     @ObservationIgnored var onReplace: ((String) -> Void)?
 
     init(selection: SelectionContext, actions: [LampoAction], initialActionID: UUID,
-         runner: ActionRunner, pasteboard: any PasteboardClient) {
+         runner: ActionRunner, pasteboard: any PasteboardClient,
+         routingPolicy: RoutingPolicy = RoutingPolicy(onlyOnMac: true, privateCloudInBuild: false)) {
         self.selection = selection
+        self.routingPolicy = routingPolicy
         self.actions = actions
         self.activeIndex = actions.firstIndex { $0.id == initialActionID } ?? 0
         self.runner = runner
@@ -39,7 +45,9 @@ final class LensViewModel {
     var activeAction: LampoAction? { actions.indices.contains(activeIndex) ? actions[activeIndex] : nil }
     var result: String { RewriteCleaner.clean(output, original: selection.text) }
     var isStreaming: Bool { phase == .streaming }
-    var canReplace: Bool { phase == .done && !result.isEmpty }
+    var canReplace: Bool { phase == .done && !result.isEmpty && !wasTruncated }
+    /// "Think harder" is offered for long texts, when Private Cloud Compute is allowed.
+    var canThinkHarder: Bool { wasTruncated && phase != .streaming && route == .onDevice && routingPolicy.allowsPrivateCloud }
 
     func start() { run() }
 
@@ -52,6 +60,12 @@ final class LensViewModel {
     func next() { select((activeIndex + 1) % max(actions.count, 1)) }
     func previous() { select((activeIndex - 1 + actions.count) % max(actions.count, 1)) }
     func retry() { run() }
+
+    /// Runs the action again on Private Cloud Compute, whose larger window fits more text.
+    func thinkHarder() {
+        guard canThinkHarder else { return }
+        run(routeOverride: .privateCloud)
+    }
 
     func cancel() {
         task?.cancel()
@@ -76,22 +90,19 @@ final class LensViewModel {
         onReplace?(result)
     }
 
-    private func run() {
+    private func run(routeOverride: ModelRoute? = nil) {
         cancel()
         output = ""
         phase = .streaming
+        wasTruncated = false
         guard let action = activeAction else { return }
         let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
-        let run: ActionRunner.Run
-        do {
-            run = try runner.start(action, context: context)
-        } catch {
-            phase = .failed((error as? LocalizedError)?.errorDescription ?? ModelError.other.localizedDescription)
-            return
-        }
-        route = run.route
-        task = Task { [weak self] in
+        task = Task { [weak self, runner] in
             do {
+                let run = try await runner.start(action, context: context, routeOverride: routeOverride)
+                guard !Task.isCancelled else { return }
+                self?.route = run.route
+                self?.wasTruncated = run.wasTruncated
                 for try await text in run.stream {
                     self?.output = text
                 }

@@ -27,6 +27,11 @@ struct LensView: View {
             header
             chips
             preview
+            if viewModel.wasTruncated {
+                TruncationNotice(
+                    detail: "Replace is off so no text is lost.",
+                    onThinkHarder: viewModel.canThinkHarder ? { viewModel.thinkHarder() } : nil)
+            }
             buttons
         }
         .padding(16)
@@ -243,5 +248,32 @@ private struct LensSurface: ViewModifier {
         }
         .clipShape(shape)
         .shadow(color: .black.opacity(0.22), radius: 22, y: 10)
+    }
+}
+
+/// "Long text: used an excerpt", with "Think harder" when Private Cloud Compute can take more text.
+struct TruncationNotice: View {
+    var detail: LocalizedStringKey?
+    var onThinkHarder: (() -> Void)?
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "scissors")
+                .foregroundStyle(.orange)
+                .accessibilityHidden(true)
+            Text("Long text: used an excerpt.")
+                .fontWeight(.medium)
+            if let detail {
+                Text(detail).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            if let onThinkHarder {
+                Button("Think harder", action: onThinkHarder)
+                    .controlSize(.small)
+                    .help(Text("Ask again on Private Cloud Compute, which can read more text"))
+            }
+        }
+        .font(.system(size: 12))
+        .accessibilityElement(children: .combine)
     }
 }

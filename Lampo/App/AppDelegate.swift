@@ -17,6 +17,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task {
                 try? await Task.sleep(for: .seconds(1))
                 state.perform(action)
+                // With `LAMPO_QA_QUERY`, a panel action ("Ask the screen") also gets a question.
+                if let query = environment["LAMPO_QA_QUERY"], let viewModel = state.panelController?.viewModel {
+                    try? await Task.sleep(for: .seconds(2))
+                    viewModel.query = query
+                    viewModel.submit()
+                }
             }
         }
         // Manual QA helper: `LAMPO_OPEN_PANEL=1` opens the panel at launch.

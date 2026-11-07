@@ -22,7 +22,8 @@ the process cwd is inside ~/Documents):
 cd / && LAMPO_OPEN_PANEL=1 LAMPO_QA_QUERY="..." ~/Documents/Lampo/build/DerivedData/Build/Products/Debug/Lampo.app/Contents/MacOS/Lampo
 ```
 `LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` / `LAMPO_QA_ACTION=<uuid>` / `LAMPO_QA_AUTOREPLACE=1` are
-DEBUG-only helpers (`AppDelegate`, `LensViewModel`). Launched from a shell that has Accessibility,
+DEBUG-only helpers (`AppDelegate`, `LensViewModel`); `LAMPO_QA_ACTION` + `LAMPO_QA_QUERY` asks a question
+after a panel action ("Ask the screen" is `6C0A0008-0000-4000-8000-00000000C0DE`). Launched from a shell that has Accessibility,
 Lampo inherits it, so selection read/replace can be checked end to end (e.g. on a scratch TextEdit doc).
 Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Application" (Release).
 
@@ -51,9 +52,13 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
 - Selection: AX first, ⌘C clipboard fallback (Lens/silent only) with full clipboard snapshot/restore.
   Replace: AX write for native text (verified), one ⌘V elsewhere (web content) so ⌘Z always works.
 - Built-in action prompts use `{{text_language}}` (NLLanguageRecognizer): the small model otherwise
-  drifts to English.
+  drifts to English. Panel questions with context end the context block with "Answer in <language>."
+- Screen: `SCContentFilter(desktopIndependentWindow:)` (Lampo never in the shot), ≤ 1600 px, attached with
+  `Attachment(cgImage)`. `tokenCount` can't count images: `ContextBudget` reserves 1000 tokens each.
+- `ContextBudget` cuts long selection/clipboard to head ⅔ + tail ⅓; truncated input is never written back
+  (Lens Replace off, silent mode refuses).
 
 ## Milestones
 
-M1 skeleton ✅ · M2 lens & selection actions ✅ · M3 screen context & full settings ·
+M1 skeleton ✅ · M2 lens & selection actions ✅ · M3 screen context & full settings ✅ ·
 M4 structured output & cloud · M5 polish & launch. One commit per milestone, green build and tests.

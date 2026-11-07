@@ -1,4 +1,5 @@
 import AppKit
+import CoreGraphics
 import SwiftUI
 
 /// Live status of Lampo's permissions, with buttons that open the right System Settings pane.
@@ -11,6 +12,8 @@ struct PermissionsView: View {
     var style: Style = .settings
     var onDone: (() -> Void)?
     @State private var accessibilityGranted = AXIsProcessTrusted()
+    @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
+    private let service = PermissionsService()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -34,11 +37,19 @@ struct PermissionsView: View {
                 title: "Accessibility",
                 detail: "Read the selected text and replace it in any app.",
                 isGranted: accessibilityGranted,
-                grant: {
-                    let service = PermissionsService()
-                    service.requestAccessibility()
-                    service.openAccessibilitySettings()
-                })
+                grant: { service.grant(.accessibility) })
+
+            PermissionRow(
+                title: "Screen Recording",
+                detail: "Look at the window you're using when you ask about the screen (⌘⇧S). Optional.",
+                isGranted: screenRecordingGranted,
+                grant: { service.grant(.screenRecording) })
+
+            if !screenRecordingGranted {
+                Text("After allowing Screen Recording, macOS may ask you to quit and reopen Lampo.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             if style == .onboarding {
                 HStack {
@@ -55,6 +66,7 @@ struct PermissionsView: View {
             // Live status: System Settings doesn't notify apps when a permission changes.
             while !Task.isCancelled {
                 accessibilityGranted = AXIsProcessTrusted()
+                screenRecordingGranted = CGPreflightScreenCaptureAccess()
                 try? await Task.sleep(for: .seconds(1))
             }
         }

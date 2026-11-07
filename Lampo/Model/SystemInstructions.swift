@@ -8,8 +8,8 @@ enum SystemInstructions {
         You are Lampo, an assistant built into the user's Mac.
         Be concise and direct. Prefer short paragraphs and lists.
         \(languageRule(language))
-        Work on the context the user provides (selected text, clipboard). Do not invent facts, \
-        names, numbers or sources; if you are not sure, say so briefly.
+        Work on the context the user provides (selected text, clipboard, a screenshot of a window). \
+        Do not invent facts, names, numbers or sources; if you are not sure, say so briefly.
         Use Markdown only for emphasis, lists and code.
         """
     }
@@ -28,14 +28,29 @@ enum SystemInstructions {
     }
 
     /// Context block prepended to panel questions.
-    static func contextBlock(selection: String?, app: String?, clipboard: String?) -> String {
+    /// - Parameter answerLanguage: English name of the language to answer in. The context is
+    ///   usually in another language than the question, and the small model then drifts to it.
+    static func contextBlock(selection: String?, app: String?, clipboard: String?,
+                             window: (app: String, title: String?)? = nil,
+                             answerLanguage: String? = nil) -> String {
         var parts: [String] = []
+        if let window {
+            let title = window.title.flatMap { $0.isEmpty ? nil : " titled “\($0)”" } ?? ""
+            parts.append("""
+            The attached image is a screenshot of the user's \(window.app) window\(title). \
+            Read it carefully and answer the question about what it shows. \
+            If it shows an error, explain what it means and how to fix it.
+            """)
+        }
         if let selection {
             let source = app.map { " (selected in \($0))" } ?? ""
             parts.append("Selected text\(source):\n<text>\n\(selection)\n</text>")
         }
         if let clipboard {
             parts.append("Clipboard:\n<clipboard>\n\(clipboard)\n</clipboard>")
+        }
+        if !parts.isEmpty, let answerLanguage {
+            parts.append("Answer in \(answerLanguage).")
         }
         return parts.joined(separator: "\n\n")
     }
@@ -48,6 +63,17 @@ enum SystemInstructions {
         case .automatic:
             let code = locale.language.languageCode?.identifier ?? "en"
             return Locale(identifier: "en").localizedString(forLanguageCode: code) ?? "English"
+        }
+    }
+
+    /// Language of the answer to a question: forced by Settings, else the question's own
+    /// language, else the user's system language.
+    static func answerLanguage(for question: String, preference: ResponseLanguage, locale: Locale = .current) -> String {
+        switch preference {
+        case .italian, .english:
+            return languageName(preference, locale: locale)
+        case .automatic:
+            return TextLanguage.name(of: question) ?? languageName(.automatic, locale: locale)
         }
     }
 

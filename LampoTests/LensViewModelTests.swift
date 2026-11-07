@@ -64,10 +64,11 @@ struct LensViewModelTests {
         #expect(pasteboard.contents == "Hello!")
     }
 
-    @Test func modelUnavailableIsExplained() {
+    @Test func modelUnavailableIsExplained() async {
         model.availabilityValue = .modelNotReady
         let lens = makeLens()
         lens.start()
+        await lens.task?.value
         #expect(lens.phase == .failed(ModelAvailability.modelNotReady.message))
         #expect(!lens.canReplace)
     }

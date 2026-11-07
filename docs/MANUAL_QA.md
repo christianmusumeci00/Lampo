@@ -69,7 +69,7 @@ Apps: TextEdit, Mail (compose), Notes, Safari (a `<textarea>`, e.g. a feedback f
 - [ ] Esc closes the Lens without touching the text; clicking elsewhere closes it too.
 - [ ] Riprova regenerates; Copia puts the result on the clipboard ("Copiato" flash).
 - [ ] No selection: HUD "Seleziona prima del testo, poi riprova."
-- [ ] Silent mode (set an action's output to replaceSilently in actions.json until M3's editor):
+- [ ] Silent mode (Impostazioni › Azioni › Risultato: "Sostituisci senza anteprima"):
       HUD "Correggi…" then "Fatto · ⌘Z per annullare"; ⌘Z restores.
 - [ ] Menu › Azioni rapide lists every action with its shortcut and runs it on the current selection.
 - [ ] "Spiega" opens the Glass panel with the selection as context and streams the explanation.
@@ -79,3 +79,40 @@ Apps: TextEdit, Mail (compose), Notes, Safari (a `<textarea>`, e.g. a feedback f
 - [ ] Lampo disabled: no action hotkey responds and Azioni rapide is disabled.
 - [ ] Password field selected: nothing is read.
 - [ ] VoiceOver: Lens chips announce selection state; HUD messages are announced.
+
+## M3 — Screen context and full Settings
+
+Apps: Terminal (a compiler error), Safari (a web page), Xcode (an issue in the editor), Preview (a PDF).
+
+- [ ] **Acceptance:** with a compiler error visible in Terminal, ⌥⇧S ("Chiedi allo schermo") opens the
+      panel with the "Finestra: Terminale" chip (thumbnail); "cosa significa?" gives a relevant
+      explanation, in Italian. *(Checked: explains the Int/Double mismatch in Italian.)*
+- [ ] ⌘⇧S inside the panel attaches the window that was frontmost when the panel opened; ⌘⇧S again
+      removes it; ✕ removes it; Backspace in the empty field removes it.
+- [ ] Lampo's own panel and Lens never appear in the screenshot, even when they overlap the window.
+- [ ] Follow-up questions don't resend the image; ⌘N starts over.
+- [ ] Without Screen Recording: ⌘⇧S / ⌥⇧S show "Consenti la Registrazione schermo…" with "Consenti…",
+      which shows the system prompt and opens System Settings › Privacy › Registrazione schermo.
+      After allowing, macOS may ask to quit and reopen Lampo.
+- [ ] Desktop focused (no window): "Non c'è una finestra da guardare…".
+- [ ] Multiple monitors / full-screen app: the frontmost window of the app is captured.
+- [ ] Long text (select a long article, e.g. 15 000 words) + Riassumi: the Lens shows
+      "Testo lungo: usato un estratto." and Sostituisci is disabled; Copia works. Silent mode on the
+      same text refuses with "Il testo è troppo lungo per riscriverlo al suo posto…".
+- [ ] Same long text in the panel ("riassumi"): the answer shows the "Testo lungo" notice.
+
+Settings
+- [ ] Scorciatoie lists Apri Lampo and every action with its own recorder.
+- [ ] Recording a combination already used by another command is refused with
+      "Questa scorciatoia è già usata da “…”." A duplicate already present (e.g. from an import)
+      shows an orange "… è assegnata a … Ne funzionerà solo una." row.
+- [ ] Ripristina predefinite restores ⌥Space and ⌥⇧C/F/B/T/R/S.
+- [ ] Azioni: +, −, duplicate, drag to reorder; edits are saved immediately and survive a relaunch.
+- [ ] Editor: name, symbol, prompt, "Inserisci variabile", live preview with the sample text,
+      unknown-variable warning, Input / Risultato / Modello, own shortcut recorder.
+- [ ] "Prova" on the sample text streams the result with the "Sul Mac" badge; "Ferma" stops it.
+      *(Checked: Correggi fixes the accents of the Italian sample.)*
+- [ ] A new action gets a hotkey that works right away (no relaunch); deleting it frees the shortcut.
+- [ ] Esporta azioni… / Importa azioni… round-trip (imported actions are added as new ones).
+- [ ] Ripristina azioni predefinite… asks for confirmation and keeps custom actions.
+- [ ] Privacy shows Accessibilità and Registrazione schermo with live status.

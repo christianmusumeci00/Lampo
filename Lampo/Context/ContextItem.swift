@@ -23,17 +23,31 @@ struct SelectionContext: Identifiable {
 enum ContextItem: Identifiable {
     case selection(SelectionContext)
     case clipboard(String)
+    case window(WindowCapture)
 
     var id: String {
         switch self {
         case .selection(let selection): return "selection-\(selection.id)"
         case .clipboard: return "clipboard"
+        case .window: return "window"
         }
     }
 
     var isSelection: Bool {
         if case .selection = self { return true }
         return false
+    }
+
+    /// Chip label ("Selection · 12 words", "Window: Terminal").
+    var summary: String {
+        switch self {
+        case .selection(let selection):
+            return String(localized: "Selection · \(selection.wordCount) words")
+        case .clipboard:
+            return String(localized: "Clipboard")
+        case .window(let capture):
+            return String(localized: "Window: \(capture.app.name)")
+        }
     }
 }
 

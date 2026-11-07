@@ -21,6 +21,9 @@ final class ActionStore {
     @ObservationIgnored private var deletedBuiltIns: Set<UUID> = []
     @ObservationIgnored let fileURL: URL
     @ObservationIgnored private let builtIns: () -> [LampoAction]
+    /// Called after actions are added or removed (not on edits), to re-register hotkeys.
+    @ObservationIgnored var onActionsAddedOrRemoved: (() -> Void)?
+    @ObservationIgnored private var savedIDs: Set<UUID> = []
 
     static var defaultFileURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -112,6 +115,7 @@ final class ActionStore {
 
     private func load() {
         let originals = builtIns()
+        defer { savedIDs = Set(actions.map(\.id)) }
         guard let data = try? Data(contentsOf: fileURL),
               let file = try? JSONDecoder().decode(FileFormat.self, from: data) else {
             actions = originals
@@ -129,6 +133,11 @@ final class ActionStore {
     }
 
     private func save() {
+        let ids = Set(actions.map(\.id))
+        if ids != savedIDs {
+            savedIDs = ids
+            onActionsAddedOrRemoved?()
+        }
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let encoder = JSONEncoder()

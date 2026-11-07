@@ -16,6 +16,9 @@ enum ModelError: Error, Equatable, Sendable, LocalizedError {
     case blockedByOnlyOnMac
     case privateCloudNotInBuild
     case emptyResponse
+    /// The input had to be cut to fit the model, so writing the result over the
+    /// whole selection would lose text.
+    case tooLongToReplace
     case other
 
     init(_ routing: RoutingError) {
@@ -55,6 +58,8 @@ enum ModelError: Error, Equatable, Sendable, LocalizedError {
             return String(localized: "Private Cloud Compute is not available in this build.")
         case .emptyResponse:
             return String(localized: "The model returned an empty answer. Try again.")
+        case .tooLongToReplace:
+            return String(localized: "The text is too long to rewrite in place on this Mac. Select a shorter part.")
         case .other:
             return String(localized: "Something went wrong while generating the answer.")
         }

@@ -21,9 +21,14 @@ struct PanelView: View {
                 .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
                 .padding(.vertical, 14)
             }
-            if !viewModel.isAccessibilityGranted && !viewModel.hasContent {
+            if let notice = viewModel.notice {
                 Divider()
-                AccessibilityHint()
+                NoticeRow(notice: notice) { viewModel.grantPermission($0) }
+                    .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
+                    .padding(.vertical, 10)
+            } else if !viewModel.isAccessibilityGranted && !viewModel.hasContent {
+                Divider()
+                NoticeRow(notice: .permission(.accessibility)) { viewModel.grantPermission($0) }
                     .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
                     .padding(.vertical, 10)
             }
@@ -44,6 +49,11 @@ struct PanelView: View {
         .onChange(of: viewModel.focusRequest, initial: true) { inputFocused = true }
     }
 
+    private var placeholder: LocalizedStringKey {
+        if viewModel.hasWindowContext { return "Ask about this window…" }
+        return viewModel.hasContent ? "Ask a follow-up…" : "Ask Lampo…"
+    }
+
     private var showsAvailability: Bool {
         viewModel.availability != .available && viewModel.availability != .unknown && !viewModel.hasContent
     }
@@ -58,8 +68,14 @@ struct PanelView: View {
                 ContextChip(item: item) { viewModel.removeContext(id: item.id) }
                     .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }
             }
+            if viewModel.isCapturingWindow {
+                ProgressView()
+                    .controlSize(.small)
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }
+                    .accessibilityLabel(Text("Capturing the window"))
+            }
             TextField(text: $viewModel.query, axis: .vertical) {
-                Text(viewModel.hasContent ? "Ask a follow-up…" : "Ask Lampo…")
+                Text(placeholder)
             }
             .textFieldStyle(.plain)
             .font(.system(size: DesignTokens.Panel.inputFontSize))
@@ -111,7 +127,8 @@ struct ConversationView: View {
                     PreviousTurnRow(turn: turn)
                 }
                 if let turn = viewModel.currentTurn {
-                    CurrentTurnView(turn: turn)
+                    CurrentTurnView(turn: turn,
+                                    onThinkHarder: viewModel.canThinkHarder ? { viewModel.thinkHarder() } : nil)
                 }
             }
             .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
@@ -160,6 +177,8 @@ struct PreviousTurnRow: View {
 
 struct CurrentTurnView: View {
     let turn: ConversationTurn
+    /// Offered with the "Long text" notice when Private Cloud Compute is allowed.
+    var onThinkHarder: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -204,6 +223,9 @@ struct CurrentTurnView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(.tertiary)
                 }
+            }
+            if turn.wasTruncated && turn.isFinished {
+                TruncationNotice(onThinkHarder: onThinkHarder)
             }
         }
         .accessibilityElement(children: .contain)
@@ -362,9 +384,17 @@ struct ContextChip: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Image(systemName: symbol)
-                .font(.system(size: 11, weight: .semibold))
-            Text(PanelViewModel.summary(item))
+            if case .window(let capture) = item {
+                Image(decorative: capture.image, scale: 1)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 20, height: 14)
+                    .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+            } else {
+                Image(systemName: symbol)
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            Text(item.summary)
                 .font(.system(size: 12, weight: .semibold))
                 .lineLimit(1)
             Button(action: onRemove) {
@@ -390,6 +420,7 @@ struct ContextChip: View {
         switch item {
         case .selection: return "text.cursor"
         case .clipboard: return "doc.on.clipboard"
+        case .window: return "macwindow"
         }
     }
 
@@ -397,27 +428,50 @@ struct ContextChip: View {
         switch item {
         case .selection(let selection): return String(selection.text.prefix(300))
         case .clipboard(let text): return String(text.prefix(300))
+        case .window(let capture): return capture.title ?? capture.app.name
         }
     }
 }
 
-/// Shown when Accessibility is off: the selection can't be read.
-struct AccessibilityHint: View {
+/// A missing permission with an "Allow…" button, or a short message.
+struct NoticeRow: View {
+    let notice: PanelNotice
+    let onGrant: (PermissionKind) -> Void
+
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: "hand.raised")
+            Image(systemName: symbol)
                 .foregroundStyle(DesignTokens.accent)
                 .accessibilityHidden(true)
-            Text("Allow Accessibility to use the text you select in other apps.")
+            Text(text)
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 8)
-            Button("Allow…") {
-                let service = PermissionsService()
-                service.requestAccessibility()
-                service.openAccessibilitySettings()
+            if case .permission(let kind) = notice {
+                Button("Allow…") { onGrant(kind) }
+                    .controlSize(.small)
             }
-            .controlSize(.small)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var symbol: String {
+        switch notice {
+        case .permission(.accessibility): return "hand.raised"
+        case .permission(.screenRecording): return "macwindow"
+        case .message: return "exclamationmark.triangle"
+        }
+    }
+
+    private var text: String {
+        switch notice {
+        case .permission(.accessibility):
+            return String(localized: "Allow Accessibility to use the text you select in other apps.")
+        case .permission(.screenRecording):
+            return ScreenCaptureError.permissionDenied.localizedDescription
+        case .message(let message):
+            return message
         }
     }
 }

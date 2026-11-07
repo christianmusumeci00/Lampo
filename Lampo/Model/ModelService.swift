@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// Availability of the on-device model, mirrored from `SystemLanguageModel.Availability`
@@ -12,12 +13,15 @@ enum ModelAvailability: Equatable, Sendable {
     var isAvailable: Bool { self == .available }
 }
 
-/// A single user turn sent to the model.
+/// A single user turn sent to the model: text, plus images (window screenshots)
+/// placed before the text.
 struct ModelPrompt: Sendable, Equatable {
     var text: String
+    var images: [CGImage]
 
-    init(_ text: String) {
+    init(_ text: String, images: [CGImage] = []) {
         self.text = text
+        self.images = images
     }
 }
 

@@ -26,8 +26,47 @@ struct ConversationTurn: Identifiable, Equatable {
     var contextSummary: String?
     /// True for "Go deeper" follow-ups, whose prompt is synthetic.
     var isGoDeeper = false
+    /// The context was too long and only an excerpt was sent.
+    var wasTruncated = false
 
     var isFinished: Bool { state != .streaming }
+}
+
+/// A message under the input row: a missing permission (with a button) or a short error.
+enum PanelNotice: Equatable {
+    case permission(PermissionKind)
+    case message(String)
+}
+
+/// What a question is made of, before it is fitted to the context window.
+struct PromptParts {
+    var question: String
+    var selection: String?
+    var app: String?
+    var clipboard: String?
+    var window: WindowCapture?
+    /// English name of the answer language, stated with the context.
+    var answerLanguage: String?
+
+    var hasText: Bool { selection != nil || clipboard != nil }
+
+    /// The untruncated prompt.
+    var full: ModelPrompt { compose(selection: selection, clipboard: clipboard) }
+
+    /// The prompt with the given (possibly cut) context texts.
+    func compose(selection: String?, clipboard: String?) -> ModelPrompt {
+        let block = SystemInstructions.contextBlock(
+            selection: selection, app: app, clipboard: clipboard,
+            window: window.map { (app: $0.app.name, title: $0.title) },
+            answerLanguage: answerLanguage)
+        let text: String
+        if block.isEmpty {
+            text = question
+        } else {
+            text = question.isEmpty ? block : block + "\n\n" + question
+        }
+        return ModelPrompt(text, images: window.map { [$0.image] } ?? [])
+    }
 }
 
 /// State and behaviour of the Glass panel. UI-free, so it is unit-tested with mocks.
@@ -47,15 +86,25 @@ final class PanelViewModel {
     private(set) var flash: String?
     /// Incremented to ask the view to focus the input field.
     private(set) var focusRequest = 0
+    private(set) var notice: PanelNotice?
+    /// A window screenshot is being taken (⌘⇧S).
+    private(set) var isCapturingWindow = false
 
     @ObservationIgnored private let model: any ModelService
     @ObservationIgnored private let preferences: Preferences
     @ObservationIgnored private let pasteboard: any PasteboardClient
+    @ObservationIgnored private let screenCapture: any ScreenCapturing
+    @ObservationIgnored private let budget: ContextBudget
     @ObservationIgnored private let clock: () -> ContinuousClock.Instant
     @ObservationIgnored private var conversation: (any ModelConversation)?
     @ObservationIgnored private(set) var generationTask: Task<Void, Never>?
     @ObservationIgnored private var lastActivity: ContinuousClock.Instant
     @ObservationIgnored private var flashTask: Task<Void, Never>?
+    @ObservationIgnored private var captureTask: Task<Void, Never>?
+    /// Untruncated parts of each model turn, for "Think harder".
+    @ObservationIgnored private var partsByTurn: [UUID: PromptParts] = [:]
+    /// Text actually sent for each turn, to estimate the history's share of the window.
+    @ObservationIgnored private var sentTextByTurn: [UUID: String] = [:]
 
     /// The selection the current conversation is about; "Insert" replaces it.
     @ObservationIgnored private(set) var activeSelection: SelectionContext?
@@ -64,16 +113,21 @@ final class PanelViewModel {
     @ObservationIgnored var onRequestClose: (() -> Void)?
     /// Called by "Insert ⌘↩" with the answer and the selection to replace (if any).
     @ObservationIgnored var onInsert: ((String, SelectionContext?) -> Void)?
+    /// Called by the "Allow…" button of a permission notice.
+    @ObservationIgnored var onGrantPermission: ((PermissionKind) -> Void)?
 
     init(
         model: any ModelService,
         preferences: Preferences,
         pasteboard: any PasteboardClient,
+        screenCapture: any ScreenCapturing = ScreenCaptureService(),
         clock: @escaping () -> ContinuousClock.Instant = { .now }
     ) {
         self.model = model
         self.preferences = preferences
         self.pasteboard = pasteboard
+        self.screenCapture = screenCapture
+        self.budget = ContextBudget(model: model)
         self.clock = clock
         self.lastActivity = clock()
     }
@@ -88,11 +142,13 @@ final class PanelViewModel {
     var canFollowUp: Bool { conversation != nil && !isGenerating && currentTurn?.kind == .model }
     var canInsert: Bool { canCopy && !isGenerating }
     var canThinkHarder: Bool { preferences.routingPolicy.allowsPrivateCloud && !isGenerating && currentTurn != nil }
+    var hasWindowContext: Bool { contextItems.contains { if case .window = $0 { true } else { false } } }
 
     // MARK: Lifecycle
 
     /// Called every time the panel is shown.
     func panelWillAppear() {
+        notice = nil
         refreshAvailability()
         if clock() - lastActivity > Self.sessionTimeout {
             resetConversation()
@@ -135,6 +191,51 @@ final class PanelViewModel {
         return true
     }
 
+    /// ⌘⇧S: attaches a screenshot of `app`'s front window, or removes it if already attached.
+    func toggleWindow(from app: SourceApp?, permitted: Bool) {
+        if hasWindowContext {
+            removeContext(id: "window")
+            return
+        }
+        guard permitted else {
+            notice = .permission(.screenRecording)
+            return
+        }
+        guard let app else {
+            notice = .message(ScreenCaptureError.noWindow.localizedDescription)
+            return
+        }
+        guard !isCapturingWindow else { return }
+        isCapturingWindow = true
+        notice = nil
+        captureTask = Task { [weak self, screenCapture] in
+            do {
+                let capture = try await screenCapture.captureFrontWindow(of: app)
+                self?.addContext(.window(capture))
+            } catch let error as ScreenCaptureError {
+                self?.notice = error == .permissionDenied ? .permission(.screenRecording) : .message(error.localizedDescription)
+            } catch {
+                self?.notice = .message(ScreenCaptureError.failed.localizedDescription)
+            }
+            self?.isCapturingWindow = false
+            self?.focusRequest += 1
+        }
+    }
+
+    /// "Ask the screen": a fresh conversation about a captured window, waiting for the question.
+    func prepareScreenQuestion(_ capture: WindowCapture) {
+        resetConversation()
+        contextItems = [.window(capture)]
+    }
+
+    func showNotice(_ notice: PanelNotice?) {
+        self.notice = notice
+    }
+
+    func grantPermission(_ kind: PermissionKind) {
+        onGrantPermission?(kind)
+    }
+
     // MARK: Output
 
     func insertCurrentAnswer() {
@@ -148,7 +249,10 @@ final class PanelViewModel {
         conversation = nil
         contextItems = []
         activeSelection = nil
+        partsByTurn = [:]
+        sentTextByTurn = [:]
         query = ""
+        notice = nil
         focusRequest += 1
     }
 
@@ -158,6 +262,7 @@ final class PanelViewModel {
         let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, !isGenerating else { return }
         query = ""
+        notice = nil
         touch()
 
         if contextItems.isEmpty, let result = Calculator.evaluate(text) {
@@ -170,67 +275,64 @@ final class PanelViewModel {
             return
         }
 
-        let (prompt, summary) = consumeContext(question: text)
-        ask(ModelPrompt(prompt), displayedQuestion: text, route: .onDevice, reasoning: nil, explicitRoute: false,
-            contextSummary: summary)
+        let (parts, summary) = consumeContext(question: text)
+        ask(Request(displayedQuestion: text, route: .onDevice, contextSummary: summary, parts: parts))
     }
 
-    /// Runs an action whose result belongs in the panel (e.g. "Explain").
-    func runAction(_ action: LampoAction, prompt: String, contextItems items: [ContextItem]) {
+    /// Runs an action whose result belongs in the panel (e.g. "Explain"). `prompt` is already
+    /// rendered and fitted by `ActionRunner`; a window chip adds its screenshot.
+    func runAction(_ action: LampoAction, prompt: String, wasTruncated: Bool = false, contextItems items: [ContextItem]) {
         resetConversation()
         contextItems = items
-        _ = consumeContext(question: "")
+        let (parts, summary) = consumeContext(question: "")
         touch()
-        ask(ModelPrompt(prompt), displayedQuestion: action.name, route: action.route, reasoning: nil,
-            explicitRoute: false, contextSummary: items.first.map(Self.summary))
+        ask(Request(displayedQuestion: action.name, route: action.route, contextSummary: summary,
+                    parts: PromptParts(question: prompt, window: parts.window),
+                    wasTruncated: wasTruncated, fitsContext: false))
     }
 
-    /// Builds the prompt from the chips (then clears them: the session now has the context).
-    private func consumeContext(question: String) -> (String, String?) {
-        guard !contextItems.isEmpty else { return (question, nil) }
-        var selectionText: String?
-        var app: String?
-        var clipboard: String?
+    /// Collects the chips into prompt parts (then clears them: the session now has the context).
+    private func consumeContext(question: String) -> (PromptParts, String?) {
+        var parts = PromptParts(question: question)
+        guard !contextItems.isEmpty else { return (parts, nil) }
+        if !question.isEmpty {
+            parts.answerLanguage = SystemInstructions.answerLanguage(for: question, preference: preferences.responseLanguage)
+        }
         for item in contextItems {
             switch item {
             case .selection(let selection):
-                selectionText = selection.text
-                app = selection.app?.name
+                parts.selection = selection.text
+                parts.app = selection.app?.name
                 activeSelection = selection
             case .clipboard(let text):
-                clipboard = text
+                parts.clipboard = text
+            case .window(let capture):
+                parts.window = capture
             }
         }
-        let summary = contextItems.map(Self.summary).joined(separator: " · ")
+        let summary = contextItems.map(\.summary).joined(separator: " · ")
         contextItems = []
-        let block = SystemInstructions.contextBlock(selection: selectionText, app: app, clipboard: clipboard)
-        return (question.isEmpty ? block : block + "\n\n" + question, summary)
+        return (parts, summary)
     }
 
-    static func summary(_ item: ContextItem) -> String {
-        switch item {
-        case .selection(let selection):
-            return String(localized: "Selection · \(selection.wordCount) words")
-        case .clipboard:
-            return String(localized: "Clipboard")
-        }
-    }
+    static func summary(_ item: ContextItem) -> String { item.summary }
 
     /// "Go deeper": a follow-up in the same session.
     func goDeeper() {
         guard canFollowUp else { return }
         touch()
-        ask(ModelPrompt(SystemInstructions.goDeeper),
-            displayedQuestion: String(localized: "Go deeper"),
-            route: conversation?.route ?? .onDevice, reasoning: nil, explicitRoute: false,
-            isGoDeeper: true)
+        ask(Request(displayedQuestion: String(localized: "Go deeper"), route: conversation?.route ?? .onDevice,
+                    isGoDeeper: true, parts: PromptParts(question: SystemInstructions.goDeeper), fitsContext: false))
     }
 
-    /// "Think harder": repeat the last question on Private Cloud Compute with deep reasoning.
+    /// "Think harder": repeat the last question on Private Cloud Compute with deep reasoning,
+    /// with its full, untruncated context (the cloud model's window is larger).
     func thinkHarder() {
-        guard let question = turns.last(where: { $0.kind == .model && !$0.isGoDeeper })?.question else { return }
+        guard let turn = turns.last(where: { $0.kind == .model && !$0.isGoDeeper }) else { return }
         touch()
-        ask(ModelPrompt(question), displayedQuestion: question, route: .privateCloud, reasoning: .deep, explicitRoute: true)
+        let parts = partsByTurn[turn.id] ?? PromptParts(question: turn.question)
+        ask(Request(displayedQuestion: turn.question, route: .privateCloud, reasoning: .deep, explicitRoute: true,
+                    contextSummary: turn.contextSummary, parts: parts))
     }
 
     func cancel() {
@@ -268,41 +370,76 @@ final class PanelViewModel {
         }
     }
 
-    private func ask(_ prompt: ModelPrompt, displayedQuestion: String, route requested: ModelRoute,
-                     reasoning: ReasoningEffort?, explicitRoute: Bool, isGoDeeper: Bool = false,
-                     contextSummary: String? = nil) {
+    private struct Request {
+        var displayedQuestion: String
+        var route: ModelRoute
+        var reasoning: ReasoningEffort?
+        var explicitRoute = false
+        var isGoDeeper = false
+        var contextSummary: String?
+        var parts: PromptParts
+        /// Already cut by `ActionRunner`.
+        var wasTruncated = false
+        /// Fit the selection/clipboard into the window before sending.
+        var fitsContext = true
+    }
+
+    private func ask(_ request: Request) {
         let route: ModelRoute
         do {
-            route = try preferences.routingPolicy.resolve(requested, explicit: explicitRoute)
+            route = try preferences.routingPolicy.resolve(request.route, explicit: request.explicitRoute)
         } catch {
-            turns.append(ConversationTurn(question: displayedQuestion, route: requested, kind: .model,
+            turns.append(ConversationTurn(question: request.displayedQuestion, route: request.route, kind: .model,
                                           state: .failed(ModelError(error).localizedDescription)))
             return
         }
 
         refreshAvailability()
         if route == .onDevice && !availability.isAvailable {
-            turns.append(ConversationTurn(question: displayedQuestion, route: route, kind: .model,
+            turns.append(ConversationTurn(question: request.displayedQuestion, route: route, kind: .model,
                                           state: .failed(availability.message)))
             return
         }
 
         guard let conversation = ensureConversation(route: route) else {
-            turns.append(ConversationTurn(question: displayedQuestion, route: route, kind: .model,
+            turns.append(ConversationTurn(question: request.displayedQuestion, route: route, kind: .model,
                                           state: .failed(ModelError.privateCloudNotInBuild.localizedDescription)))
             return
         }
 
-        var turn = ConversationTurn(question: displayedQuestion, route: route, kind: .model, state: .streaming)
-        turn.isGoDeeper = isGoDeeper
-        turn.contextSummary = contextSummary
-        turns.append(turn)
-        let turnID = turns[turns.count - 1].id
-        let stream = conversation.stream(prompt, reasoning: reasoning)
+        // What the session already holds, to leave room for it.
+        let history = turns.filter { $0.kind == .model && $0.route == route }
+            .map { (sentTextByTurn[$0.id] ?? $0.question) + "\n" + $0.answer }
 
-        generationTask = Task { [weak self] in
+        var turn = ConversationTurn(question: request.displayedQuestion, route: route, kind: .model, state: .streaming)
+        turn.isGoDeeper = request.isGoDeeper
+        turn.contextSummary = request.contextSummary
+        turn.wasTruncated = request.wasTruncated
+        turns.append(turn)
+        let turnID = turn.id
+        partsByTurn[turnID] = request.parts
+        let instructions = SystemInstructions.general(language: preferences.responseLanguage)
+
+        generationTask = Task { [weak self, budget] in
+            var prompt = request.parts.full
+            if request.fitsContext && request.parts.hasText {
+                let parts = request.parts
+                let scaffold = parts.compose(selection: parts.selection.map { _ in "" },
+                                             clipboard: parts.clipboard.map { _ in "" }).text
+                let fitted = await budget.fit([parts.selection, parts.clipboard], route: route,
+                                              fixed: [instructions, scaffold] + history,
+                                              images: parts.window == nil ? 0 : 1)
+                prompt = parts.compose(selection: fitted.texts[0], clipboard: fitted.texts[1])
+                if fitted.wasTruncated { self?.update(turnID) { $0.wasTruncated = true } }
+            }
+            if Task.isCancelled {
+                self?.update(turnID) { $0.state = .cancelled }
+                return
+            }
+            self?.sentTextByTurn[turnID] = prompt.text
+
             do {
-                for try await text in stream {
+                for try await text in conversation.stream(prompt, reasoning: request.reasoning) {
                     self?.update(turnID) { $0.answer = text }
                 }
                 if Task.isCancelled {

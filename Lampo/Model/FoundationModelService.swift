@@ -102,13 +102,17 @@ final class FoundationModelConversation: ModelConversation {
         let session = currentSession()
         let contextOptions = Self.contextOptions(route: route, reasoning: reasoning)
         let text = prompt.text
+        let images = prompt.images
         let started = ContinuousClock.now
 
         return AsyncThrowingStream { continuation in
             let task = Task {
                 var produced = false
                 do {
-                    let stream = session.streamResponse(to: text, contextOptions: contextOptions)
+                    let stream = session.streamResponse(contextOptions: contextOptions) {
+                        for image in images { Attachment(image) }
+                        text
+                    }
                     for try await snapshot in stream {
                         if !produced {
                             produced = true

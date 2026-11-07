@@ -11,7 +11,10 @@ struct SettingsView: View {
                 GeneralSettingsView(state: state)
             }
             Tab("Shortcuts", systemImage: "keyboard") {
-                ShortcutsSettingsView()
+                ShortcutsSettingsView(state: state)
+            }
+            Tab("Actions", systemImage: "bolt") {
+                ActionsSettingsView(state: state)
             }
             Tab("Privacy", systemImage: "lock") {
                 PrivacySettingsView(preferences: state.preferences)
@@ -20,7 +23,7 @@ struct SettingsView: View {
                 AboutSettingsView()
             }
         }
-        .frame(width: 520)
+        .frame(width: 640)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -79,22 +82,66 @@ struct GeneralSettingsView: View {
 }
 
 struct ShortcutsSettingsView: View {
+    var state: AppState
+    /// Bumped when a recorder changes, to recompute conflicts (shortcuts live in UserDefaults).
+    @State private var revision = 0
+
     var body: some View {
+        let entries = state.shortcutEntries
+        let conflicts = revision >= 0 ? ShortcutConflicts.find(entries) : []
         Form {
             Section {
-                KeyboardShortcuts.Recorder("Open Lampo", name: .togglePanel)
+                recorder(for: KeyboardShortcuts.Name.togglePanel, index: 0) {
+                    Text("Open Lampo")
+                }
             } footer: {
                 Text("Works in every app, including full-screen ones.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Section("Actions") {
+                ForEach(Array(state.actionStore.actions.enumerated()), id: \.element.id) { offset, action in
+                    recorder(for: action.shortcutName, index: offset + 1) {
+                        Label(action.name, systemImage: action.symbol)
+                    }
+                }
+            }
+            if !conflicts.isEmpty {
+                Section {
+                    ForEach(conflicts) { conflict in
+                        Label {
+                            Text("\(conflict.shortcut.description) is assigned to \(conflict.titles.formatted(.list(type: .and))). Only one of them will work.")
+                        } icon: {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                        }
+                    }
+                }
+            }
             Section {
                 Button("Restore defaults") {
-                    KeyboardShortcuts.reset(.togglePanel)
+                    state.restoreDefaultShortcuts()
+                    revision += 1
                 }
+            } footer: {
+                Text("⌥Space for Lampo, ⌥⇧ and a letter for the built-in actions. Custom actions lose their shortcut.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
+        .frame(minHeight: 420, maxHeight: 560)
+    }
+
+    /// A recorder that refuses a combination already used by another command.
+    private func recorder(for name: KeyboardShortcuts.Name, index: Int,
+                          @ViewBuilder label: () -> some View) -> some View {
+        KeyboardShortcuts.Recorder(for: name, onChange: { _ in revision += 1 }, label: label)
+            .shortcutValidation { shortcut in
+                if let owner = ShortcutConflicts.owner(of: shortcut, in: state.shortcutEntries, excluding: index) {
+                    return .disallow(reason: String(localized: "This shortcut is already used by “\(owner)”."))
+                }
+                return .allow
+            }
     }
 }
 

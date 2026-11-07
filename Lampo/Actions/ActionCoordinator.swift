@@ -10,23 +10,28 @@ final class ActionCoordinator {
     private let output: OutputService
     private let permissions: any PermissionsChecking
     private let pasteboard: any PasteboardClient
+    private let screenCapture: any ScreenCapturing
+    private let routingPolicy: () -> RoutingPolicy
     private let lens: LensController
     private let hud: HUDController
     private weak var panel: PanelController?
     private var isBusy = false
 
     /// Called when an action needs a permission the user hasn't granted.
-    var onNeedsAccessibility: (() -> Void)?
+    var onNeedsPermission: ((PermissionKind) -> Void)?
 
     init(store: ActionStore, runner: ActionRunner, selectionReader: any SelectionReading, output: OutputService,
-         permissions: any PermissionsChecking, pasteboard: any PasteboardClient, lens: LensController,
-         hud: HUDController, panel: PanelController?) {
+         permissions: any PermissionsChecking, pasteboard: any PasteboardClient,
+         screenCapture: any ScreenCapturing, routingPolicy: @escaping () -> RoutingPolicy,
+         lens: LensController, hud: HUDController, panel: PanelController?) {
         self.store = store
         self.runner = runner
         self.selectionReader = selectionReader
         self.output = output
         self.permissions = permissions
         self.pasteboard = pasteboard
+        self.screenCapture = screenCapture
+        self.routingPolicy = routingPolicy
         self.lens = lens
         self.hud = hud
         self.panel = panel
@@ -53,7 +58,7 @@ final class ActionCoordinator {
         switch action.input {
         case .selection:
             guard permissions.isAccessibilityGranted else {
-                onNeedsAccessibility?()
+                onNeedsPermission?(.accessibility)
                 return
             }
             guard let selection = await selectionReader.readSelection(allowClipboardFallback: true) else {
@@ -64,9 +69,51 @@ final class ActionCoordinator {
         case .clipboard, .none:
             let clipboard = action.input == .clipboard ? pasteboard.string() : nil
             let context = runner.templateContext(selection: nil, clipboard: clipboard, app: SourceApp.frontmost()?.name)
-            panel?.showRunning(action, prompt: runner.prompt(for: action, context: context), contextItems: [])
+            await openPanel(action, context: context, items: [])
         case .screen:
-            hud.show(String(localized: "Screen actions arrive in a later version."), style: .failure, near: nil)
+            await runOnScreen(action)
+        }
+    }
+
+    /// "Ask the screen" and custom screen actions: capture the front window, then either wait
+    /// for a question (empty template) or run the template on the screenshot.
+    private func runOnScreen(_ action: LampoAction) async {
+        guard permissions.isScreenRecordingGranted else {
+            panel?.showNotice(.permission(.screenRecording))
+            return
+        }
+        guard let app = SourceApp.frontmost() else {
+            hud.show(ScreenCaptureError.noWindow.localizedDescription, style: .failure, near: nil)
+            return
+        }
+        let capture: WindowCapture
+        do {
+            capture = try await screenCapture.captureFrontWindow(of: app)
+        } catch {
+            if (error as? ScreenCaptureError) == .permissionDenied {
+                panel?.showNotice(.permission(.screenRecording))
+            } else {
+                let message = (error as? LocalizedError)?.errorDescription ?? ScreenCaptureError.failed.localizedDescription
+                hud.show(message, style: .failure, near: nil)
+            }
+            return
+        }
+        if action.promptTemplate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            panel?.showScreenQuestion(capture)
+        } else {
+            let context = runner.templateContext(selection: nil, clipboard: nil, app: app.name)
+            await openPanel(action, context: context, items: [.window(capture)])
+        }
+    }
+
+    private func openPanel(_ action: LampoAction, context: TemplateContext, items: [ContextItem]) async {
+        let images = items.contains { if case .window = $0 { true } else { false } } ? 1 : 0
+        do {
+            let prepared = try await runner.prepare(action, context: context, images: images)
+            panel?.showRunning(action, prompt: prepared.prompt, wasTruncated: prepared.wasTruncated, contextItems: items)
+        } catch {
+            // Let the panel show the error in place, with the usual wording.
+            panel?.showRunning(action, prompt: runner.prompt(for: action, context: context), contextItems: items)
         }
     }
 
@@ -76,18 +123,18 @@ final class ActionCoordinator {
             let actions = store.selectionActions.filter { $0.output != .openPanel }
             let list = actions.contains { $0.id == action.id } ? actions : [action] + actions
             lens.show(LensViewModel(selection: selection, actions: list, initialActionID: action.id,
-                                    runner: runner, pasteboard: pasteboard))
+                                    runner: runner, pasteboard: pasteboard, routingPolicy: routingPolicy()))
         case .openPanel:
             let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
-            panel?.showRunning(action, prompt: runner.prompt(for: action, context: context),
-                               contextItems: [.selection(selection)])
+            await openPanel(action, context: context, items: [.selection(selection)])
         case .replaceSilently, .copy:
             hud.show(String(localized: "\(action.name)…"), style: .working, near: selection.anchor)
             do {
-                let text = try await complete(action, selection: selection)
+                let (text, wasTruncated) = try await complete(action, selection: selection)
                 if action.output == .copy {
                     output.copy(text)
-                    hud.show(String(localized: "Copied"), style: .success, near: selection.anchor)
+                    let message = wasTruncated ? String(localized: "Copied · Long text: used an excerpt") : String(localized: "Copied")
+                    hud.show(message, style: .success, near: selection.anchor)
                 } else {
                     await replace(text, in: selection, showHUD: true)
                 }
@@ -98,14 +145,16 @@ final class ActionCoordinator {
         }
     }
 
-    private func complete(_ action: LampoAction, selection: SelectionContext) async throws -> String {
+    private func complete(_ action: LampoAction, selection: SelectionContext) async throws -> (String, Bool) {
         let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
-        let run = try runner.start(action, context: context)
+        let run = try await runner.start(action, context: context)
+        // Writing a rewrite of an excerpt over the whole selection would lose text.
+        if run.wasTruncated && action.output == .replaceSilently { throw ModelError.tooLongToReplace }
         var last = ""
         for try await text in run.stream { last = text }
         let cleaned = RewriteCleaner.clean(last, original: selection.text)
         guard !cleaned.isEmpty else { throw ModelError.emptyResponse }
-        return cleaned
+        return (cleaned, run.wasTruncated)
     }
 
     private func replace(_ text: String, in selection: SelectionContext, showHUD: Bool) async {

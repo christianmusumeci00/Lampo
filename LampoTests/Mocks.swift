@@ -1,4 +1,5 @@
 import ApplicationServices
+import CoreGraphics
 import Foundation
 import KeyboardShortcuts
 @testable import Lampo
@@ -10,12 +11,19 @@ final class MockModelService: ModelService, @unchecked Sendable {
     var chunks: [String] = ["Hel", "Hello", "Hello!"]
     var failure: (any Error)?
     var delayPerChunk: Duration = .zero
+    var contextSizeValue = 4096
+    /// When set, `tokenCount` throws (as it does for images on macOS 27).
+    var tokenCountFails = false
     private(set) var conversations: [MockConversation] = []
     private(set) var makeConversationCalls = 0
 
     func availability() -> ModelAvailability { availabilityValue }
-    func contextSize(for route: ModelRoute) async -> Int { 4096 }
-    func tokenCount(_ text: String) async throws -> Int { text.split(separator: " ").count }
+    func contextSize(for route: ModelRoute) async -> Int { contextSizeValue }
+    /// One token per whitespace-separated word.
+    func tokenCount(_ text: String) async throws -> Int {
+        if tokenCountFails { throw ModelError.other }
+        return text.split(whereSeparator: { $0.isWhitespace }).count
+    }
 
     func makeConversation(route: ModelRoute, instructions: String) throws -> any ModelConversation {
         makeConversationCalls += 1
@@ -29,6 +37,7 @@ final class MockConversation: ModelConversation, @unchecked Sendable {
     let route: ModelRoute
     private weak var owner: MockModelService?
     private(set) var prompts: [String] = []
+    private(set) var imageCounts: [Int] = []
     private(set) var reasoning: [ReasoningEffort?] = []
 
     init(route: ModelRoute, owner: MockModelService) {
@@ -40,6 +49,7 @@ final class MockConversation: ModelConversation, @unchecked Sendable {
 
     func stream(_ prompt: ModelPrompt, reasoning: ReasoningEffort?) -> AsyncThrowingStream<String, Error> {
         prompts.append(prompt.text)
+        imageCounts.append(prompt.images.count)
         self.reasoning.append(reasoning)
         let chunks = owner?.chunks ?? []
         let failure = owner?.failure
@@ -154,9 +164,45 @@ final class MockAccessibility: AccessibilityClient {
 @MainActor
 final class MockPermissions: PermissionsChecking {
     var isAccessibilityGranted = true
+    var isScreenRecordingGranted = true
     private(set) var requests = 0
+    private(set) var screenRequests = 0
     func requestAccessibility() { requests += 1 }
     func openAccessibilitySettings() {}
+    func requestScreenRecording() { screenRequests += 1 }
+    func openScreenRecordingSettings() {}
+}
+
+/// Returns a 1×1 image for the front window, or fails.
+final class MockScreenCapture: ScreenCapturing, @unchecked Sendable {
+    var error: ScreenCaptureError?
+    private(set) var captures = 0
+
+    func captureFrontWindow(of app: SourceApp) async throws -> WindowCapture {
+        captures += 1
+        if let error { throw error }
+        return WindowCapture(image: Self.image, app: app, title: "main.swift")
+    }
+
+    static let image: CGImage = {
+        let context = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 0,
+                                space: CGColorSpaceCreateDeviceRGB(),
+                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        return context.makeImage()!
+    }()
+}
+
+extension SourceApp {
+    static let terminal = SourceApp(name: "Terminal", bundleIdentifier: "com.apple.Terminal",
+                                    processIdentifier: 4343, isElectron: false)
+}
+
+/// Waits (yielding) until `condition` holds, up to ~2 s.
+@MainActor
+func waitUntil(_ condition: () -> Bool) async {
+    for _ in 0..<400 where !condition() {
+        try? await Task.sleep(for: .milliseconds(5))
+    }
 }
 
 extension SourceApp {

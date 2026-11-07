@@ -46,7 +46,7 @@ struct PromptTemplateTests {
     }
 
     @Test func builtInsRenderTheirSelection() {
-        for action in BuiltInActions.all {
+        for action in BuiltInActions.all where action.input == .selection {
             let output = PromptTemplate.render(action.promptTemplate, context: context, input: action.input)
             #expect(output.contains("ciao mondo"), "\(action.name)")
             #expect(!output.contains("{{"), "\(action.name)")
