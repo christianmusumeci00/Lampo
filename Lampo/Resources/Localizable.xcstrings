@@ -1,0 +1,786 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "About": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        }
+      }
+    },
+    "Active · model on this Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attivo · modello sul Mac"
+          }
+        }
+      }
+    },
+    "Answer language": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lingua delle risposte"
+          }
+        }
+      }
+    },
+    "Answered on this Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risposta generata su questo Mac"
+          }
+        }
+      }
+    },
+    "Answered with Private Cloud Compute": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risposta generata con Private Cloud Compute"
+          }
+        }
+      }
+    },
+    "Apple Intelligence is off": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence è disattivata"
+          }
+        }
+      }
+    },
+    "Apple's safety guidelines blocked this request. Try rephrasing it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le linee guida di sicurezza di Apple hanno bloccato la richiesta. Prova a riformularla."
+          }
+        }
+      }
+    },
+    "Ask Lampo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi a Lampo"
+          }
+        }
+      }
+    },
+    "Ask Lampo…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi a Lampo…"
+          }
+        }
+      }
+    },
+    "Ask a follow-up…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai un’altra domanda…"
+          }
+        }
+      }
+    },
+    "Ask again on Private Cloud Compute with deeper reasoning": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richiedi su Private Cloud Compute con un ragionamento più approfondito"
+          }
+        }
+      }
+    },
+    "Calculated locally on this Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcolato localmente su questo Mac"
+          }
+        }
+      }
+    },
+    "Calculated on Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcolato sul Mac"
+          }
+        }
+      }
+    },
+    "Center of the screen": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al centro dello schermo"
+          }
+        }
+      }
+    },
+    "Check again": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla di nuovo"
+          }
+        }
+      }
+    },
+    "Close the panel after copying": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi il pannello dopo la copia"
+          }
+        }
+      }
+    },
+    "Copied": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiato"
+          }
+        }
+      }
+    },
+    "Copies the answer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia la risposta"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia"
+          }
+        }
+      }
+    },
+    "Couldn't change the login item. Try again from System Settings › General › Login Items.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile modificare l’avvio al login. Riprova da Impostazioni di Sistema › Generali › Elementi login."
+          }
+        }
+      }
+    },
+    "Disabled": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disabilitato"
+          }
+        }
+      }
+    },
+    "Enabled": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abilitato"
+          }
+        }
+      }
+    },
+    "English": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inglese"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generali"
+          }
+        }
+      }
+    },
+    "Go deeper": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approfondisci"
+          }
+        }
+      }
+    },
+    "Hides the answer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nasconde la risposta"
+          }
+        }
+      }
+    },
+    "Italian": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Italiano"
+          }
+        }
+      }
+    },
+    "Lampo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo"
+          }
+        }
+      }
+    },
+    "Lampo is still answering the previous request.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo sta ancora rispondendo alla richiesta precedente."
+          }
+        }
+      }
+    },
+    "Launch at login": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri al login"
+          }
+        }
+      }
+    },
+    "Mac not supported": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac non supportato"
+          }
+        }
+      }
+    },
+    "Model downloading": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download del modello in corso"
+          }
+        }
+      }
+    },
+    "Model downloading…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download del modello…"
+          }
+        }
+      }
+    },
+    "Model not available": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modello non disponibile"
+          }
+        }
+      }
+    },
+    "Near the pointer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vicino al puntatore"
+          }
+        }
+      }
+    },
+    "Not available in this build": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non disponibile in questa build"
+          }
+        }
+      }
+    },
+    "On Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sul Mac"
+          }
+        }
+      }
+    },
+    "Only on this Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo sul Mac"
+          }
+        }
+      }
+    },
+    "Open Lampo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Lampo"
+          }
+        }
+      }
+    },
+    "Open System Settings": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni di Sistema"
+          }
+        }
+      }
+    },
+    "Panel position": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione del pannello"
+          }
+        }
+      }
+    },
+    "Previous question: %@": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domanda precedente: %@"
+          }
+        }
+      }
+    },
+    "Privacy": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        }
+      }
+    },
+    "Private Cloud": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud"
+          }
+        }
+      }
+    },
+    "Private Cloud Compute could not be reached. Check your connection.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile raggiungere Private Cloud Compute. Controlla la connessione."
+          }
+        }
+      }
+    },
+    "Private Cloud Compute is not available in this build.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud Compute non è disponibile in questa build."
+          }
+        }
+      }
+    },
+    "Private Cloud Compute is not available right now.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud Compute non è disponibile in questo momento."
+          }
+        }
+      }
+    },
+    "Quit Lampo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci da Lampo"
+          }
+        }
+      }
+    },
+    "Ready": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronto"
+          }
+        }
+      }
+    },
+    "Restore defaults": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina predefinite"
+          }
+        }
+      }
+    },
+    "Same as the question": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come la domanda"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni…"
+          }
+        }
+      }
+    },
+    "Shortcuts": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorciatoie"
+          }
+        }
+      }
+    },
+    "Shows the answer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra la risposta"
+          }
+        }
+      }
+    },
+    "Something went wrong while generating the answer.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si è verificato un problema durante la generazione della risposta."
+          }
+        }
+      }
+    },
+    "Stopped": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrotto"
+          }
+        }
+      }
+    },
+    "The model declined to answer this request.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello ha rifiutato di rispondere a questa richiesta."
+          }
+        }
+      }
+    },
+    "The model does not support this language yet.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello non supporta ancora questa lingua."
+          }
+        }
+      }
+    },
+    "The model is busy right now. Try again in a moment.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello è occupato. Riprova tra un momento."
+          }
+        }
+      }
+    },
+    "The model is still downloading. Lampo will be ready shortly.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello è ancora in download. Lampo sarà pronto a breve."
+          }
+        }
+      }
+    },
+    "The model on this Mac is ready.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello sul Mac è pronto."
+          }
+        }
+      }
+    },
+    "The model returned an empty answer. Try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello ha restituito una risposta vuota. Riprova."
+          }
+        }
+      }
+    },
+    "The model took too long to answer. Try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello ha impiegato troppo tempo. Riprova."
+          }
+        }
+      }
+    },
+    "The on-device model is not available.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello sul Mac non è disponibile."
+          }
+        }
+      }
+    },
+    "The text is too long for the on-device model. Try a shorter selection.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il testo è troppo lungo per il modello sul Mac. Prova con una selezione più breve."
+          }
+        }
+      }
+    },
+    "Think harder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pensa di più"
+          }
+        }
+      }
+    },
+    "Thinking…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sto pensando…"
+          }
+        }
+      }
+    },
+    "This Mac doesn't support Apple Intelligence.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo Mac non supporta Apple Intelligence."
+          }
+        }
+      }
+    },
+    "Turn on Apple Intelligence in System Settings to use Lampo.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva Apple Intelligence nelle Impostazioni di Sistema per usare Lampo."
+          }
+        }
+      }
+    },
+    "Undefined": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non definito"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versione %@"
+          }
+        }
+      }
+    },
+    "When on, Lampo never uses Private Cloud Compute: every request is answered by the model on your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se attivo, Lampo non usa mai Private Cloud Compute: ogni richiesta viene elaborata dal modello sul tuo Mac."
+          }
+        }
+      }
+    },
+    "Works in every app, including full-screen ones.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funziona in tutte le app, anche a tutto schermo."
+          }
+        }
+      }
+    },
+    "You reached the Private Cloud Compute limit for now. Try again later.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai raggiunto il limite di Private Cloud Compute per ora. Riprova più tardi."
+          }
+        }
+      }
+    },
+    "Your Mac's intelligence, one shortcut away.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’intelligenza del tuo Mac, a una scorciatoia di distanza."
+          }
+        }
+      }
+    },
+    "esc to close": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "esc per chiudere"
+          }
+        }
+      }
+    },
+    "esc to stop": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "esc per fermare"
+          }
+        }
+      }
+    },
+    "“Only on this Mac” is on, so Lampo won't use Private Cloud Compute.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Solo sul Mac” è attivo, quindi Lampo non userà Private Cloud Compute."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

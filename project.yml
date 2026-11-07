@@ -1,0 +1,94 @@
+name: Lampo
+options:
+  bundleIdPrefix: app.lampo
+  deploymentTarget:
+    macOS: "27.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ARCHS: arm64
+    MACOSX_DEPLOYMENT_TARGET: "27.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    DEAD_CODE_STRIPPING: YES
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+
+packages:
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: "3.1.0"
+
+targets:
+  Lampo:
+    type: application
+    platform: macOS
+    sources:
+      - path: Lampo
+    dependencies:
+      - package: KeyboardShortcuts
+    info:
+      path: Lampo/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Lampo
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        CFBundleLocalizations: [en, it]
+        CFBundleDevelopmentRegion: en
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: "© 2026 Lampo"
+        NSPrincipalClass: NSApplication
+    entitlements:
+      path: Lampo/Resources/Lampo.entitlements
+      properties: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.lampo.Lampo
+        PRODUCT_NAME: Lampo
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        GENERATE_INFOPLIST_FILE: NO
+        # Set LAMPO_PCC in a build that carries the managed
+        # com.apple.developer.private-cloud-compute entitlement. Without it,
+        # FoundationModels traps (fatalError) on any PCC request.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited)
+      configs:
+        Debug:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) DEBUG
+
+  LampoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: LampoTests
+    dependencies:
+      - target: Lampo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.lampo.LampoTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Lampo.app/Contents/MacOS/Lampo
+        BUNDLE_LOADER: $(TEST_HOST)
+        CODE_SIGN_IDENTITY: "-"
+
+schemes:
+  Lampo:
+    build:
+      targets:
+        Lampo: all
+        LampoTests: [test]
+    test:
+      targets:
+        - LampoTests
+      gatherCoverageData: false
+    run:
+      config: Debug
