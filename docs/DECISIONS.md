@@ -17,7 +17,8 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 | `ContextOptions(reasoningLevel:)` | `ContextOptions(includeSchemaInPrompt:reasoningLevel:)`, levels `.light .moderate .deep .custom` | Passed per request, not per session. |
 | `tokenCount(for:)` | `SystemLanguageModel.tokenCount(for:)` async throws | Also overloads for instructions, tools, schema. |
 | Errors | `LanguageModelError` (new in 27), `SystemLanguageModel.Error.assetsUnavailable`, `LanguageModelSession.Error.concurrentRequests`, `PrivateCloudComputeLanguageModel.Error` | `LanguageModelSession.GenerationError` is deprecated in 27; not referenced (no warnings). |
-| `@Generable`, `@Guide`, `Tool` | present | Used in M4. |
+| `@Generable`, `@Guide`, `Tool` | `@Generable(description:)`, `@Guide(description:)`, `session.respond(to:generating:)` | `Date` is not Generable, so dates are generated as words and parsed (M4). Regex guides need Swift 6 bare-slash regex literals; not used. |
+| EventKit (macOS 14+) | `requestWriteOnlyAccessToEvents()`, `requestFullAccessToReminders()`, `authorizationStatus(for:)` → `.fullAccess/.writeOnly/.notDetermined/.denied/.restricted` | Reminders have no write-only level. Hardened Runtime needs `com.apple.security.personal-information.calendars` (covers reminders too). |
 
 ## M1
 
@@ -148,3 +149,43 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   tried there.
 - **QA helper (DEBUG).** `LAMPO_QA_ACTION=<uuid>` + `LAMPO_QA_QUERY="…"` also submits the question to the
   panel 2 s after the action (used for the acceptance test with "Ask the screen").
+
+## M4
+
+- **The model reads words; code does the calendar maths.** A probe showed the small model copies the
+  day and time words well but resolves "giovedì" to wrong dates and invents end times. So
+  `@Generable` asks only for title, the day words, the start time (HH:mm) and the place, and
+  `WhenParser` resolves everything deterministically in the user's calendar and time zone: ISO and
+  day-first numeric dates (month-first in the US), Italian/English month names, oggi/domani/dopodomani/
+  stasera, "tra N giorni", weekdays (the same weekday as today means today only if the time is still
+  ahead), ranges ("dalle 14 alle 16", "from 9:30 to 11"), durations (only with "per"/"for", so
+  "tra un'ora" isn't one), "e mezza"/"e un quarto", noon/midnight. Hours 1–7 without am/pm or a part
+  of the day mean the afternoon. A past date without a year is next year.
+- **Priority.** Start time: explicit time in the text → the model's time, only if the text hints at a
+  time of day → the usual time of a meal (colazione 8:30, pranzo 13, aperitivo 19, cena 20) → the part
+  of the day (mattina 9, pomeriggio 15, sera 19) → all day. Day: parsed → the model's day words parsed →
+  `NSDataDetector` → today if the time is still ahead, else tomorrow. End: explicit → duration → +1 h.
+  The place is kept only if it appears in the text. Texts over 25 words go in the notes.
+- **Titles.** "Ricordami di …" is stripped. If the model returns a lone verb ("Chiamare"), the title is
+  taken from the text with the day and time words removed ("Chiamare Anna per il preventivo").
+- **Always confirmed.** Every draft opens as an editable card in the panel ("Non viene aggiunto nulla
+  finché non confermi"); EventKit is called only from Aggiungi (⌘↩). Permission is requested on the
+  first confirm, not at launch; a refusal shows the reason and "Apri Impostazioni di Sistema".
+  Events use **write-only** access (Lampo can't read calendars); reminders need full access. Items go
+  to the default calendar / list; a reminder with a time gets an alarm at that time.
+- **If the model can't help** (unavailable, refusal), the card is built from the parser alone and is
+  still editable. Extraction is always on device, with a fresh session, and never uses PCC.
+- **Input.** With selected text (AX, or the ⌘C fallback) the card opens directly; otherwise the panel
+  shows a "Crea evento" chip and asks for a description. Structured actions don't use the prompt
+  template; the action editor hides it and explains this.
+- **History (off by default).** `HistoryStore` keeps up to 200 finished requests (panel turns, Lens and
+  silent/copy results; source, input, output, route) in `Application Support/Lampo/history.json`,
+  mode 0600, inputs and outputs clipped at 4000 characters. Turning it off, or "Cancella cronologia",
+  deletes the file. Settings › Privacy has the switch, a searchable viewer with copy/delete, and the
+  Calendars/Reminders status rows.
+- **"Solo sul Mac" is tested with PCC compiled in.** `Preferences.privateCloudInBuild` is a test seam;
+  `OnlyOnMacTests` checks that panel questions, "Pensa di più", "Approfondisci", PCC-configured actions,
+  the Lens and drafts create no `.privateCloud` conversation, and that switching it off does.
+  The `LAMPO_PCC` build compiles cleanly (not run: it needs the managed entitlement).
+- **QA helper (DEBUG).** `LAMPO_QA_DRAFT=event|reminder` + `LAMPO_QA_QUERY="…"` opens the card for that
+  text with the real extraction, without reading the selection.

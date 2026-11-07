@@ -10,7 +10,7 @@ struct LensViewModelTests {
 
     func makeLens(initial: UUID = BuiltInActions.formalID) -> LensViewModel {
         let selection = SelectionContext(text: "ciao come va", app: .textEdit, anchor: nil, element: nil, source: .clipboard)
-        let actions = BuiltInActions.all.filter { $0.output != .openPanel }
+        let actions = BuiltInActions.all.filter { $0.output.showsInLens }
         return LensViewModel(selection: selection, actions: actions, initialActionID: initial,
                              runner: ActionRunner(model: model, preferences: preferences), pasteboard: pasteboard)
     }

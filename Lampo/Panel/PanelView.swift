@@ -32,7 +32,10 @@ struct PanelView: View {
                     .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
                     .padding(.vertical, 10)
             }
-            if viewModel.hasContent {
+            if viewModel.draft != nil {
+                Divider()
+                DraftCardView(viewModel: viewModel)
+            } else if viewModel.hasContent {
                 Divider()
                 ConversationView(viewModel: viewModel)
                 Divider()
@@ -50,6 +53,11 @@ struct PanelView: View {
     }
 
     private var placeholder: LocalizedStringKey {
+        switch viewModel.draftInputKind {
+        case .event: return "Describe the event, e.g. dinner with Marco Thursday at 8pm"
+        case .reminder: return "What should I remind you? e.g. call Anna tomorrow at 10"
+        case nil: break
+        }
         if viewModel.hasWindowContext { return "Ask about this window…" }
         return viewModel.hasContent ? "Ask a follow-up…" : "Ask Lampo…"
     }
@@ -64,6 +72,10 @@ struct PanelView: View {
                 .font(.system(size: 19, weight: .semibold))
                 .foregroundStyle(DesignTokens.accent)
                 .accessibilityHidden(true)
+            if let kind = viewModel.draftInputKind {
+                DraftModeChip(kind: kind) { viewModel.cancelDraftInput() }
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }
+            }
             ForEach(viewModel.contextItems) { item in
                 ContextChip(item: item) { viewModel.removeContext(id: item.id) }
                     .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }

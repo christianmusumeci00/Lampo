@@ -47,9 +47,14 @@ targets:
         LSApplicationCategoryType: public.app-category.productivity
         NSHumanReadableCopyright: "© 2026 Lampo"
         NSPrincipalClass: NSApplication
+        NSCalendarsWriteOnlyAccessUsageDescription: Lampo adds the events you confirm to your calendar. It can't read your calendars.
+        NSRemindersFullAccessUsageDescription: Lampo adds the reminders you confirm to your default list.
+        NSRemindersUsageDescription: Lampo adds the reminders you confirm to your default list.
     entitlements:
       path: Lampo/Resources/Lampo.entitlements
-      properties: {}
+      properties:
+        # Hardened Runtime resource access for EventKit (events and reminders).
+        com.apple.security.personal-information.calendars: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.lampo.Lampo

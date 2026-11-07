@@ -184,6 +184,7 @@ struct ActionEditor: View {
                 }
             }
 
+            if action.output.draftKind == nil {
             Section {
                 TextEditor(text: $action.promptTemplate)
                     .font(.system(size: 12, design: .monospaced))
@@ -226,6 +227,7 @@ struct ActionEditor: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            }
 
             Section {
                 Picker("Input", selection: $action.input) {
@@ -239,8 +241,14 @@ struct ActionEditor: View {
                     Text("Replace without preview").tag(LampoAction.OutputMode.replaceSilently)
                     Text("Copy").tag(LampoAction.OutputMode.copy)
                     Text("Open in the panel").tag(LampoAction.OutputMode.openPanel)
+                    Text("Create a calendar event").tag(LampoAction.OutputMode.calendarEvent)
+                    Text("Create a reminder").tag(LampoAction.OutputMode.reminder)
                 }
-                if action.input != .selection && action.output != .openPanel {
+                if action.output.draftKind != nil {
+                    Text("Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if action.input != .selection && action.output != .openPanel {
                     Text("Without selected text there's nothing to replace: the result opens in the panel.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -269,6 +277,7 @@ struct ActionEditor: View {
                 }
             }
 
+            if action.output.draftKind == nil {
             Section("Try it") {
                 TextField("Sample text", text: $sample, axis: .vertical)
                     .lineLimit(2...5)
@@ -302,6 +311,7 @@ struct ActionEditor: View {
                         TruncationNotice()
                     }
                 }
+            }
             }
         }
         .formStyle(.grouped)

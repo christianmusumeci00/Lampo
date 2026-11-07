@@ -69,6 +69,34 @@ struct PromptParts {
     }
 }
 
+/// The "Create event" / "Create reminder" confirmation card.
+struct DraftCard: Equatable {
+    enum Phase: Equatable {
+        /// The model is reading the text.
+        case reading
+        case editing
+        case saving
+        case saved
+        case failed(String)
+    }
+
+    var kind: DraftKind
+    var event: CalendarEventDraft
+    var reminder: ReminderDraft
+    var phase: Phase
+    /// The failure is a denied permission: offer System Settings.
+    var needsSettings = false
+
+    var canConfirm: Bool {
+        switch phase {
+        case .editing, .failed: return !title.trimmingCharacters(in: .whitespaces).isEmpty
+        default: return false
+        }
+    }
+
+    var title: String { kind == .event ? event.title : reminder.title }
+}
+
 /// State and behaviour of the Glass panel. UI-free, so it is unit-tested with mocks.
 @MainActor
 @Observable
@@ -89,12 +117,23 @@ final class PanelViewModel {
     private(set) var notice: PanelNotice?
     /// A window screenshot is being taken (⌘⇧S).
     private(set) var isCapturingWindow = false
+    /// "Create event"/"Create reminder" card, shown instead of the conversation.
+    var draft: DraftCard?
+    /// The panel is waiting for the user to describe an event or reminder.
+    private(set) var draftInputKind: DraftKind?
+    /// A system permission prompt is up: the panel must not close when it loses focus.
+    private(set) var isWaitingForSystemPrompt = false
 
     @ObservationIgnored private let model: any ModelService
     @ObservationIgnored private let preferences: Preferences
     @ObservationIgnored private let pasteboard: any PasteboardClient
     @ObservationIgnored private let screenCapture: any ScreenCapturing
     @ObservationIgnored private let budget: ContextBudget
+    @ObservationIgnored let calendarWriter: any CalendarWriting
+    @ObservationIgnored let now: () -> Date
+    /// Calendar (and time zone) used to resolve "giovedì", "domani"…
+    @ObservationIgnored var userCalendar: Calendar = .current
+    @ObservationIgnored var draftTask: Task<Void, Never>?
     @ObservationIgnored private let clock: () -> ContinuousClock.Instant
     @ObservationIgnored private var conversation: (any ModelConversation)?
     @ObservationIgnored private(set) var generationTask: Task<Void, Never>?
@@ -115,14 +154,22 @@ final class PanelViewModel {
     @ObservationIgnored var onInsert: ((String, SelectionContext?) -> Void)?
     /// Called by the "Allow…" button of a permission notice.
     @ObservationIgnored var onGrantPermission: ((PermissionKind) -> Void)?
+    /// Called when a system prompt closes, so the panel can take focus back.
+    @ObservationIgnored var onSystemPromptFinished: (() -> Void)?
+    /// Called with each completed model answer (for the optional local history).
+    @ObservationIgnored var onTurnCompleted: ((ConversationTurn) -> Void)?
 
     init(
         model: any ModelService,
         preferences: Preferences,
         pasteboard: any PasteboardClient,
         screenCapture: any ScreenCapturing = ScreenCaptureService(),
+        calendarWriter: (any CalendarWriting)? = nil,
+        now: @escaping () -> Date = { .now },
         clock: @escaping () -> ContinuousClock.Instant = { .now }
     ) {
+        self.calendarWriter = calendarWriter ?? CalendarService()
+        self.now = now
         self.model = model
         self.preferences = preferences
         self.pasteboard = pasteboard
@@ -137,7 +184,7 @@ final class PanelViewModel {
     var currentTurn: ConversationTurn? { turns.last }
     var previousTurns: ArraySlice<ConversationTurn> { turns.dropLast() }
     var isGenerating: Bool { currentTurn?.state == .streaming }
-    var hasContent: Bool { !turns.isEmpty }
+    var hasContent: Bool { !turns.isEmpty || draft != nil }
     var canCopy: Bool { !(currentTurn?.answer.isEmpty ?? true) }
     var canFollowUp: Bool { conversation != nil && !isGenerating && currentTurn?.kind == .model }
     var canInsert: Bool { canCopy && !isGenerating }
@@ -251,6 +298,10 @@ final class PanelViewModel {
         activeSelection = nil
         partsByTurn = [:]
         sentTextByTurn = [:]
+        draftTask?.cancel()
+        draftTask = nil
+        draft = nil
+        draftInputKind = nil
         query = ""
         notice = nil
         focusRequest += 1
@@ -263,6 +314,14 @@ final class PanelViewModel {
         guard !text.isEmpty, !isGenerating else { return }
         query = ""
         notice = nil
+        if let kind = draftInputKind {
+            startDraft(kind, from: text)
+            return
+        }
+        if draft != nil {
+            draftTask?.cancel()
+            draft = nil
+        }
         touch()
 
         if contextItems.isEmpty, let result = Calculator.evaluate(text) {
@@ -447,6 +506,9 @@ final class PanelViewModel {
                 } else {
                     self?.update(turnID) { $0.state = .done }
                     self?.announceCompletion(turnID)
+                    if let self, let turn = self.turns.first(where: { $0.id == turnID }) {
+                        self.onTurnCompleted?(turn)
+                    }
                 }
             } catch is CancellationError {
                 self?.update(turnID) { $0.state = .cancelled }
@@ -467,6 +529,97 @@ final class PanelViewModel {
     private func announceCompletion(_ id: UUID) {
         guard let turn = turns.first(where: { $0.id == id }), !turn.answer.isEmpty else { return }
         AccessibilityNotification.Announcement(turn.answer).post()
+    }
+
+    // MARK: Drafts (Create event / Create reminder)
+
+    /// Reads `text` into an editable draft. If the model can't help (unavailable, refused),
+    /// the draft is built from the date parser alone and is still editable.
+    func startDraft(_ kind: DraftKind, from text: String) {
+        resetConversation()
+        let parser = WhenParser(now: now(), calendar: userCalendar)
+        let start = parser.calendar.startOfDay(for: parser.now)
+        draft = DraftCard(
+            kind: kind,
+            event: CalendarEventDraft(title: "", start: start, end: start, isAllDay: true, location: "", notes: ""),
+            reminder: ReminderDraft(title: "", hasDueDate: false, due: start, hasDueTime: false, notes: ""),
+            phase: .reading)
+        draftTask = Task { [weak self, model] in
+            var details = ExtractedDetails()
+            do {
+                details = try await model.extractDetails(from: text, kind: kind)
+            } catch is CancellationError {
+                return
+            } catch {
+                Log.model.info("extraction failed; using the date parser only")
+            }
+            guard !Task.isCancelled, let self, self.draft?.phase == .reading else { return }
+            self.draft?.event = DraftBuilder.event(from: text, details: details, parser: parser)
+            self.draft?.reminder = DraftBuilder.reminder(from: text, details: details, parser: parser)
+            self.draft?.phase = .editing
+        }
+    }
+
+    /// No selected text: the panel asks for a description ("cena con Marco giovedì alle 20").
+    func enterDraftInput(_ kind: DraftKind) {
+        resetConversation()
+        draftInputKind = kind
+    }
+
+    func cancelDraftInput() {
+        draftInputKind = nil
+    }
+
+    /// Writes the confirmed draft. Asks for Calendar/Reminders access the first time.
+    func confirmDraft() {
+        guard let card = draft, card.canConfirm else { return }
+        draft?.phase = .saving
+        draft?.needsSettings = false
+        let writer = calendarWriter
+        draftTask = Task { [weak self] in
+            var access = writer.access(for: card.kind)
+            if access == .notDetermined {
+                self?.isWaitingForSystemPrompt = true
+                access = await writer.requestAccess(for: card.kind) ? .granted : .denied
+                self?.isWaitingForSystemPrompt = false
+                self?.onSystemPromptFinished?()
+            }
+            guard let self, !Task.isCancelled else { return }
+            guard access == .granted else {
+                self.draft?.phase = .failed(CalendarWriteError.accessDenied(card.kind).localizedDescription)
+                self.draft?.needsSettings = true
+                return
+            }
+            do {
+                switch card.kind {
+                case .event: try writer.save(card.event)
+                case .reminder: try writer.save(card.reminder)
+                }
+                self.draft?.phase = .saved
+                let message = card.kind == .event ? String(localized: "Added to Calendar") : String(localized: "Added to Reminders")
+                AccessibilityNotification.Announcement(message).post()
+            } catch {
+                self.draft?.phase = .failed((error as? LocalizedError)?.errorDescription ?? CalendarWriteError.saveFailed.localizedDescription)
+            }
+        }
+    }
+
+    func discardDraft() {
+        draftTask?.cancel()
+        draft = nil
+        onRequestClose?()
+    }
+
+    func openDraftSettings() {
+        guard let kind = draft?.kind else { return }
+        calendarWriter.openSettings(for: kind)
+        onRequestClose?()
+    }
+
+    func openDraftApp() {
+        guard let card = draft else { return }
+        calendarWriter.openApp(for: card.kind, at: card.kind == .event ? card.event.start : card.reminder.due)
+        onRequestClose?()
     }
 
     private func showFlash(_ text: String) {

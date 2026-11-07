@@ -19,6 +19,22 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
         case copy
         /// Open the Glass panel with the result, for follow-ups.
         case openPanel
+        /// Turn the text into a calendar event, confirmed in an editable card.
+        case calendarEvent
+        /// Turn the text into a reminder, confirmed in an editable card.
+        case reminder
+
+        /// Structured outputs don't use the prompt template.
+        var draftKind: DraftKind? {
+            switch self {
+            case .calendarEvent: return .event
+            case .reminder: return .reminder
+            default: return nil
+            }
+        }
+
+        /// Actions offered as Lens chips: the ones that rewrite text.
+        var showsInLens: Bool { self == .preview || self == .replaceSilently || self == .copy }
     }
 
     var id: UUID

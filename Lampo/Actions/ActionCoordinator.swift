@@ -19,6 +19,8 @@ final class ActionCoordinator {
 
     /// Called when an action needs a permission the user hasn't granted.
     var onNeedsPermission: ((PermissionKind) -> Void)?
+    /// Called with each finished Lens, replace or copy result: action name, input, output, route.
+    var onResult: ((String, String, String, ModelRoute) -> Void)?
 
     init(store: ActionStore, runner: ActionRunner, selectionReader: any SelectionReading, output: OutputService,
          permissions: any PermissionsChecking, pasteboard: any PasteboardClient,
@@ -55,6 +57,11 @@ final class ActionCoordinator {
         panel?.hide()
         lens.close()
 
+        if let kind = action.output.draftKind {
+            await runStructured(action, kind: kind)
+            return
+        }
+
         switch action.input {
         case .selection:
             guard permissions.isAccessibilityGranted else {
@@ -72,6 +79,22 @@ final class ActionCoordinator {
             await openPanel(action, context: context, items: [])
         case .screen:
             await runOnScreen(action)
+        }
+    }
+
+    /// "Create event" / "Create reminder": the selection becomes a draft card; with no selection
+    /// (or no Accessibility) the panel asks for the description instead.
+    private func runStructured(_ action: LampoAction, kind: DraftKind) async {
+        var text: String?
+        if action.input == .selection, permissions.isAccessibilityGranted {
+            text = await selectionReader.readSelection(allowClipboardFallback: true)?.text
+        } else if action.input == .clipboard {
+            text = pasteboard.string()
+        }
+        if let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            panel?.showDraft(kind, from: text)
+        } else {
+            panel?.showDraftInput(kind)
         }
     }
 
@@ -120,17 +143,24 @@ final class ActionCoordinator {
     private func perform(_ action: LampoAction, on selection: SelectionContext) async {
         switch action.output {
         case .preview:
-            let actions = store.selectionActions.filter { $0.output != .openPanel }
+            let actions = store.selectionActions.filter { $0.output.showsInLens }
             let list = actions.contains { $0.id == action.id } ? actions : [action] + actions
-            lens.show(LensViewModel(selection: selection, actions: list, initialActionID: action.id,
-                                    runner: runner, pasteboard: pasteboard, routingPolicy: routingPolicy()))
+            let lensModel = LensViewModel(selection: selection, actions: list, initialActionID: action.id,
+                                          runner: runner, pasteboard: pasteboard, routingPolicy: routingPolicy())
+            lensModel.onCompleted = { [weak self] action, result, route in
+                self?.onResult?(action.name, selection.text, result, route)
+            }
+            lens.show(lensModel)
         case .openPanel:
             let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
             await openPanel(action, context: context, items: [.selection(selection)])
+        case .calendarEvent, .reminder:
+            panel?.showDraft(action.output.draftKind ?? .event, from: selection.text)
         case .replaceSilently, .copy:
             hud.show(String(localized: "\(action.name)…"), style: .working, near: selection.anchor)
             do {
-                let (text, wasTruncated) = try await complete(action, selection: selection)
+                let (text, wasTruncated, route) = try await complete(action, selection: selection)
+                onResult?(action.name, selection.text, text, route)
                 if action.output == .copy {
                     output.copy(text)
                     let message = wasTruncated ? String(localized: "Copied · Long text: used an excerpt") : String(localized: "Copied")
@@ -145,7 +175,7 @@ final class ActionCoordinator {
         }
     }
 
-    private func complete(_ action: LampoAction, selection: SelectionContext) async throws -> (String, Bool) {
+    private func complete(_ action: LampoAction, selection: SelectionContext) async throws -> (String, Bool, ModelRoute) {
         let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
         let run = try await runner.start(action, context: context)
         // Writing a rewrite of an excerpt over the whole selection would lose text.
@@ -154,7 +184,7 @@ final class ActionCoordinator {
         for try await text in run.stream { last = text }
         let cleaned = RewriteCleaner.clean(last, original: selection.text)
         guard !cleaned.isEmpty else { throw ModelError.emptyResponse }
-        return (cleaned, run.wasTruncated)
+        return (cleaned, run.wasTruncated, run.route)
     }
 
     private func replace(_ text: String, in selection: SelectionContext, showHUD: Bool) async {

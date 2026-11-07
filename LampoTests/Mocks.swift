@@ -25,6 +25,16 @@ final class MockModelService: ModelService, @unchecked Sendable {
         return text.split(whereSeparator: { $0.isWhitespace }).count
     }
 
+    var extracted = ExtractedDetails()
+    var extractionFailure: (any Error)?
+    private(set) var extractions: [(text: String, kind: DraftKind)] = []
+
+    func extractDetails(from text: String, kind: DraftKind) async throws -> ExtractedDetails {
+        extractions.append((text, kind))
+        if let extractionFailure { throw extractionFailure }
+        return extracted
+    }
+
     func makeConversation(route: ModelRoute, instructions: String) throws -> any ModelConversation {
         makeConversationCalls += 1
         let conversation = MockConversation(route: route, owner: self)
@@ -249,4 +259,55 @@ func makeTestDefaults() -> UserDefaults {
 final class TestClock {
     var now = ContinuousClock.now
     func advance(_ duration: Duration) { now = now.advanced(by: duration) }
+}
+
+/// Records what would be written to Calendar/Reminders.
+@MainActor
+final class MockCalendarWriter: CalendarWriting {
+    var accessValue: CalendarAccess = .granted
+    /// What the system prompt answers when access is not determined.
+    var grantsOnRequest = true
+    var saveFailure: CalendarWriteError?
+    private(set) var accessRequests: [DraftKind] = []
+    private(set) var savedEvents: [CalendarEventDraft] = []
+    private(set) var savedReminders: [ReminderDraft] = []
+    private(set) var openedSettings: [DraftKind] = []
+
+    func access(for kind: DraftKind) -> CalendarAccess { accessValue }
+
+    func requestAccess(for kind: DraftKind) async -> Bool {
+        accessRequests.append(kind)
+        accessValue = grantsOnRequest ? .granted : .denied
+        return grantsOnRequest
+    }
+
+    func save(_ draft: CalendarEventDraft) throws {
+        if let saveFailure { throw saveFailure }
+        savedEvents.append(draft)
+    }
+
+    func save(_ draft: ReminderDraft) throws {
+        if let saveFailure { throw saveFailure }
+        savedReminders.append(draft)
+    }
+
+    func openSettings(for kind: DraftKind) { openedSettings.append(kind) }
+    func openApp(for kind: DraftKind, at date: Date?) {}
+}
+
+/// A Gregorian calendar in Rome, and a date in it, for date-resolution tests.
+enum TestDates {
+    static let calendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Rome")!
+        calendar.locale = Locale(identifier: "it_IT")
+        return calendar
+    }()
+
+    static func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int = 0, _ minute: Int = 0) -> Date {
+        calendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
+    }
+
+    /// Sunday 8 November 2026, 10:00 in Rome.
+    static let sundayMorning = date(2026, 11, 8, 10)
 }

@@ -30,6 +30,8 @@ final class LensViewModel {
 
     /// Called with the final text when the user confirms Replace.
     @ObservationIgnored var onReplace: ((String) -> Void)?
+    /// Called when a run finishes, with the action and the cleaned result (for the history).
+    @ObservationIgnored var onCompleted: ((LampoAction, String, ModelRoute) -> Void)?
 
     init(selection: SelectionContext, actions: [LampoAction], initialActionID: UUID,
          runner: ActionRunner, pasteboard: any PasteboardClient,
@@ -106,12 +108,13 @@ final class LensViewModel {
                 for try await text in run.stream {
                     self?.output = text
                 }
-                if !Task.isCancelled {
-                    self?.phase = .done
+                if !Task.isCancelled, let self {
+                    self.phase = .done
+                    self.onCompleted?(action, self.result, run.route)
                     #if DEBUG
                     if ProcessInfo.processInfo.environment["LAMPO_QA_AUTOREPLACE"] == "1" {
                         try? await Task.sleep(for: .seconds(1.5))
-                        self?.replace()
+                        self.replace()
                     }
                     #endif
                 }

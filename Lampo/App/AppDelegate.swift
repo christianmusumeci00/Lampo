@@ -25,6 +25,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
+        // `LAMPO_QA_DRAFT=event|reminder` + `LAMPO_QA_QUERY` opens the confirmation card for that text
+        // (real model extraction, no selection read). Nothing is saved without pressing Add.
+        if let kind = environment["LAMPO_QA_DRAFT"].flatMap(DraftKind.init(rawValue:)),
+           let query = environment["LAMPO_QA_QUERY"] {
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                state.panelController?.showDraft(kind, from: query)
+            }
+        }
         // Manual QA helper: `LAMPO_OPEN_PANEL=1` opens the panel at launch.
         if ProcessInfo.processInfo.environment["LAMPO_OPEN_PANEL"] == "1" {
             state.togglePanel()

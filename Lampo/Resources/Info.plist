@@ -29,9 +29,15 @@
 	<string>public.app-category.productivity</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Lampo adds the events you confirm to your calendar. It can't read your calendars.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 Lampo</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Lampo adds the reminders you confirm to your default list.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Lampo adds the reminders you confirm to your default list.</string>
 </dict>
 </plist>

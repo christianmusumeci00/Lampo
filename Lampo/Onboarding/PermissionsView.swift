@@ -13,7 +13,12 @@ struct PermissionsView: View {
     var onDone: (() -> Void)?
     @State private var accessibilityGranted = AXIsProcessTrusted()
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
+    @State private var calendarsGranted = false
+    @State private var remindersGranted = false
     private let service = PermissionsService()
+    private var calendars: CalendarService { Self.calendarService }
+    /// One EventKit store for the app's lifetime (creating one is slow).
+    private static let calendarService = CalendarService()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -51,6 +56,21 @@ struct PermissionsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            if style == .settings {
+                // Asked the first time you confirm an event or a reminder; shown here for status.
+                PermissionRow(
+                    title: "Calendars",
+                    detail: "Add the events you confirm. Lampo can't read your calendars.",
+                    isGranted: calendarsGranted,
+                    grant: { grantCalendar(.event) })
+
+                PermissionRow(
+                    title: "Reminders",
+                    detail: "Add the reminders you confirm to your default list.",
+                    isGranted: remindersGranted,
+                    grant: { grantCalendar(.reminder) })
+            }
+
             if style == .onboarding {
                 HStack {
                     Text("You can change this later in Lampo Settings › Privacy.")
@@ -67,8 +87,23 @@ struct PermissionsView: View {
             while !Task.isCancelled {
                 accessibilityGranted = AXIsProcessTrusted()
                 screenRecordingGranted = CGPreflightScreenCaptureAccess()
+                if style == .settings {
+                    calendarsGranted = calendars.access(for: .event) == .granted
+                    remindersGranted = calendars.access(for: .reminder) == .granted
+                }
                 try? await Task.sleep(for: .seconds(1))
             }
+        }
+    }
+}
+
+extension PermissionsView {
+    /// First time: the system prompt. After a refusal: the System Settings pane.
+    private func grantCalendar(_ kind: DraftKind) {
+        if calendars.access(for: kind) == .notDetermined {
+            Task { _ = await calendars.requestAccess(for: kind) }
+        } else {
+            calendars.openSettings(for: kind)
         }
     }
 }

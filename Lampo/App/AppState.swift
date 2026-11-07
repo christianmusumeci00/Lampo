@@ -8,6 +8,7 @@ import Observation
 final class AppState {
     let preferences: Preferences
     let actionStore: ActionStore
+    let history: HistoryStore
     @ObservationIgnored let modelService: any ModelService
     @ObservationIgnored let hotkeys: HotkeyManager
     @ObservationIgnored private(set) var panelController: PanelController?
@@ -25,6 +26,7 @@ final class AppState {
     ) {
         self.preferences = preferences
         self.actionStore = actionStore ?? ActionStore()
+        self.history = HistoryStore(isEnabled: { [preferences] in preferences.keepHistory })
         self.modelService = modelService
         self.hotkeys = HotkeyManager(backend: hotkeyBackend, isEnabled: preferences.isEnabled)
     }
@@ -56,6 +58,9 @@ final class AppState {
         let panel = PanelController(viewModel: viewModel, preferences: preferences, selectionReader: selectionService,
                                     output: output, permissions: permissions, pasteboard: pasteboard)
         panelController = panel
+        viewModel.onTurnCompleted = { [history] turn in
+            history.record(source: String(localized: "Panel"), input: turn.question, output: turn.answer, route: turn.route)
+        }
 
         let coordinator = ActionCoordinator(
             store: actionStore, runner: ActionRunner(model: modelService, preferences: preferences),
@@ -63,6 +68,9 @@ final class AppState {
             screenCapture: screenCapture, routingPolicy: { [preferences] in preferences.routingPolicy },
             lens: LensController(), hud: HUDController(), panel: panel)
         coordinator.onNeedsPermission = { [weak self] _ in self?.onboarding.show() }
+        coordinator.onResult = { [history] source, input, output, route in
+            history.record(source: source, input: input, output: output, route: route)
+        }
         actionCoordinator = coordinator
 
         hotkeys.register(.togglePanel) { [weak self] in self?.togglePanel() }

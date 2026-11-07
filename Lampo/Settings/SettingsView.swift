@@ -17,7 +17,7 @@ struct SettingsView: View {
                 ActionsSettingsView(state: state)
             }
             Tab("Privacy", systemImage: "lock") {
-                PrivacySettingsView(preferences: state.preferences)
+                PrivacySettingsView(preferences: state.preferences, history: state.history)
             }
             Tab("About", systemImage: "info.circle") {
                 AboutSettingsView()
@@ -147,6 +147,9 @@ struct ShortcutsSettingsView: View {
 
 struct PrivacySettingsView: View {
     @Bindable var preferences: Preferences
+    let history: HistoryStore
+    @State private var showsHistory = false
+    @State private var confirmsClear = false
 
     var body: some View {
         Form {
@@ -156,6 +159,26 @@ struct PrivacySettingsView: View {
                 Text("When on, Lampo never uses Private Cloud Compute: every request is answered by the model on your Mac.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            Section {
+                Toggle("Keep a local history", isOn: $preferences.keepHistory)
+                    .onChange(of: preferences.keepHistory) { history.preferenceChanged() }
+                HStack {
+                    Button("Show History…") { showsHistory = true }
+                        .disabled(!preferences.keepHistory)
+                    Spacer()
+                    Button("Clear History…", role: .destructive) { confirmsClear = true }
+                        .disabled(history.entries.isEmpty)
+                }
+            } footer: {
+                Text("Your questions and Lampo's answers are saved only on this Mac, for up to \(HistoryStore.maxEntries) requests. Turning history off deletes it.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .confirmationDialog("Clear the history?", isPresented: $confirmsClear) {
+                Button("Clear History", role: .destructive) { history.clear() }
+            } message: {
+                Text("This deletes every saved request and answer. It can't be undone.")
             }
             Section("Permissions") {
                 PermissionsView(style: .settings)
@@ -168,6 +191,9 @@ struct PrivacySettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .sheet(isPresented: $showsHistory) {
+            HistoryView(history: history) { showsHistory = false }
+        }
     }
 }
 

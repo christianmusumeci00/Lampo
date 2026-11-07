@@ -14,6 +14,8 @@ enum BuiltInActions {
     static let summarizeID = UUID(uuidString: "6C0A0006-0000-4000-8000-00000000C0DE")!
     static let explainID = UUID(uuidString: "6C0A0007-0000-4000-8000-00000000C0DE")!
     static let askScreenID = UUID(uuidString: "6C0A0008-0000-4000-8000-00000000C0DE")!
+    static let createEventID = UUID(uuidString: "6C0A0009-0000-4000-8000-00000000C0DE")!
+    static let createReminderID = UUID(uuidString: "6C0A000A-0000-4000-8000-00000000C0DE")!
 
     static var all: [LampoAction] {
         [
@@ -81,6 +83,14 @@ enum BuiltInActions {
             LampoAction(
                 id: askScreenID, name: String(localized: "Ask the screen"), symbol: "macwindow",
                 promptTemplate: "", input: .screen, output: .openPanel, isBuiltIn: true),
+            // Structured: the selection (or typed text) becomes an editable draft; nothing is
+            // written to Calendar or Reminders without confirmation.
+            LampoAction(
+                id: createEventID, name: String(localized: "Create event"), symbol: "calendar.badge.plus",
+                promptTemplate: "", output: .calendarEvent, isBuiltIn: true),
+            LampoAction(
+                id: createReminderID, name: String(localized: "Create reminder"), symbol: "checklist",
+                promptTemplate: "", output: .reminder, isBuiltIn: true),
         ]
     }
 
@@ -92,6 +102,8 @@ enum BuiltInActions {
         toEnglishID: .init(.t, modifiers: [.option, .shift]),
         summarizeID: .init(.r, modifiers: [.option, .shift]),
         askScreenID: .init(.s, modifiers: [.option, .shift]),
+        createEventID: .init(.e, modifiers: [.option, .shift]),
+        createReminderID: .init(.p, modifiers: [.option, .shift]),
     ]
 }
 

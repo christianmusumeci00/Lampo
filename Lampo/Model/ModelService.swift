@@ -35,6 +35,8 @@ protocol ModelService: AnyObject, Sendable {
     func tokenCount(_ text: String) async throws -> Int
     /// Starts a multi-turn conversation. Throws if the route is not usable in this build.
     func makeConversation(route: ModelRoute, instructions: String) throws -> any ModelConversation
+    /// Pulls an event's or reminder's words out of `text` with guided generation. Always on device.
+    func extractDetails(from text: String, kind: DraftKind) async throws -> ExtractedDetails
 }
 
 /// A multi-turn session with the model.

@@ -21,7 +21,8 @@ the process cwd is inside ~/Documents):
 ```bash
 cd / && LAMPO_OPEN_PANEL=1 LAMPO_QA_QUERY="..." ~/Documents/Lampo/build/DerivedData/Build/Products/Debug/Lampo.app/Contents/MacOS/Lampo
 ```
-`LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` / `LAMPO_QA_ACTION=<uuid>` / `LAMPO_QA_AUTOREPLACE=1` are
+`LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` / `LAMPO_QA_ACTION=<uuid>` / `LAMPO_QA_AUTOREPLACE=1` /
+`LAMPO_QA_DRAFT=event|reminder` (opens the confirmation card for `LAMPO_QA_QUERY`) are
 DEBUG-only helpers (`AppDelegate`, `LensViewModel`); `LAMPO_QA_ACTION` + `LAMPO_QA_QUERY` asks a question
 after a panel action ("Ask the screen" is `6C0A0008-0000-4000-8000-00000000C0DE`). Launched from a shell that has Accessibility,
 Lampo inherits it, so selection read/replace can be checked end to end (e.g. on a scratch TextEdit doc).
@@ -57,8 +58,13 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
   `Attachment(cgImage)`. `tokenCount` can't count images: `ContextBudget` reserves 1000 tokens each.
 - `ContextBudget` cuts long selection/clipboard to head ⅔ + tail ⅓; truncated input is never written back
   (Lens Replace off, silent mode refuses).
+- Create event/reminder: `@Generable` extracts only words (title, day words, HH:mm, place); `WhenParser`
+  resolves dates in the user's calendar. Nothing reaches EventKit without the confirmation card.
+  Events use write-only access. Extraction is on device only.
+- History is off by default (`HistoryStore`, Application Support/Lampo/history.json, 200 entries);
+  turning it off deletes the file. `Preferences.privateCloudInBuild` is the test seam for "Only on Mac".
 
 ## Milestones
 
 M1 skeleton ✅ · M2 lens & selection actions ✅ · M3 screen context & full settings ✅ ·
-M4 structured output & cloud · M5 polish & launch. One commit per milestone, green build and tests.
+M4 structured output & cloud ✅ · M5 polish & launch. One commit per milestone, green build and tests.

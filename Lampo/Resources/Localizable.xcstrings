@@ -37,6 +37,16 @@
         }
       }
     },
+    "%lld saved": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld salvate"
+          }
+        }
+      }
+    },
     "%lld words": {
       "localizations": {
         "en": {
@@ -117,12 +127,82 @@
         }
       }
     },
+    "Add the events you confirm. Lampo can't read your calendars.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungere gli eventi che confermi. Lampo non può leggere i tuoi calendari."
+          }
+        }
+      }
+    },
+    "Add the reminders you confirm to your default list.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungere i promemoria che confermi alla lista predefinita."
+          }
+        }
+      }
+    },
+    "Add to Calendar": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi al calendario"
+          }
+        }
+      }
+    },
+    "Add to Reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi ai promemoria"
+          }
+        }
+      }
+    },
+    "Added to Calendar": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto al calendario"
+          }
+        }
+      }
+    },
+    "Added to Reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto ai promemoria"
+          }
+        }
+      }
+    },
     "After allowing Screen Recording, macOS may ask you to quit and reopen Lampo.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Dopo aver consentito la Registrazione schermo, macOS potrebbe chiederti di chiudere e riaprire Lampo."
+          }
+        }
+      }
+    },
+    "All day": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto il giorno"
           }
         }
       }
@@ -327,6 +407,26 @@
         }
       }
     },
+    "Calendars": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendari"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
+          }
+        }
+      }
+    },
     "Capturing the window": {
       "localizations": {
         "it": {
@@ -353,6 +453,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Controlla di nuovo"
+          }
+        }
+      }
+    },
+    "Clear History": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancella cronologia"
+          }
+        }
+      }
+    },
+    "Clear History…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancella cronologia…"
+          }
+        }
+      }
+    },
+    "Clear the history?": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancellare la cronologia?"
           }
         }
       }
@@ -417,6 +547,26 @@
         }
       }
     },
+    "Copy Answer": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia risposta"
+          }
+        }
+      }
+    },
+    "Copy Question": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia domanda"
+          }
+        }
+      }
+    },
     "Correct": {
       "localizations": {
         "it": {
@@ -457,12 +607,92 @@
         }
       }
     },
+    "Couldn't save. Try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvataggio non riuscito. Riprova."
+          }
+        }
+      }
+    },
+    "Create a calendar event": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea un evento nel calendario"
+          }
+        }
+      }
+    },
+    "Create a reminder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea un promemoria"
+          }
+        }
+      }
+    },
+    "Create event": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea evento"
+          }
+        }
+      }
+    },
+    "Create reminder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea promemoria"
+          }
+        }
+      }
+    },
+    "Date": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina"
+          }
+        }
+      }
+    },
     "Delete action": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Elimina azione"
+          }
+        }
+      }
+    },
+    "Describe the event, e.g. dinner with Marco Thursday at 8pm": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrivi l'evento, es. cena con Marco giovedì alle 20"
           }
         }
       }
@@ -527,6 +757,16 @@
         }
       }
     },
+    "Ends": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine"
+          }
+        }
+      }
+    },
     "English": {
       "localizations": {
         "it": {
@@ -583,6 +823,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nasconde la risposta"
+          }
+        }
+      }
+    },
+    "History": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cronologia"
           }
         }
       }
@@ -677,6 +927,16 @@
         }
       }
     },
+    "Keep a local history": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserva una cronologia locale"
+          }
+        }
+      }
+    },
     "Lampo": {
       "localizations": {
         "it": {
@@ -717,6 +977,26 @@
         }
       }
     },
+    "Lampo can't add events: allow it in System Settings › Privacy & Security › Calendars.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo non può aggiungere eventi: consentilo in Impostazioni di Sistema › Privacy e sicurezza › Calendari."
+          }
+        }
+      }
+    },
+    "Lampo can't add reminders: allow it in System Settings › Privacy & Security › Reminders.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo non può aggiungere promemoria: consentilo in Impostazioni di Sistema › Privacy e sicurezza › Promemoria."
+          }
+        }
+      }
+    },
     "Lampo is still answering the previous request.": {
       "localizations": {
         "it": {
@@ -733,6 +1013,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lampo legge il testo che selezioni e scrive il risultato al suo posto. Nessun dato lascia il Mac."
+          }
+        }
+      }
+    },
+    "Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo legge titolo, giorno e ora dal testo selezionato (o dagli appunti) e mostra una scheda modificabile. Non viene aggiunto nulla finché non confermi. Il prompt non viene usato."
           }
         }
       }
@@ -763,6 +1053,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lascia che Lampo lavori dove sei"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luogo"
           }
         }
       }
@@ -887,6 +1187,46 @@
         }
       }
     },
+    "New event": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuovo evento"
+          }
+        }
+      }
+    },
+    "New reminder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuovo promemoria"
+          }
+        }
+      }
+    },
+    "No history yet": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancora nessuna cronologia"
+          }
+        }
+      }
+    },
+    "No results": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun risultato"
+          }
+        }
+      }
+    },
     "Not allowed": {
       "localizations": {
         "it": {
@@ -907,12 +1247,32 @@
         }
       }
     },
+    "Notes": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
     "Nothing": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Niente"
+          }
+        }
+      }
+    },
+    "Nothing is added until you confirm.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non viene aggiunto nulla finché non confermi."
           }
         }
       }
@@ -957,12 +1317,32 @@
         }
       }
     },
+    "Open Calendar": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Calendario"
+          }
+        }
+      }
+    },
     "Open Lampo": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Apri Lampo"
+          }
+        }
+      }
+    },
+    "Open Reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Promemoria"
           }
         }
       }
@@ -983,6 +1363,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri nel pannello"
+          }
+        }
+      }
+    },
+    "Optional": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facoltativo"
+          }
+        }
+      }
+    },
+    "Panel": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pannello"
           }
         }
       }
@@ -1167,12 +1567,42 @@
         }
       }
     },
+    "Reading the details…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggo i dettagli…"
+          }
+        }
+      }
+    },
     "Ready": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Pronto"
+          }
+        }
+      }
+    },
+    "Reminder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promemoria"
+          }
+        }
+      }
+    },
+    "Reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promemoria"
           }
         }
       }
@@ -1328,6 +1758,7 @@
       }
     },
     "Screen actions arrive in a later version.": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
@@ -1343,6 +1774,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le azioni sullo schermo si provano dalla loro scorciatoia."
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca"
           }
         }
       }
@@ -1483,6 +1924,16 @@
         }
       }
     },
+    "Show History…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra cronologia…"
+          }
+        }
+      }
+    },
     "Shows the answer": {
       "localizations": {
         "it": {
@@ -1499,6 +1950,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Si è verificato un problema durante la generazione della risposta."
+          }
+        }
+      }
+    },
+    "Starts": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizio"
           }
         }
       }
@@ -1643,6 +2104,26 @@
         }
       }
     },
+    "There's no default calendar. Choose one in Calendar › Settings.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non c'è un calendario predefinito. Scegline uno in Calendario › Impostazioni."
+          }
+        }
+      }
+    },
+    "There's no default reminders list. Choose one in Reminders › Settings.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non c'è una lista predefinita. Scegline una in Promemoria › Impostazioni."
+          }
+        }
+      }
+    },
     "There's no window to look at. Click the window you mean, then try again.": {
       "localizations": {
         "it": {
@@ -1683,6 +2164,16 @@
         }
       }
     },
+    "This deletes every saved request and answer. It can't be undone.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina tutte le richieste e le risposte salvate. L'operazione non si può annullare."
+          }
+        }
+      }
+    },
     "This file doesn't contain Lampo actions.": {
       "localizations": {
         "it": {
@@ -1699,6 +2190,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questa scorciatoia è già usata da “%@”."
+          }
+        }
+      }
+    },
+    "Time": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora"
+          }
+        }
+      }
+    },
+    "Title": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titolo"
           }
         }
       }
@@ -1779,6 +2290,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Versione %@"
+          }
+        }
+      }
+    },
+    "What should I remind you? e.g. call Anna tomorrow at 10": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cosa devo ricordarti? es. chiamare Anna domani alle 10"
+          }
+        }
+      }
+    },
+    "When": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando"
           }
         }
       }
@@ -1879,6 +2410,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’intelligenza del tuo Mac, a una scorciatoia di distanza."
+          }
+        }
+      }
+    },
+    "Your questions and Lampo's answers are saved only on this Mac, for up to %lld requests. Turning history off deletes it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tue domande e le risposte di Lampo restano solo su questo Mac, fino a %lld richieste. Disattivando la cronologia la elimini."
           }
         }
       }

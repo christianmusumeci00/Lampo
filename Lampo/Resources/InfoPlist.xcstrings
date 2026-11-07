@@ -1,0 +1,27 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSCalendarsWriteOnlyAccessUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lampo adds the events you confirm to your calendar. It can't read your calendars." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Lampo aggiunge al calendario gli eventi che confermi. Non può leggere i tuoi calendari." } }
+      }
+    },
+    "NSRemindersFullAccessUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lampo adds the reminders you confirm to your default list." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Lampo aggiunge alla lista predefinita i promemoria che confermi." } }
+      }
+    },
+    "NSRemindersUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lampo adds the reminders you confirm to your default list." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Lampo aggiunge alla lista predefinita i promemoria che confermi." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

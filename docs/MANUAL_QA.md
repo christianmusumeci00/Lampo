@@ -116,3 +116,33 @@ Settings
 - [ ] Esporta azioni… / Importa azioni… round-trip (imported actions are added as new ones).
 - [ ] Ripristina azioni predefinite… asks for confirmation and keeps custom actions.
 - [ ] Privacy shows Accessibilità and Registrazione schermo with live status.
+- [ ] Privacy also shows Calendari and Promemoria; "Consenti…" asks the first time, then opens System Settings.
+
+## M4 — Create event / reminder, history
+
+Create event / reminder
+- [x] "cena con Marco giovedì alle 20" (on Sunday 8 Nov 2026): card with "Cena con Marco",
+      12/11/2026 20:00–21:00, badge Sul Mac. *(Checked live with `LAMPO_QA_DRAFT=event`.)*
+- [x] An email ("venerdì 20 novembre dalle 15:00 alle 16:30 in sala Volta per la revisione…"): title,
+      range and place filled. *(Checked live.)*
+- [x] "ricordami di chiamare Anna domani alle 10 per il preventivo" → reminder "Chiamare Anna per il
+      preventivo", 09/11 10:00 with Data and Ora on. *(Checked live.)*
+- [x] Annulla closes the card and writes nothing. *(Checked live.)*
+- [ ] Select a sentence in TextEdit, press ⌥⇧E: the card opens from the selection.
+- [ ] With nothing selected, ⌥⇧E shows the "Crea evento" chip; typing a description and ↩ opens the card.
+- [ ] First Aggiungi asks for Calendar access (write-only wording); after allowing, the event is in the
+      default calendar at the right time; "Apri Calendario" jumps to its day.
+- [ ] Refusing access shows the message and "Apri Impostazioni di Sistema".
+- [ ] ⌥⇧P + Aggiungi ai promemoria: first time asks for Reminders access; the reminder has the due time
+      and an alert.
+- [ ] Editing the start keeps the duration; "Tutto il giorno" hides Fine.
+- [ ] VoiceOver announces "Aggiunto al calendario".
+
+History
+- [ ] Off by default; with it off nothing is written to ~/Library/Application Support/Lampo/history.json.
+- [ ] On: panel answers, Lens previews and copy/replace results appear in "Mostra cronologia…", newest
+      first; search filters; right-click copies or deletes.
+- [ ] "Cancella cronologia…" asks for confirmation and empties the list; turning history off deletes the file.
+
+Solo sul Mac
+- [x] Covered by `OnlyOnMacTests` with PCC compiled in (no cloud conversation in any flow).

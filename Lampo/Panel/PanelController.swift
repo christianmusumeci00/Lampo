@@ -53,6 +53,10 @@ final class PanelController: NSObject, NSWindowDelegate {
         panel.keyDownHandler = { [weak self] event in self?.handleKeyDown(event) ?? false }
         viewModel.onRequestClose = { [weak self] in self?.hide() }
         viewModel.onInsert = { [weak self] text, selection in self?.insert(text, replacing: selection) }
+        viewModel.onSystemPromptFinished = { [weak self] in
+            guard let self, self.isVisible else { return }
+            self.panel.makeKeyAndOrderFront(nil)
+        }
         viewModel.onGrantPermission = { [weak self] kind in
             self?.hide()
             self?.permissions.grant(kind)
@@ -79,6 +83,18 @@ final class PanelController: NSObject, NSWindowDelegate {
         show()
         sourceApp = capture.app
         viewModel.prepareScreenQuestion(capture)
+    }
+
+    /// "Create event"/"Create reminder" on a text: opens the confirmation card.
+    func showDraft(_ kind: DraftKind, from text: String) {
+        show()
+        viewModel.startDraft(kind, from: text)
+    }
+
+    /// "Create event"/"Create reminder" without a selection: asks for a description.
+    func showDraftInput(_ kind: DraftKind) {
+        show()
+        viewModel.enterDraftInput(kind)
     }
 
     /// Opens the panel with an actionable message (e.g. a missing permission).
@@ -162,6 +178,8 @@ final class PanelController: NSObject, NSWindowDelegate {
     // MARK: NSWindowDelegate
 
     func windowDidResignKey(_ notification: Notification) {
+        // A Calendar/Reminders permission prompt takes focus: stay open behind it.
+        guard !viewModel.isWaitingForSystemPrompt else { return }
         // Click outside or another app took focus.
         hide()
     }
@@ -184,8 +202,12 @@ final class PanelController: NSObject, NSWindowDelegate {
         if event.keyCode == 51, modifiers.isEmpty || modifiers == .function {   // Backspace
             return viewModel.removeLastContextIfQueryEmpty()
         }
-        if modifiers == .command, event.keyCode == 36 || event.keyCode == 76 {   // ⌘↩ Insert
-            viewModel.insertCurrentAnswer()
+        if modifiers == .command, event.keyCode == 36 || event.keyCode == 76 {   // ⌘↩ Insert / Add
+            if viewModel.draft != nil {
+                viewModel.confirmDraft()
+            } else {
+                viewModel.insertCurrentAnswer()
+            }
             return true
         }
         if modifiers == [.command, .shift], key == "s" {   // ⌘⇧S attach the window underneath
