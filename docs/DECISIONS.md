@@ -349,3 +349,8 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   with a note in the card. Texts longer than 6000 characters are cut to beginning and end before extraction.
 - **Panel resize:** the panel now defers its height change to the next run-loop turn, like the Lens, since
   the Extract picker is an AppKit segmented control.
+- **First-launch windows on top:** `NSApp.activate()` is only a request since macOS 14, and on first launch
+  the system often refuses it, so the welcome window opened behind the user's app. `FrontWindow` opens the
+  welcome and permissions windows at the floating level on the current Space (full-screen apps included) and
+  drops to the normal level once the window becomes key, so System Settings comes in front when the user goes
+  to grant a permission. Checked live: activation refused, window still above the frontmost TextEdit.

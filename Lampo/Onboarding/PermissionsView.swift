@@ -189,7 +189,7 @@ struct PermissionRow: View {
 /// Small window that hosts `PermissionsView` when an action needs a permission (first launch uses `WelcomeView`).
 @MainActor
 final class OnboardingWindowController {
-    private var window: NSWindow?
+    private var window: FrontWindow?
     func show() {
         if window == nil {
             let hosting = NSHostingController(rootView: PermissionsView(style: .onboarding) { [weak self] in
@@ -197,14 +197,13 @@ final class OnboardingWindowController {
             }
             .padding(24)
             .frame(width: 480))
-            let window = NSWindow(contentViewController: hosting)
+            let window = FrontWindow(contentViewController: hosting)
             window.title = String(localized: "Lampo Permissions")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()
             self.window = window
         }
-        NSApp.activate()
-        window?.makeKeyAndOrderFront(nil)
+        window?.presentAboveEverything()
     }
 }

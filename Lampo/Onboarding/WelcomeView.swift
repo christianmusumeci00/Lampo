@@ -114,7 +114,7 @@ private struct WelcomeRow: View {
 /// Shows the welcome window once, on first launch.
 @MainActor
 final class WelcomeWindowController {
-    private var window: NSWindow?
+    private var window: FrontWindow?
     static let shownKey = "didShowWelcome"
 
     func showIfFirstLaunch(availability: ModelAvailability, defaults: UserDefaults = .standard) {
@@ -128,14 +128,13 @@ final class WelcomeWindowController {
             let hosting = NSHostingController(rootView: WelcomeView(availability: availability) { [weak self] in
                 self?.window?.close()
             })
-            let window = NSWindow(contentViewController: hosting)
+            let window = FrontWindow(contentViewController: hosting)
             window.title = String(localized: "Welcome to Lampo")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()
             self.window = window
         }
-        NSApp.activate()
-        window?.makeKeyAndOrderFront(nil)
+        window?.presentAboveEverything()
     }
 }
