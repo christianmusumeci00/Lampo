@@ -17,9 +17,18 @@ struct ActionsSettingsView: View {
             VStack(spacing: 0) {
                 List(selection: $selectedID) {
                     ForEach(store.actions) { action in
-                        Label(action.name, systemImage: action.symbol)
-                            .lineLimit(1)
-                            .tag(action.id)
+                        HStack(spacing: 4) {
+                            Label(action.name, systemImage: action.symbol)
+                                .lineLimit(1)
+                            Spacer(minLength: 4)
+                            if !action.isEnabled {
+                                Text("Off")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .opacity(action.isEnabled ? 1 : 0.55)
+                        .tag(action.id)
                     }
                     .onMove { store.move(fromOffsets: $0, toOffset: $1) }
                 }
@@ -152,6 +161,7 @@ struct ActionEditor: View {
     @State private var tryOutput = ""
     @State private var tryState: TryState = .idle
     @State private var tryTask: Task<Void, Never>?
+    @State private var languages: [String] = []
 
     enum TryState: Equatable {
         case idle
@@ -163,11 +173,22 @@ struct ActionEditor: View {
     static let symbols = [
         "sparkles", "checkmark.circle", "briefcase", "arrow.down.right.and.arrow.up.left", "character.bubble",
         "text.line.first.and.arrowtriangle.forward", "lightbulb", "macwindow", "envelope", "list.bullet",
-        "face.smiling", "pencil", "quote.bubble", "number", "calendar", "globe",
+        "face.smiling", "pencil", "pencil.line", "quote.bubble", "number", "calendar", "globe",
     ]
 
     var body: some View {
         Form {
+            Section {
+                Toggle("Use this action", isOn: Binding(
+                    get: { action.isEnabled },
+                    set: { state.setEnabled($0, for: action.id) }))
+                if !action.isEnabled {
+                    Text("Turned off: no shortcut, and not in the Lens or the menu. Its settings are kept.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section {
                 TextField("Name", text: $action.name)
                 HStack {
@@ -184,7 +205,30 @@ struct ActionEditor: View {
                 }
             }
 
-            if action.output.draftKind == nil {
+            if action.output.draftKind == nil && action.input != .screen {
+                Section {
+                    Picker("Works with", selection: engine) {
+                        Text("The model on this Mac").tag(false)
+                        Text("Apple Translation").tag(true)
+                    }
+                    if action.isTranslation {
+                        Picker("Translate into", selection: translationTarget) {
+                            Text("Automatic").tag(TranslationPlanner.automatic)
+                            ForEach(languageChoices, id: \.self) { language in
+                                Text(TranslationPlanner.displayName(language).localizedCapitalized).tag(language)
+                            }
+                        }
+                        Text(action.translationTarget == TranslationPlanner.automatic
+                             ? "Automatic: into your language, or into the language you last picked when the text is already in yours. Apple Translation works on this Mac, even without Apple Intelligence."
+                             : "Apple Translation works on this Mac, even without Apple Intelligence. You can pick another language in the Lens.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .task { languages = await state.makeRunner().translationLanguages() }
+            }
+
+            if action.output.draftKind == nil && !action.isTranslation {
             Section {
                 TextEditor(text: $action.promptTemplate)
                     .font(.system(size: 12, design: .monospaced))
@@ -223,41 +267,47 @@ struct ActionEditor: View {
             } header: {
                 Text("Prompt")
             } footer: {
-                Text("Write instructions in English for the best results. {{selection}} is the selected text, {{text_language}} its language, {{language}} your answer language.")
+                Text("Write instructions in English for the best results. {{selection}} is the selected text, {{text_language}} its language, {{language}} your answer language, {{tone}} the tone picked in the Lens.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             }
 
             Section {
-                Picker("Input", selection: $action.input) {
-                    Text("Selected text").tag(LampoAction.InputSource.selection)
-                    Text("Clipboard").tag(LampoAction.InputSource.clipboard)
-                    Text("Window screenshot").tag(LampoAction.InputSource.screen)
-                    Text("Nothing").tag(LampoAction.InputSource.none)
+                if !action.isTranslation {
+                    Picker("Input", selection: $action.input) {
+                        Text("Selected text").tag(LampoAction.InputSource.selection)
+                        Text("Clipboard").tag(LampoAction.InputSource.clipboard)
+                        Text("Window screenshot").tag(LampoAction.InputSource.screen)
+                        Text("Nothing").tag(LampoAction.InputSource.none)
+                    }
                 }
                 Picker("Result", selection: $action.output) {
                     Text("Preview in the Lens").tag(LampoAction.OutputMode.preview)
                     Text("Replace without preview").tag(LampoAction.OutputMode.replaceSilently)
                     Text("Copy").tag(LampoAction.OutputMode.copy)
-                    Text("Open in the panel").tag(LampoAction.OutputMode.openPanel)
-                    Text("Create a calendar event").tag(LampoAction.OutputMode.calendarEvent)
-                    Text("Create a reminder").tag(LampoAction.OutputMode.reminder)
+                    if !action.isTranslation {
+                        Text("Open in the panel").tag(LampoAction.OutputMode.openPanel)
+                        Text("Create a calendar event").tag(LampoAction.OutputMode.calendarEvent)
+                        Text("Create a reminder").tag(LampoAction.OutputMode.reminder)
+                    }
                 }
                 if action.output.draftKind != nil {
                     Text("Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                } else if action.input != .selection && action.output != .openPanel {
+                } else if !action.isTranslation && action.input != .selection && action.output != .openPanel {
                     Text("Without selected text there's nothing to replace: the result opens in the panel.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                Picker("Model", selection: $action.route) {
-                    Text("On this Mac").tag(ModelRoute.onDevice)
-                    Text("Private Cloud Compute").tag(ModelRoute.privateCloud)
+                if !action.isTranslation {
+                    Picker("Model", selection: $action.route) {
+                        Text("On this Mac").tag(ModelRoute.onDevice)
+                        Text("Private Cloud Compute").tag(ModelRoute.privateCloud)
+                    }
                 }
-                if action.route == .privateCloud && !state.preferences.routingPolicy.allowsPrivateCloud {
+                if !action.isTranslation && action.route == .privateCloud && !state.preferences.routingPolicy.allowsPrivateCloud {
                     Text(BuildFeatures.isPrivateCloudCompiledIn
                          ? "“Only on this Mac” is on: this action runs on your Mac."
                          : "Private Cloud Compute is not available in this build: this action runs on your Mac.")
@@ -304,7 +354,7 @@ struct ActionEditor: View {
                 case .failed(let message):
                     Label(message, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
                 default:
-                    Text(RewriteCleaner.clean(tryOutput, original: sample))
+                    Text(action.isTranslation ? tryOutput : RewriteCleaner.clean(tryOutput, original: sample))
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if case .done(_, true) = tryState {
@@ -318,6 +368,33 @@ struct ActionEditor: View {
         .onDisappear { stopTry() }
     }
 
+    /// Model or Apple Translation. Switching to Translation keeps the prompt for switching back.
+    private var engine: Binding<Bool> {
+        Binding(
+            get: { action.isTranslation },
+            set: { translates in
+                var updated = action
+                updated.translationTarget = translates ? TranslationPlanner.automatic : nil
+                if translates {
+                    updated.input = .selection
+                    if !updated.output.showsInLens { updated.output = .preview }
+                }
+                action = updated
+            })
+    }
+
+    private var translationTarget: Binding<String> {
+        Binding(get: { action.translationTarget ?? TranslationPlanner.automatic },
+                set: { action.translationTarget = $0 })
+    }
+
+    /// Supported languages, plus the action's own target if the list hasn't loaded yet.
+    private var languageChoices: [String] {
+        guard let target = action.translationTarget, target != TranslationPlanner.automatic,
+              !languages.contains(target) else { return languages }
+        return [target] + languages
+    }
+
     private var symbolChoices: [String] {
         Self.symbols.contains(action.symbol) ? Self.symbols : [action.symbol] + Self.symbols
     }
@@ -325,7 +402,7 @@ struct ActionEditor: View {
     private var sampleContext: TemplateContext {
         let runner = state.makeRunner()
         return runner.templateContext(
-            selection: action.input == .selection ? sample : nil,
+            selection: action.input == .selection || action.isTranslation ? sample : nil,
             clipboard: action.input == .clipboard ? sample : nil,
             app: "TextEdit")
     }

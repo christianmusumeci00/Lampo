@@ -104,10 +104,10 @@ final class AppState {
 
     /// Registers one global hotkey per action (call again after editing actions).
     func syncActionHotkeys() {
-        let names = actionStore.actions.map(\.shortcutName)
+        let names = actionStore.enabledActions.map(\.shortcutName)
         hotkeys.sync(names, prefix: "action-") { [weak self] name in
             guard let self, self.isEnabled,
-                  let action = self.actionStore.actions.first(where: { $0.shortcutName.rawValue == name.rawValue }) else { return }
+                  let action = self.actionStore.enabledActions.first(where: { $0.shortcutName.rawValue == name.rawValue }) else { return }
             self.actionCoordinator?.perform(action.id)
         }
     }
@@ -119,10 +119,22 @@ final class AppState {
         ActionRunner(model: modelService, preferences: preferences)
     }
 
-    /// Every global shortcut, in Settings order: the panel first, then the actions.
+    /// Every global shortcut, in Settings order: the panel first, then the turned-on actions.
     var shortcutNames: [(name: KeyboardShortcuts.Name, title: String)] {
         [(KeyboardShortcuts.Name.togglePanel, String(localized: "Open Lampo"))]
-            + actionStore.actions.map { ($0.shortcutName, $0.name) }
+            + actionStore.enabledActions.map { ($0.shortcutName, $0.name) }
+    }
+
+    /// Turns an action on or off. Turning one on drops its shortcut if another command uses it
+    /// (e.g. Summarize's old ⌥⇧R, now Rewrite's).
+    func setEnabled(_ enabled: Bool, for id: UUID) {
+        guard var action = actionStore.action(id: id), action.isEnabled != enabled else { return }
+        if enabled, let shortcut = KeyboardShortcuts.getShortcut(for: action.shortcutName),
+           shortcutEntries.contains(where: { $0.shortcut == shortcut }) {
+            KeyboardShortcuts.setShortcut(nil, for: action.shortcutName)
+        }
+        action.isEnabled = enabled
+        actionStore.update(action)
     }
 
     var shortcutEntries: [ShortcutConflicts.Entry] {

@@ -40,7 +40,7 @@ struct WelcomeView: View {
                 WelcomeRow(shortcut: .togglePanel, symbol: "bolt.fill",
                            title: "Ask from anywhere",
                            detail: "Open the panel over any app. The answer starts right away, from the model on your Mac.")
-                WelcomeRow(shortcut: BuiltInActions.shortcutName(for: BuiltInActions.formalID), symbol: "text.cursor",
+                WelcomeRow(shortcut: BuiltInActions.shortcutName(for: BuiltInActions.rewriteID), symbol: "text.cursor",
                            title: "Rewrite where you are",
                            detail: "Select text and press an action's shortcut: Lampo previews the result and replaces it in place. ⌘Z undoes it.")
                 WelcomeRow(shortcut: BuiltInActions.shortcutName(for: BuiltInActions.askScreenID), symbol: "macwindow",

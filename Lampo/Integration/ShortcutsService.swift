@@ -39,7 +39,8 @@ final class ShortcutsService {
         self.history = history
     }
 
-    var actions: [LampoAction] { actionStore.actions }
+    /// Turned-on actions only.
+    var actions: [LampoAction] { actionStore.enabledActions }
 
     /// "Ask Lampo": one question, answered on this Mac in a fresh session.
     func ask(_ question: String) async throws -> Answer {
@@ -65,7 +66,7 @@ final class ShortcutsService {
     /// instead and returns nil, since nothing is written without the user's confirmation.
     func run(actionID: UUID, on text: String) async throws -> Answer? {
         guard preferences.isEnabled else { throw ShortcutsError.disabled }
-        guard let action = actionStore.action(id: actionID) else { throw ShortcutsError.actionNotFound }
+        guard let action = actionStore.action(id: actionID), action.isEnabled else { throw ShortcutsError.actionNotFound }
         if action.input == .screen { throw ShortcutsError.needsScreen }
         let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if action.input != .none && input.isEmpty { throw ShortcutsError.emptyText }
@@ -75,12 +76,13 @@ final class ShortcutsService {
             return nil
         }
         let runner = ActionRunner(model: model, preferences: preferences)
-        let context = runner.templateContext(selection: action.input == .selection ? input : nil,
+        let context = runner.templateContext(selection: action.input == .selection || action.isTranslation ? input : nil,
                                              clipboard: action.input == .clipboard ? input : nil, app: nil)
         let run = try await runner.start(action, context: context)
         var output = ""
         for try await chunk in run.stream { output = chunk }
-        let cleaned = action.input == .selection ? RewriteCleaner.clean(output, original: input)
+        let cleaned = action.isTranslation ? output
+            : action.input == .selection ? RewriteCleaner.clean(output, original: input)
             : output.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty else { throw ModelError.emptyResponse }
         history?.record(source: action.name, input: input, output: cleaned, route: run.route)

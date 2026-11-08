@@ -251,3 +251,33 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   the initial shortcut on first use, so `PanelShortcutMigration` moves installs still on ⌥Space once
   (`migratedPanelShortcutFromOptionSpace`), unless ⌥⇧Space is already taken by an action. A user who then
   goes back to ⌥Space keeps it.
+
+## 1.1 — actions that Apple's Writing Tools doesn't already give you
+
+- **Why.** macOS already proofreads, rewrites (friendly, professional, concise) and summarizes from the
+  Writing Tools menu, in Italian too. Lampo's value there is one keystroke, apps where Writing Tools
+  doesn't work (Chrome, Electron) and custom actions, so the duplicates were folded into one action.
+- **Rewrite** (⌥⇧R) uses `{{tone}}` (a new template variable): clearer, formal, friendly, shorter. The
+  Lens shows a segmented picker for any action whose prompt contains `{{tone}}`; the last tone is kept
+  in `Preferences.rewriteTone`.
+- **Translate** (⌥⇧T) uses Apple's Translation framework (`TranslationSession(installedSource:target:)`,
+  macOS 26+), not the model: better translations, no context window (the whole text is translated, line
+  by line so layout survives), and it works without Apple Intelligence. `LampoAction.translationTarget`
+  (`"auto"` or an identifier) marks translation actions; the prompt is then unused. The source language is
+  detected with NLLanguageRecognizer. Automatic: into the answer language, or, for text already in it, into
+  `Preferences.translationLanguage` (the last language picked in the Lens; at first the Mac's next
+  preferred language, else English). Languages that aren't downloaded can't be prompted from a windowless
+  agent (`prepareTranslation` needs a SwiftUI `translationTask`), so Lampo names the System Settings pane.
+  Translation actions only preview, replace or copy (`effectiveOutput`), and always use the selection.
+- **Actions can be turned off** (`LampoAction.isEnabled`, decoded as `true` from 1.0 files). Off: no hotkey,
+  not in the Lens, the menu, Settings › Scorciatoie or Shortcuts; settings are kept. Conflicts are checked
+  among turned-on actions only; turning one on drops its shortcut if another command uses it.
+- **Lineup.** On: Correggi, Riscrivi, Traduci, Chiedi allo schermo, Crea evento, Crea promemoria, Spiega.
+  Off by default: Più formale, Più breve, Riassumi. "Traduci in inglese/italiano" are no longer shipped.
+  `actions.json` version 2: a version-1 file has those five turned off (not deleted) once, and Rewrite and
+  Translate are inserted after Correct. Their stored shortcuts (⌥⇧R on Riassumi, ⌥⇧T on Traduci in inglese)
+  stay but don't register while the actions are off.
+- **Lens resize is deferred.** With AppKit-backed controls in the Lens (the segmented tone picker, the
+  language menu), resizing the panel synchronously from `onGeometryChange` crashed AppKit ("needs update
+  constraints" thrown during layout) when switching from Rewrite to Translate. `LensController` now
+  applies the new height on the next run-loop turn. Found in live QA.

@@ -46,10 +46,16 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
     var output: OutputMode
     var route: ModelRoute
     var isBuiltIn: Bool
+    /// Turned-off actions keep their settings but have no hotkey and don't appear in the Lens or menus.
+    var isEnabled: Bool
+    /// Set for actions that translate with Apple's Translation framework instead of the model:
+    /// a language identifier ("en") or `TranslationPlanner.automatic`. The prompt is then unused.
+    var translationTarget: String?
 
     init(id: UUID = UUID(), name: String, symbol: String, promptTemplate: String,
          input: InputSource = .selection, output: OutputMode = .preview,
-         route: ModelRoute = .onDevice, isBuiltIn: Bool = false) {
+         route: ModelRoute = .onDevice, isBuiltIn: Bool = false, isEnabled: Bool = true,
+         translationTarget: String? = nil) {
         self.id = id
         self.name = name
         self.symbol = symbol
@@ -58,5 +64,63 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
         self.output = output
         self.route = route
         self.isBuiltIn = isBuiltIn
+        self.isEnabled = isEnabled
+        self.translationTarget = translationTarget
+    }
+
+    var isTranslation: Bool { translationTarget != nil }
+
+    /// The prompt asks for a tone, chosen in the Lens.
+    var usesTone: Bool {
+        !isTranslation && promptTemplate.range(of: "\\{\\{\\s*tone\\s*\\}\\}", options: .regularExpression) != nil
+    }
+
+    /// Translations can't continue in the panel: they preview, replace or copy.
+    var effectiveOutput: OutputMode {
+        isTranslation && !output.showsInLens ? .preview : output
+    }
+}
+
+extension LampoAction {
+    /// Files from older versions have no `isEnabled` or `translationTarget`.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        symbol = try container.decode(String.self, forKey: .symbol)
+        promptTemplate = try container.decode(String.self, forKey: .promptTemplate)
+        input = try container.decode(InputSource.self, forKey: .input)
+        output = try container.decode(OutputMode.self, forKey: .output)
+        route = try container.decode(ModelRoute.self, forKey: .route)
+        isBuiltIn = try container.decode(Bool.self, forKey: .isBuiltIn)
+        isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+        translationTarget = try container.decodeIfPresent(String.self, forKey: .translationTarget)
+    }
+}
+
+/// How "Rewrite" changes the text. Chosen in the Lens and remembered.
+enum RewriteTone: String, CaseIterable, Codable, Sendable {
+    case clearer
+    case formal
+    case friendly
+    case shorter
+
+    /// Fills `{{tone}}` in "Rewrite the text … to make it {{tone}}".
+    var instruction: String {
+        switch self {
+        case .clearer: return "clearer and easier to read"
+        case .formal: return "more formal and professional"
+        case .friendly: return "warmer and more friendly"
+        case .shorter: return "about half as long, keeping the key facts"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .clearer: return String(localized: "Clearer")
+        case .formal: return String(localized: "Formal")
+        case .friendly: return String(localized: "Friendly")
+        case .shorter: return String(localized: "Shorter")
+        }
     }
 }

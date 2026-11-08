@@ -16,6 +16,15 @@ enum BuiltInActions {
     static let askScreenID = UUID(uuidString: "6C0A0008-0000-4000-8000-00000000C0DE")!
     static let createEventID = UUID(uuidString: "6C0A0009-0000-4000-8000-00000000C0DE")!
     static let createReminderID = UUID(uuidString: "6C0A000A-0000-4000-8000-00000000C0DE")!
+    static let rewriteID = UUID(uuidString: "6C0A000B-0000-4000-8000-00000000C0DE")!
+    static let translateID = UUID(uuidString: "6C0A000C-0000-4000-8000-00000000C0DE")!
+
+    /// Built-ins that duplicate Apple's Writing Tools: shipped turned off (Rewrite covers them),
+    /// and turned off once in installs from before 1.1. They're kept, so the user can turn them on.
+    static let offByDefault: Set<UUID> = [formalID, shorterID, summarizeID]
+    /// Built-ins replaced by "Translate" (Apple's Translation). No longer shipped; old installs
+    /// keep them turned off.
+    static let retired: Set<UUID> = [toEnglishID, toItalianID]
 
     static var all: [LampoAction] {
         [
@@ -30,55 +39,19 @@ enum BuiltInActions {
                 """,
                 isBuiltIn: true),
             LampoAction(
-                id: formalID, name: String(localized: "More formal"), symbol: "briefcase",
+                id: rewriteID, name: String(localized: "Rewrite"), symbol: "pencil.line",
                 promptTemplate: """
-                Rewrite the text below, which is in {{text_language}}, in a more formal, professional tone. \
-                Write the result in {{text_language}}. Keep the meaning.
+                Rewrite the text below, which is in {{text_language}}, to make it {{tone}}. \
+                Write the result in {{text_language}}. Keep the meaning and the formatting.
 
                 {{selection}}
                 """,
                 isBuiltIn: true),
+            // Apple's Translation framework, not the model: better quality, and it works without
+            // Apple Intelligence. Automatic: into your language, or out of it when the text is already in it.
             LampoAction(
-                id: shorterID, name: String(localized: "Shorter"), symbol: "arrow.down.right.and.arrow.up.left",
-                promptTemplate: """
-                Rewrite the text below, which is in {{text_language}}, to be about half as long. \
-                Write the result in {{text_language}}. Keep key facts and tone.
-
-                {{selection}}
-                """,
-                isBuiltIn: true),
-            LampoAction(
-                id: toEnglishID, name: String(localized: "Translate to English"), symbol: "character.bubble",
-                promptTemplate: """
-                Translate the text below into natural English. Keep the formatting.
-
-                {{selection}}
-                """,
-                isBuiltIn: true),
-            LampoAction(
-                id: toItalianID, name: String(localized: "Translate to Italian"), symbol: "character.bubble",
-                promptTemplate: """
-                Translate the text below into natural Italian. Keep the formatting.
-
-                {{selection}}
-                """,
-                isBuiltIn: true),
-            LampoAction(
-                id: summarizeID, name: String(localized: "Summarize"), symbol: "text.line.first.and.arrowtriangle.forward",
-                promptTemplate: """
-                Summarize the text below in a few short bullet points, in {{language}}.
-
-                {{selection}}
-                """,
-                isBuiltIn: true),
-            LampoAction(
-                id: explainID, name: String(localized: "Explain"), symbol: "lightbulb",
-                promptTemplate: """
-                Explain the text below simply and briefly, in {{language}}. It was selected in {{app}}.
-
-                {{selection}}
-                """,
-                output: .openPanel, isBuiltIn: true),
+                id: translateID, name: String(localized: "Translate"), symbol: "character.bubble",
+                promptTemplate: "", isBuiltIn: true, translationTarget: TranslationPlanner.automatic),
             // An empty template opens the panel with the window attached and waits for the question.
             LampoAction(
                 id: askScreenID, name: String(localized: "Ask the screen"), symbol: "macwindow",
@@ -91,21 +64,57 @@ enum BuiltInActions {
             LampoAction(
                 id: createReminderID, name: String(localized: "Create reminder"), symbol: "checklist",
                 promptTemplate: "", output: .reminder, isBuiltIn: true),
+            LampoAction(
+                id: explainID, name: String(localized: "Explain"), symbol: "lightbulb",
+                promptTemplate: """
+                Explain the text below simply and briefly, in {{language}}. It was selected in {{app}}.
+
+                {{selection}}
+                """,
+                output: .openPanel, isBuiltIn: true),
+            LampoAction(
+                id: formalID, name: String(localized: "More formal"), symbol: "briefcase",
+                promptTemplate: """
+                Rewrite the text below, which is in {{text_language}}, in a more formal, professional tone. \
+                Write the result in {{text_language}}. Keep the meaning.
+
+                {{selection}}
+                """,
+                isBuiltIn: true, isEnabled: false),
+            LampoAction(
+                id: shorterID, name: String(localized: "Shorter"), symbol: "arrow.down.right.and.arrow.up.left",
+                promptTemplate: """
+                Rewrite the text below, which is in {{text_language}}, to be about half as long. \
+                Write the result in {{text_language}}. Keep key facts and tone.
+
+                {{selection}}
+                """,
+                isBuiltIn: true, isEnabled: false),
+            LampoAction(
+                id: summarizeID, name: String(localized: "Summarize"), symbol: "text.line.first.and.arrowtriangle.forward",
+                promptTemplate: """
+                Summarize the text below in a few short bullet points, in {{language}}.
+
+                {{selection}}
+                """,
+                isBuiltIn: true, isEnabled: false),
         ]
     }
 
-    /// Default global shortcuts (⌥⇧ + letter).
     /// The shortcut name of a built-in action (the user may have changed its shortcut).
     static func shortcutName(for id: UUID) -> KeyboardShortcuts.Name? {
         all.first { $0.id == id }?.shortcutName
     }
 
+    /// Default global shortcuts (⌥⇧ + letter).
+    /// Old installs keep the shortcuts they stored (⌥⇧R on Summarize, ⌥⇧T on Translate to English):
+    /// those actions are off, and turning one on drops a shortcut another action already uses.
     static let defaultShortcuts: [UUID: KeyboardShortcuts.Shortcut] = [
         correctID: .init(.c, modifiers: [.option, .shift]),
+        rewriteID: .init(.r, modifiers: [.option, .shift]),
+        translateID: .init(.t, modifiers: [.option, .shift]),
         formalID: .init(.f, modifiers: [.option, .shift]),
         shorterID: .init(.b, modifiers: [.option, .shift]),
-        toEnglishID: .init(.t, modifiers: [.option, .shift]),
-        summarizeID: .init(.r, modifiers: [.option, .shift]),
         askScreenID: .init(.s, modifiers: [.option, .shift]),
         createEventID: .init(.e, modifiers: [.option, .shift]),
         createReminderID: .init(.p, modifiers: [.option, .shift]),

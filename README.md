@@ -39,23 +39,35 @@ Seleziona un testo in qualsiasi app e premi la scorciatoia di un'azione. La Lent
 accanto alla selezione; ↩ sostituisce il testo al suo posto e ⌘Z lo riporta com'era. Tab passa
 all'azione successiva. Gli appunti restano quelli che avevi.
 
+- **Riscrivi** (⌥⇧R) ha quattro toni nella Lente: più chiaro, formale, amichevole, più breve.
+  Lampo ricorda l'ultimo che hai scelto.
+- **Traduci** (⌥⇧T) usa la Traduzione di Apple, non il modello: è più precisa, gira sul Mac e
+  funziona anche senza Apple Intelligence. Traduce nella tua lingua; se il testo è già nella tua
+  lingua, lo traduce in quella che hai scelto l'ultima volta. Nella Lente puoi cambiare lingua.
+  Le lingue si scaricano in Impostazioni di Sistema › Generali › Lingua e Zona › Lingue di traduzione.
+
+**Rispetto agli Strumenti di scrittura di Apple:** correggere e riscrivere li fa anche macOS, ma
+dal menu contestuale e solo nelle app che li supportano. Lampo li mette a un tasto di distanza e
+funziona anche in Chrome, Slack, VS Code e nelle altre app Electron. Per questo "Più formale",
+"Più breve" e "Riassumi" sono spente di default (Riscrivi le copre): puoi riaccenderle in
+Impostazioni › Azioni.
+
 <!-- GIF da registrare: docs/media/lente.gif (vedi docs/media/README.md) -->
 
 | Azione | Scorciatoia |
 |---|---|
 | Apri Lampo | ⌥⇧Spazio |
 | Correggi | ⌥⇧C |
-| Più formale | ⌥⇧F |
-| Più breve | ⌥⇧B |
-| Traduci in inglese | ⌥⇧T |
-| Riassumi | ⌥⇧R |
+| Riscrivi | ⌥⇧R |
+| Traduci | ⌥⇧T |
 | Chiedi allo schermo | ⌥⇧S |
 | Crea evento | ⌥⇧E |
 | Crea promemoria | ⌥⇧P |
 
-Ogni scorciatoia si cambia in Impostazioni › Scorciatoie. In Impostazioni › Azioni puoi modificare le
-azioni, crearne di nuove con il tuo prompt e provarle su un testo di esempio. Ogni azione può mostrare
-l'anteprima, sostituire subito il testo, copiarlo o aprire la risposta nel pannello.
+Ogni scorciatoia si cambia in Impostazioni › Scorciatoie. In Impostazioni › Azioni puoi accendere o
+spegnere le azioni, modificarle, crearne di nuove con il tuo prompt (o con la Traduzione di Apple verso
+una lingua fissa, per esempio "Traduci in tedesco") e provarle su un testo di esempio. Ogni azione può
+mostrare l'anteprima, sostituire subito il testo, copiarlo o aprire la risposta nel pannello.
 
 ### Chiedi allo schermo
 

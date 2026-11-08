@@ -41,7 +41,7 @@ struct MenuContent: View {
             .disabled(!state.isEnabled)
 
         Menu("Quick Actions") {
-            ForEach(state.actionStore.actions) { action in
+            ForEach(state.actionStore.enabledActions) { action in
                 Button {
                     state.perform(action)
                 } label: {

@@ -319,3 +319,18 @@ enum TestDates {
     /// Sunday 8 November 2026, 10:00 in Rome.
     static let sundayMorning = date(2026, 11, 8, 10)
 }
+
+/// Upper-cases each line, tagged with the target: "[en] CIAO".
+final class MockTranslator: Translating, @unchecked Sendable {
+    var failure: (any Error)?
+    var languages = ["de", "en", "fr", "it"]
+    private(set) var calls: [(lines: [String], pair: TranslationPair)] = []
+
+    func translate(_ lines: [String], pair: TranslationPair) async throws -> [String] {
+        calls.append((lines, pair))
+        if let failure { throw failure }
+        return lines.map { "[\(pair.target)] \($0.uppercased())" }
+    }
+
+    func supportedLanguages() async -> [String] { languages }
+}

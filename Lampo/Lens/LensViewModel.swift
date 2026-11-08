@@ -21,6 +21,14 @@ final class LensViewModel {
     /// The selection was too long and only an excerpt was sent. Replace is then off,
     /// so a rewrite of the excerpt can't overwrite the whole text.
     private(set) var wasTruncated = false
+    /// Tone for actions whose prompt uses `{{tone}}` ("Rewrite").
+    private(set) var tone: RewriteTone
+    /// Languages of the last translation run (source detected, target chosen or automatic).
+    private(set) var translation: TranslationPair?
+    /// Target picked in the Lens for this selection; nil follows the action's setting.
+    private(set) var translationTarget: String?
+    /// Languages offered in the target menu, loaded on first use.
+    private(set) var translationLanguages: [String] = []
 
     @ObservationIgnored private let runner: ActionRunner
     @ObservationIgnored private let pasteboard: any PasteboardClient
@@ -42,10 +50,13 @@ final class LensViewModel {
         self.activeIndex = actions.firstIndex { $0.id == initialActionID } ?? 0
         self.runner = runner
         self.pasteboard = pasteboard
+        self.tone = runner.templateContext(selection: nil, clipboard: nil, app: nil).tone
     }
 
     var activeAction: LampoAction? { actions.indices.contains(activeIndex) ? actions[activeIndex] : nil }
-    var result: String { RewriteCleaner.clean(output, original: selection.text) }
+    var result: String {
+        activeAction?.isTranslation == true ? output : RewriteCleaner.clean(output, original: selection.text)
+    }
     var isStreaming: Bool { phase == .streaming }
     var canReplace: Bool { phase == .done && !result.isEmpty && !wasTruncated }
     /// "Think harder" is offered for long texts, when Private Cloud Compute is allowed.
@@ -57,6 +68,29 @@ final class LensViewModel {
         guard actions.indices.contains(index) else { return }
         activeIndex = index
         run()
+    }
+
+    /// Picks a tone for "Rewrite", remembers it and runs again.
+    func setTone(_ tone: RewriteTone) {
+        guard tone != self.tone else { return }
+        self.tone = tone
+        runner.rememberTone(tone)
+        run()
+    }
+
+    /// Picks the target language and runs again. For "Translate" (automatic) the choice is
+    /// remembered as where your own language goes.
+    func setTranslationTarget(_ target: String) {
+        translationTarget = target
+        if activeAction?.translationTarget == TranslationPlanner.automatic {
+            runner.rememberTranslationTarget(target)
+        }
+        run()
+    }
+
+    func loadTranslationLanguages() async {
+        guard translationLanguages.isEmpty else { return }
+        translationLanguages = await runner.translationLanguages()
     }
 
     func next() { select((activeIndex + 1) % max(actions.count, 1)) }
@@ -98,13 +132,17 @@ final class LensViewModel {
         phase = .streaming
         wasTruncated = false
         guard let action = activeAction else { return }
-        let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
+        var context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
+        context.tone = tone
+        let target = action.isTranslation ? translationTarget : nil
         task = Task { [weak self, runner] in
             do {
-                let run = try await runner.start(action, context: context, routeOverride: routeOverride)
+                let run = try await runner.start(action, context: context, routeOverride: routeOverride,
+                                                 translationTarget: target)
                 guard !Task.isCancelled else { return }
                 self?.route = run.route
                 self?.wasTruncated = run.wasTruncated
+                if let pair = run.translation { self?.translation = pair }
                 for try await text in run.stream {
                     self?.output = text
                 }

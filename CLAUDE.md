@@ -53,6 +53,8 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
   `com.apple.developer.private-cloud-compute` FoundationModels **traps** on any PCC call.
 - No App Sandbox (Accessibility); Hardened Runtime on; distribution outside the Mac App Store.
 - Panel hotkey ⌥⇧Space (⌥Space clashes with Codex); `PanelShortcutMigration` moves old installs once.
+- Translate uses Apple's Translation framework, not the model (`translationTarget`, `TranslationPlanner`); Rewrite
+  uses `{{tone}}`. Actions can be turned off (`isEnabled`); `actions.json` v2 turns off the Writing Tools duplicates once.
 - Selection: AX first, ⌘C clipboard fallback (Lens/silent only) with full clipboard snapshot/restore.
   Replace: AX write for native text (verified), one ⌘V elsewhere (web content) so ⌘Z always works.
 - Built-in action prompts use `{{text_language}}` (NLLanguageRecognizer): the small model otherwise

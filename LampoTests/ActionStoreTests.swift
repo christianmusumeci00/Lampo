@@ -46,7 +46,10 @@ struct ActionStoreTests {
         old.add(custom("Mine"))
         let updated = ActionStore(fileURL: url)
         #expect(updated.actions.count == BuiltInActions.all.count + 1)
-        #expect(updated.actions[2].name == "Mine")
+        // New built-ins go after "Correct"; the user's own actions keep their place at the end.
+        #expect(updated.actions[0].id == BuiltInActions.correctID)
+        #expect(updated.actions[1].id == BuiltInActions.translateID)
+        #expect(updated.actions.last?.name == "Mine")
     }
 
     @Test func duplicateCreatesCustomCopy() throws {
@@ -54,7 +57,8 @@ struct ActionStoreTests {
         let copy = try #require(store.duplicate(BuiltInActions.formalID))
         #expect(!copy.isBuiltIn)
         #expect(copy.id != BuiltInActions.formalID)
-        #expect(store.actions[2].id == copy.id)
+        let original = try #require(store.actions.firstIndex { $0.id == BuiltInActions.formalID })
+        #expect(store.actions[original + 1].id == copy.id)
     }
 
     @Test func exportImportRoundTrip() throws {

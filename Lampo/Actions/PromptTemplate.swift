@@ -8,6 +8,8 @@ struct TemplateContext: Equatable, Sendable {
     var app: String?
     /// Language name for answers, e.g. "Italian".
     var language: String
+    /// For `{{tone}}` ("Rewrite"): the tone picked in the Lens.
+    var tone: RewriteTone = .clearer
 
     /// English name of the selection's own language ("Italian"), detected on device.
     var textLanguage: String {
@@ -28,7 +30,7 @@ enum TextLanguage {
 }
 
 enum PromptTemplate {
-    static let variables = ["selection", "clipboard", "app", "language", "text_language"]
+    static let variables = ["selection", "clipboard", "app", "language", "text_language", "tone"]
 
     /// Replaces `{{name}}` (spaces inside braces allowed). The input text is fenced so the model
     /// can tell instruction from content. If the template doesn't mention the action's input,
@@ -51,6 +53,8 @@ enum PromptTemplate {
                 value = context.app ?? ""
             case "text_language":
                 value = context.textLanguage
+            case "tone":
+                value = context.tone.instruction
             default:
                 value = context.language
             }

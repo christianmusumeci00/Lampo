@@ -6,7 +6,8 @@ import Observation
 @Observable
 final class ActionStore {
     private struct FileFormat: Codable {
-        var version = 1
+        /// 2 (Lampo 1.1): Rewrite and Translate; the Writing Tools duplicates turned off.
+        var version = ActionStore.currentVersion
         var actions: [LampoAction]
         /// Built-ins the user deleted, so updates don't bring them back.
         var deletedBuiltIns: [UUID] = []
@@ -17,11 +18,13 @@ final class ActionStore {
         var actions: [LampoAction]
     }
 
+    nonisolated static let currentVersion = 2
+
     private(set) var actions: [LampoAction] = []
     @ObservationIgnored private var deletedBuiltIns: Set<UUID> = []
     @ObservationIgnored let fileURL: URL
     @ObservationIgnored private let builtIns: () -> [LampoAction]
-    /// Called after actions are added or removed (not on edits), to re-register hotkeys.
+    /// Called after actions are added, removed, turned on or off (not on other edits), to re-register hotkeys.
     @ObservationIgnored var onActionsAddedOrRemoved: (() -> Void)?
     @ObservationIgnored private var savedIDs: Set<UUID> = []
 
@@ -38,8 +41,11 @@ final class ActionStore {
 
     func action(id: UUID) -> LampoAction? { actions.first { $0.id == id } }
 
-    /// Actions that work on the selection (Lens chips, Quick Actions menu).
-    var selectionActions: [LampoAction] { actions.filter { $0.input == .selection } }
+    /// Actions that are turned on: the ones with hotkeys, in menus and in the Lens.
+    var enabledActions: [LampoAction] { actions.filter(\.isEnabled) }
+
+    /// Turned-on actions that work on the selection (Lens chips).
+    var selectionActions: [LampoAction] { enabledActions.filter { $0.input == .selection } }
 
     // MARK: Editing
 
@@ -115,7 +121,7 @@ final class ActionStore {
 
     private func load() {
         let originals = builtIns()
-        defer { savedIDs = Set(actions.map(\.id)) }
+        defer { savedIDs = Set(enabledActions.map(\.id)) }
         guard let data = try? Data(contentsOf: fileURL),
               let file = try? JSONDecoder().decode(FileFormat.self, from: data) else {
             actions = originals
@@ -123,17 +129,28 @@ final class ActionStore {
         }
         deletedBuiltIns = Set(file.deletedBuiltIns)
         actions = file.actions
-        // Built-ins added in a newer version of Lampo.
+        var changed = false
+        if file.version < 2 {
+            // Writing Tools already does these: turn them off, but keep them and their edits.
+            for index in actions.indices
+            where BuiltInActions.offByDefault.union(BuiltInActions.retired).contains(actions[index].id) {
+                actions[index].isEnabled = false
+            }
+            changed = true
+        }
+        // Built-ins added in a newer version of Lampo, placed after "Correct" when it's there.
         let known = Set(actions.map(\.id)).union(deletedBuiltIns)
         let missing = originals.filter { !known.contains($0.id) }
         if !missing.isEmpty {
-            actions.append(contentsOf: missing)
-            save()
+            let anchor = actions.firstIndex { $0.id == BuiltInActions.correctID }.map { $0 + 1 } ?? actions.endIndex
+            actions.insert(contentsOf: missing, at: anchor)
+            changed = true
         }
+        if changed { save() }
     }
 
     private func save() {
-        let ids = Set(actions.map(\.id))
+        let ids = Set(enabledActions.map(\.id))
         if ids != savedIDs {
             savedIDs = ids
             onActionsAddedOrRemoved?()

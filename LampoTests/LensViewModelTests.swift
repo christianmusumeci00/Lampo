@@ -6,13 +6,15 @@ import Testing
 struct LensViewModelTests {
     let model = MockModelService()
     let pasteboard = MockPasteboard()
+    let translator = MockTranslator()
     let preferences = Preferences(defaults: makeTestDefaults())
 
     func makeLens(initial: UUID = BuiltInActions.formalID) -> LensViewModel {
         let selection = SelectionContext(text: "ciao come va", app: .textEdit, anchor: nil, element: nil, source: .clipboard)
         let actions = BuiltInActions.all.filter { $0.output.showsInLens }
         return LensViewModel(selection: selection, actions: actions, initialActionID: initial,
-                             runner: ActionRunner(model: model, preferences: preferences), pasteboard: pasteboard)
+                             runner: ActionRunner(model: model, preferences: preferences, translator: translator),
+                             pasteboard: pasteboard)
     }
 
     @Test func startsWithTheTriggeredAction() async {
@@ -35,7 +37,7 @@ struct LensViewModelTests {
         await lens.task?.value
         lens.next()
         await lens.task?.value
-        #expect(lens.activeAction?.id == BuiltInActions.formalID)
+        #expect(lens.activeAction?.id == BuiltInActions.rewriteID)
         #expect(model.makeConversationCalls == 2)   // fresh session per action
         lens.previous()
         lens.previous()

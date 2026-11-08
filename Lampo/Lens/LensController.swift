@@ -9,6 +9,8 @@ final class LensController: NSObject, NSWindowDelegate {
     private var viewModel: LensViewModel?
     private var anchor: CGRect = .zero
     private(set) var isVisible = false
+    private var pendingHeight: CGFloat = 0
+    private var isResizeScheduled = false
 
     /// Called after the Lens closes for a replacement, with the text and the selection.
     var onReplace: ((String, SelectionContext) -> Void)?
@@ -82,7 +84,23 @@ final class LensController: NSObject, NSWindowDelegate {
         close()
     }
 
+    /// Resizes on the next run-loop turn: resizing the window inside SwiftUI's layout pass, while
+    /// AppKit-backed controls (the tone picker, the language menu) appear or disappear, makes AppKit
+    /// throw "needs update constraints" during layout and abort.
     private func updateHeight(_ height: CGFloat) {
+        pendingHeight = height
+        guard !isResizeScheduled else { return }
+        isResizeScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.isResizeScheduled = false
+                self.applyHeight(self.pendingHeight)
+            }
+        }
+    }
+
+    private func applyHeight(_ height: CGFloat) {
         guard height > 0, isVisible else { return }
         var frame = panel.frame
         guard abs(frame.height - height) > 0.5 else { return }

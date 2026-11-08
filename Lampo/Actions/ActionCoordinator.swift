@@ -62,7 +62,8 @@ final class ActionCoordinator {
             return
         }
 
-        switch action.input {
+        // Translations always work on the selected text.
+        switch action.isTranslation ? .selection : action.input {
         case .selection:
             guard permissions.isAccessibilityGranted else {
                 onNeedsPermission?(.accessibility)
@@ -141,9 +142,9 @@ final class ActionCoordinator {
     }
 
     private func perform(_ action: LampoAction, on selection: SelectionContext) async {
-        switch action.output {
+        switch action.effectiveOutput {
         case .preview:
-            let actions = store.selectionActions.filter { $0.output.showsInLens }
+            let actions = store.selectionActions.filter { $0.effectiveOutput.showsInLens }
             let list = actions.contains { $0.id == action.id } ? actions : [action] + actions
             let lensModel = LensViewModel(selection: selection, actions: list, initialActionID: action.id,
                                           runner: runner, pasteboard: pasteboard, routingPolicy: routingPolicy())
@@ -161,7 +162,7 @@ final class ActionCoordinator {
             do {
                 let (text, wasTruncated, route) = try await complete(action, selection: selection)
                 onResult?(action.name, selection.text, text, route)
-                if action.output == .copy {
+                if action.effectiveOutput == .copy {
                     output.copy(text)
                     let message = wasTruncated ? String(localized: "Copied · Long text: used an excerpt") : String(localized: "Copied")
                     hud.show(message, style: .success, near: selection.anchor)
@@ -179,10 +180,10 @@ final class ActionCoordinator {
         let context = runner.templateContext(selection: selection.text, clipboard: nil, app: selection.app?.name)
         let run = try await runner.start(action, context: context)
         // Writing a rewrite of an excerpt over the whole selection would lose text.
-        if run.wasTruncated && action.output == .replaceSilently { throw ModelError.tooLongToReplace }
+        if run.wasTruncated && action.effectiveOutput == .replaceSilently { throw ModelError.tooLongToReplace }
         var last = ""
         for try await text in run.stream { last = text }
-        let cleaned = RewriteCleaner.clean(last, original: selection.text)
+        let cleaned = action.isTranslation ? last : RewriteCleaner.clean(last, original: selection.text)
         guard !cleaned.isEmpty else { throw ModelError.emptyResponse }
         return (cleaned, run.wasTruncated, run.route)
     }

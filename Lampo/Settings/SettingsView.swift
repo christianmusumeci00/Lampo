@@ -100,7 +100,7 @@ struct ShortcutsSettingsView: View {
                     .foregroundStyle(.secondary)
             }
             Section("Actions") {
-                ForEach(Array(state.actionStore.actions.enumerated()), id: \.element.id) { offset, action in
+                ForEach(Array(state.actionStore.enabledActions.enumerated()), id: \.element.id) { offset, action in
                     recorder(for: action.shortcutName, index: offset + 1) {
                         Label(action.name, systemImage: action.symbol)
                     }

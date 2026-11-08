@@ -106,7 +106,7 @@ Settings
 - [ ] Recording a combination already used by another command is refused with
       "Questa scorciatoia è già usata da “…”." A duplicate already present (e.g. from an import)
       shows an orange "… è assegnata a … Ne funzionerà solo una." row.
-- [ ] Ripristina predefinite restores ⌥⇧Space and ⌥⇧C/F/B/T/R/S.
+- [ ] Ripristina predefinite restores ⌥⇧Space and ⌥⇧C/R/T/S/E/P on the turned-on actions.
 - [ ] Azioni: +, −, duplicate, drag to reorder; edits are saved immediately and survive a relaunch.
 - [ ] Editor: name, symbol, prompt, "Inserisci variabile", live preview with the sample text,
       unknown-variable warning, Input / Risultato / Modello, own shortcut recorder.
@@ -167,7 +167,7 @@ Updates and release
 - [ ] `brew install --cask` from the tap installs and launches; `brew uninstall --zap` removes the data.
 
 First launch
-- [x] Welcome screen with the icon, tagline and ⌥⇧Spazio / ⌥⇧F / ⌥⇧S; Continua shows the permissions. *(Checked live.)*
+- [x] Welcome screen with the icon, tagline and ⌥⇧Spazio / ⌥⇧R / ⌥⇧S; Continua shows the permissions. *(Checked live.)*
 - [ ] Shown only once; the Dock/Finder/Get Info icon is the blue bolt.
 - [ ] Italian and English everywhere (System Settings › Language per app), including Shortcuts phrases
       and the calendar/reminders permission prompts.
@@ -183,3 +183,16 @@ First launch
 ## After M5 — panel shortcut ⌥⇧Space
 - [ ] Fresh install: Settings › Scorciatoie shows ⌥⇧Space for "Apri Lampo"; ⌥Space reaches Codex.
 - [ ] An install that had ⌥Space moves to ⌥⇧Space on the next launch, once; setting ⌥Space again by hand sticks.
+
+## 1.1 — Rewrite, Apple Translation, actions on/off
+- [ ] Fresh install: Settings › Azioni shows Correggi, Riscrivi, Traduci, Chiedi allo schermo, Crea evento,
+      Crea promemoria, Spiega turned on; Più formale, Più breve, Riassumi "Spenta" and not in the Lens or menu.
+- [ ] An install from 1.0: the same, plus Traduci in inglese / in italiano turned off (not deleted); custom actions untouched.
+- [x] ⌥⇧R on a selection: the Lens shows the four tones; switching tone rewrites again; the next ⌥⇧R starts on that tone. *(Checked live; tone stored.)*
+- [ ] ⌥⇧T on English text → Italian (*checked live, layout kept*); on Italian text → the language last picked (English at first). "Sul Mac" badge.
+- [x] The target menu in the Lens changes language and is remembered. *(Checked live: English → Tedesco.)*
+- [ ] A language that isn't downloaded shows where to download it.
+- [ ] Translate works with Apple Intelligence turned off.
+- [ ] Turning Riassumi back on drops its old ⌥⇧R (now Riscrivi's) instead of creating a conflict.
+- [ ] A custom action with "Funziona con: Traduzione di Apple" and a fixed language translates there.
+- [x] Switching chips Riscrivi ↔ Traduci ↔ Correggi repeatedly doesn't crash. *(Checked live after the resize fix.)*

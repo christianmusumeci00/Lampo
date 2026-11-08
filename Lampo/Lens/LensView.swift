@@ -26,6 +26,9 @@ struct LensView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
             chips
+            if let action = viewModel.activeAction, action.usesTone || action.isTranslation {
+                options(for: action)
+            }
             preview
             if viewModel.wasTruncated {
                 TruncationNotice(
@@ -87,6 +90,61 @@ struct LensView: View {
         }
     }
 
+    /// Under the chips: the tone for "Rewrite", the languages for "Translate".
+    @ViewBuilder
+    private func options(for action: LampoAction) -> some View {
+        if action.isTranslation {
+            HStack(spacing: 6) {
+                if let source = viewModel.translation?.source {
+                    Text(TranslationPlanner.displayName(source).localizedCapitalized)
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel(Text("to"))
+                } else {
+                    Text("Translate into").foregroundStyle(.secondary)
+                }
+                Menu {
+                    ForEach(viewModel.translationLanguages, id: \.self) { language in
+                        Button(TranslationPlanner.displayName(language).localizedCapitalized) {
+                            viewModel.setTranslationTarget(language)
+                        }
+                    }
+                } label: {
+                    Text(targetName)
+                }
+                .menuStyle(.button)
+                .controlSize(.small)
+                .fixedSize()
+                .accessibilityLabel(Text("Target language"))
+                Spacer(minLength: 0)
+                Text("Apple Translation · on this Mac")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+            }
+            .font(.system(size: 12))
+            .task { await viewModel.loadTranslationLanguages() }
+        } else {
+            Picker("Tone", selection: Binding(get: { viewModel.tone }, set: { viewModel.setTone($0) })) {
+                ForEach(RewriteTone.allCases, id: \.self) { tone in
+                    Text(tone.title).tag(tone)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .controlSize(.small)
+            .fixedSize()
+        }
+    }
+
+    private var targetName: String {
+        guard let target = viewModel.translationTarget ?? viewModel.translation?.target else {
+            return String(localized: "Choose…")
+        }
+        return TranslationPlanner.displayName(target).localizedCapitalized
+    }
+
     private var preview: some View {
         Group {
             switch viewModel.phase {
@@ -97,7 +155,8 @@ struct LensView: View {
             case .streaming where viewModel.output.isEmpty:
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Writing…").foregroundStyle(.secondary)
+                    Text(viewModel.activeAction?.isTranslation == true ? "Translating…" : "Writing…")
+                        .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             default:
