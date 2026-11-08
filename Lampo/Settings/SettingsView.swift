@@ -20,7 +20,7 @@ struct SettingsView: View {
                 PrivacySettingsView(preferences: state.preferences, history: state.history)
             }
             Tab("About", systemImage: "info.circle") {
-                AboutSettingsView()
+                AboutSettingsView(updates: state.updates)
             }
         }
         .frame(width: 640)
@@ -198,6 +198,7 @@ struct PrivacySettingsView: View {
 }
 
 struct AboutSettingsView: View {
+    var updates: UpdateController
     private var version: String {
         let info = Bundle.main.infoDictionary
         let short = info?["CFBundleShortVersionString"] as? String ?? "?"
@@ -216,6 +217,34 @@ struct AboutSettingsView: View {
             Text("Your Mac's intelligence, one shortcut away.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
+
+            Divider().padding(.vertical, 6)
+
+            if updates.isAvailable {
+                Button("Check for Updates…") { updates.checkForUpdates() }
+                Toggle("Check for updates automatically",
+                       isOn: Binding(get: { updates.automaticallyChecks }, set: { updates.setAutomaticallyChecks($0) }))
+                    .toggleStyle(.checkbox)
+                Text("Lampo only goes online to check for updates, and only if you allow it.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Updates are available in release builds.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if updates.release.website != nil || updates.release.repository != nil {
+                HStack(spacing: 16) {
+                    if let website = updates.release.website {
+                        Link("Website", destination: website)
+                    }
+                    if let repository = updates.release.repository {
+                        Link("Source Code", destination: repository)
+                    }
+                }
+                .padding(.top, 4)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(30)

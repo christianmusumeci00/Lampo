@@ -26,6 +26,9 @@ packages:
   KeyboardShortcuts:
     url: https://github.com/sindresorhus/KeyboardShortcuts
     from: "3.1.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.10.0"
 
 targets:
   Lampo:
@@ -35,6 +38,7 @@ targets:
       - path: Lampo
     dependencies:
       - package: KeyboardShortcuts
+      - package: Sparkle
     info:
       path: Lampo/Resources/Info.plist
       properties:
@@ -47,9 +51,19 @@ targets:
         LSApplicationCategoryType: public.app-category.productivity
         NSHumanReadableCopyright: "© 2026 Lampo"
         NSPrincipalClass: NSApplication
+        CFBundleURLTypes:
+          - CFBundleURLName: app.lampo.Lampo
+            CFBundleURLSchemes: [lampo]
         NSCalendarsWriteOnlyAccessUsageDescription: Lampo adds the events you confirm to your calendar. It can't read your calendars.
         NSRemindersFullAccessUsageDescription: Lampo adds the reminders you confirm to your default list.
         NSRemindersUsageDescription: Lampo adds the reminders you confirm to your default list.
+        # Sparkle. Empty in development builds (no updater); scripts/release.sh fills them from
+        # Packaging/release.env. Automatic checks are off until the user agrees (Sparkle asks).
+        SUFeedURL: $(LAMPO_FEED_URL)
+        SUPublicEDKey: $(LAMPO_SPARKLE_PUBLIC_KEY)
+        SUEnableSystemProfiling: false
+        LampoWebsiteURL: $(LAMPO_WEBSITE_URL)
+        LampoRepositoryURL: $(LAMPO_REPOSITORY_URL)
     entitlements:
       path: Lampo/Resources/Lampo.entitlements
       properties:
@@ -60,12 +74,17 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.lampo.Lampo
         PRODUCT_NAME: Lampo
         ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_IDENTITY: "Apple Development"
         GENERATE_INFOPLIST_FILE: NO
         # Set LAMPO_PCC in a build that carries the managed
         # com.apple.developer.private-cloud-compute entitlement. Without it,
         # FoundationModels traps (fatalError) on any PCC request.
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited)
+        LAMPO_FEED_URL: ""
+        LAMPO_SPARKLE_PUBLIC_KEY: ""
+        LAMPO_WEBSITE_URL: ""
+        LAMPO_REPOSITORY_URL: ""
       configs:
         Debug:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) DEBUG

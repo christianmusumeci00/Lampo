@@ -54,6 +54,12 @@ struct MenuContent: View {
 
         Divider()
 
+        if state.updates.isAvailable {
+            Button(state.updates.hasPendingUpdate ? "Update Available…" : "Check for Updates…") {
+                state.updates.checkForUpdates()
+            }
+        }
+
         Button("Settings…") {
             NSApp.activate()
             openSettings()

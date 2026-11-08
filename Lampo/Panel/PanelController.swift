@@ -97,6 +97,15 @@ final class PanelController: NSObject, NSWindowDelegate {
         viewModel.enterDraftInput(kind)
     }
 
+    /// `lampo://ask?q=…`: opens the panel and asks the question, with no context attached.
+    func showQuestion(_ question: String?) {
+        show()
+        guard let question else { return }
+        viewModel.resetConversation()
+        viewModel.query = question
+        viewModel.submit()
+    }
+
     /// Opens the panel with an actionable message (e.g. a missing permission).
     func showNotice(_ notice: PanelNotice) {
         show()

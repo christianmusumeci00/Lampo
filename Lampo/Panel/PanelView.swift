@@ -377,6 +377,9 @@ struct LampoButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .medium))
+            // Longer Italian labels ("Approfondisci") must not wrap inside a 34 pt button.
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
             .padding(.horizontal, 12)
             .frame(height: DesignTokens.Button.height)
             .foregroundStyle(prominent ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))

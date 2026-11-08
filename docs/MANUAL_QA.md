@@ -146,3 +146,29 @@ History
 
 Solo sul Mac
 - [x] Covered by `OnlyOnMacTests` with PCC compiled in (no cloud conversation in any flow).
+
+## M5 — Polish and launch
+
+Links and Shortcuts
+- [x] `open "lampo://ask?q=…"` with Lampo running opens the panel and answers. *(Checked live.)*
+- [x] The same link when Lampo isn't running launches it and answers. *(Checked live.)*
+- [ ] `lampo://ask` without `q` just opens the panel; a link with a selection in the front app doesn't attach it.
+- [ ] Shortcuts app: "Chiedi a Lampo" returns the answer; "Esegui azione Lampo" with Correggi on a text
+      returns the corrected text; with Crea evento it opens the card in Lampo.
+- [ ] With Lampo disabled both intents fail with "Lampo è disattivato…".
+
+Updates and release
+- [x] `scripts/release.sh --skip-notarize --skip-appcast`: tests, Release archive, Developer ID export,
+      signature checks, zip, cask. *(Checked.)*
+- [ ] Full release with `Packaging/release.env`: notarization succeeds, `spctl` says "Notarized Developer ID",
+      appcast is signed (`sparkle:edSignature`).
+- [ ] A release build shows "Controlla aggiornamenti…" in the menu and in Info; on the second launch Sparkle
+      asks about automatic checks; an older build finds the newer one and installs it.
+- [ ] `brew install --cask` from the tap installs and launches; `brew uninstall --zap` removes the data.
+
+First launch
+- [x] Welcome screen with the icon, tagline and ⌥Spazio / ⌥⇧F / ⌥⇧S; Continua shows the permissions. *(Checked live.)*
+- [ ] Shown only once; the Dock/Finder/Get Info icon is the blue bolt.
+- [ ] Italian and English everywhere (System Settings › Language per app), including Shortcuts phrases
+      and the calendar/reminders permission prompts.
+

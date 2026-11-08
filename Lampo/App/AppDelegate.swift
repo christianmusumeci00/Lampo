@@ -3,10 +3,28 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let state = AppState()
+    /// Links that arrive before `start()` (a link that launches Lampo comes before didFinishLaunching).
+    private var pendingURLs: [URL]? = []
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        guard !RuntimeEnvironment.isRunningTests else { return }
+        installURLHandler()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !RuntimeEnvironment.isRunningTests else { return }
         state.start()
+        // Again, in case SwiftUI installed its own handler in between.
+        installURLHandler()
+        let queued = pendingURLs ?? []
+        pendingURLs = nil
+        if !queued.isEmpty {
+            Task {
+                // Let the menu bar item and the panel settle first.
+                try? await Task.sleep(for: .milliseconds(300))
+                queued.forEach(state.open)
+            }
+        }
         Log.app.info("accessibility trusted: \(self.state.permissions.isAccessibilityGranted, privacy: .public)")
         #if DEBUG
         // `LAMPO_QA_ACTION=<action UUID>` runs an action shortly after launch;
@@ -45,5 +63,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         #endif
+    }
+
+    @objc private func handleGetURL(_ event: NSAppleEventDescriptor, withReplyEvent reply: NSAppleEventDescriptor) {
+        guard let string = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
+              let url = URL(string: string) else { return }
+        if pendingURLs != nil {
+            pendingURLs?.append(url)
+        } else {
+            state.open(url)
+        }
+    }
+
+    /// `lampo://ask?q=…`
+    private func installURLHandler() {
+        NSAppleEventManager.shared().setEventHandler(
+            self, andSelector: #selector(handleGetURL(_:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
     }
 }

@@ -1,3 +1,4 @@
+import AppIntents
 import AppKit
 import KeyboardShortcuts
 import Observation
@@ -9,11 +10,14 @@ final class AppState {
     let preferences: Preferences
     let actionStore: ActionStore
     let history: HistoryStore
+    let updates = UpdateController()
     @ObservationIgnored let modelService: any ModelService
     @ObservationIgnored let hotkeys: HotkeyManager
     @ObservationIgnored private(set) var panelController: PanelController?
     @ObservationIgnored private(set) var actionCoordinator: ActionCoordinator?
+    @ObservationIgnored private(set) var shortcuts: ShortcutsService?
     @ObservationIgnored private let onboarding = OnboardingWindowController()
+    @ObservationIgnored private let welcome = WelcomeWindowController()
     @ObservationIgnored let permissions: any PermissionsChecking = PermissionsService()
     private(set) var availability: ModelAvailability = .unknown
     @ObservationIgnored private var activationObserver: (any NSObjectProtocol)?
@@ -73,11 +77,18 @@ final class AppState {
         }
         actionCoordinator = coordinator
 
+        let shortcuts = ShortcutsService(model: modelService, preferences: preferences, actionStore: actionStore,
+                                         history: history)
+        shortcuts.showDraft = { [weak panel] kind, text in panel?.showDraft(kind, from: text) }
+        self.shortcuts = shortcuts
+        AppDependencyManager.shared.add(dependency: shortcuts)
+
         hotkeys.register(.togglePanel) { [weak self] in self?.togglePanel() }
         syncActionHotkeys()
         actionStore.onActionsAddedOrRemoved = { [weak self] in self?.syncActionHotkeys() }
-        onboarding.showIfFirstLaunch(accessibilityGranted: permissions.isAccessibilityGranted)
         refreshAvailability()
+        welcome.showIfFirstLaunch(availability: availability)
+        updates.start()
         activationObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -144,6 +155,20 @@ final class AppState {
 
     func showPermissions() {
         onboarding.show()
+    }
+
+    /// Handles a `lampo://` link.
+    func open(_ url: URL) {
+        guard let link = LampoURL(url) else {
+            Log.app.info("ignored unknown link")
+            return
+        }
+        guard isEnabled else { return }
+        switch link {
+        case .ask(let question):
+            refreshAvailability()
+            panelController?.showQuestion(question)
+        }
     }
 
     func togglePanel() {

@@ -189,3 +189,43 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   The `LAMPO_PCC` build compiles cleanly (not run: it needs the managed entitlement).
 - **QA helper (DEBUG).** `LAMPO_QA_DRAFT=event|reminder` + `LAMPO_QA_QUERY="…"` opens the card for that
   text with the real extraction, without reading the selection.
+
+## M5
+
+- **`lampo://ask?q=…`** opens the panel and asks the question with **no context attached** (no selection,
+  no screen), so a link from a web page can't make Lampo read anything. Other commands are ignored; a link
+  can't run an action or replace text. Questions are cut at 2000 characters. The handler is installed with
+  `NSAppleEventManager` in `applicationWillFinishLaunching` (a link that launches Lampo arrives before
+  didFinishLaunching) and again after start; early links are queued until the app has started.
+- **App Intents.** "Chiedi a Lampo" (`AskLampoIntent`) and "Esegui azione Lampo" (`RunLampoActionIntent`,
+  with a `LampoActionEntity` per action) run in the background (`supportedModes = .background`) and
+  return the text. The logic is in `ShortcutsService` (tested with mocks); the intents get it through
+  `AppDependencyManager` / `@Dependency`. Asks run on device in a fresh session (calculator first).
+  Screen actions aren't offered (they need the window you're in). "Crea evento/promemoria" open the
+  confirmation card: Shortcuts never writes to the calendar. Phrases are localized in
+  `AppShortcuts.xcstrings`.
+- **Sparkle 2.10** with the standard user driver and gentle reminders (Lampo has no Dock icon: a scheduled
+  update shows as "Aggiornamento disponibile…" in the menu). `SUFeedURL`, `SUPublicEDKey`, website and
+  repository URLs come from build settings that are **empty in development builds**, so the updater
+  doesn't start there; `scripts/release.sh` fills them from `Packaging/release.env` (git-ignored, not
+  secret). Automatic checks stay off until the user agrees (Sparkle asks on the second launch);
+  `SUEnableSystemProfiling` is false. This is the only network use besides PCC.
+- **Release.** `scripts/release.sh`: tests → Release archive (Developer ID, Hardened Runtime, timestamp)
+  → export (`Packaging/ExportOptions.plist`) → signature checks (Developer ID, runtime flag, no
+  `get-task-allow`, calendars entitlement) → zip (`ditto`) → `notarytool --wait` + staple → re-zip →
+  `generate_appcast` (starting from the published feed so history is kept; EdDSA key from the keychain)
+  → cask from `Packaging/Homebrew/lampo.rb.template`. Build number = commit count. A real release
+  refuses a dirty tree. Uploads are left to the user. Verified locally with `--skip-notarize --skip-appcast`.
+- **Homebrew cask** uses the zip, `depends_on macos: ">= :golden_gate"` (macOS 27), `arch: :arm64`,
+  `auto_updates true` (Sparkle) and a Sparkle livecheck.
+- **App icon** is drawn in code (`scripts/make-icon.swift`): blue squircle on the macOS grid with a
+  hand-drawn bolt. SF Symbols may not be used in app icons (license).
+- **Welcome screen** on first launch (`didShowWelcome`): tagline, the three shortcuts with the user's
+  current keys, the privacy promise, a warning if the model is unavailable, then the permissions page.
+  It replaces the old first-launch permissions window; that window is still used when an action needs a
+  permission.
+- **README** is in Italian with a short English summary. The panel GIF and the event card are captured
+  from Lampo's own window only. The Lens and screen GIFs need other apps on screen and are left to record
+  by hand (`docs/media/README.md`).
+- **Fix found while recording:** Italian button labels ("Approfondisci") wrapped inside 34 pt buttons;
+  `LampoButtonStyle` now keeps labels on one line.

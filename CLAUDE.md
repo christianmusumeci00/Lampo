@@ -13,6 +13,8 @@ xcodebuild -project Lampo.xcodeproj -scheme Lampo -derivedDataPath build/Derived
 xcodebuild -project Lampo.xcodeproj -scheme Lampo -derivedDataPath build/DerivedData \
   -clonedSourcePackagesDirPath build/SourcePackages test
 scripts/check-strings.sh                # after a build: sync String Catalog, list missing Italian
+scripts/release.sh --skip-notarize --skip-appcast   # local signed build; full release needs Packaging/release.env
+swift scripts/make-icon.swift           # re-render the app icon
 ```
 
 Run for manual QA (start from `/`, otherwise macOS asks for Documents access because
@@ -63,8 +65,12 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
   Events use write-only access. Extraction is on device only.
 - History is off by default (`HistoryStore`, Application Support/Lampo/history.json, 200 entries);
   turning it off deletes the file. `Preferences.privateCloudInBuild` is the test seam for "Only on Mac".
+- `lampo://ask?q=` asks with no context attached; App Intents are thin wrappers over `ShortcutsService`
+  (registered with `AppDependencyManager`). Shortcut phrases are in `AppShortcuts.xcstrings`.
+- Sparkle settings (`LAMPO_FEED_URL`, `LAMPO_SPARKLE_PUBLIC_KEY`, …) are empty build settings in dev builds,
+  so the updater doesn't start; release.sh passes them. Never notarize or upload without the user's OK.
 
 ## Milestones
 
 M1 skeleton ✅ · M2 lens & selection actions ✅ · M3 screen context & full settings ✅ ·
-M4 structured output & cloud ✅ · M5 polish & launch. One commit per milestone, green build and tests.
+M4 structured output & cloud ✅ · M5 polish & launch ✅. One commit per milestone, green build and tests.

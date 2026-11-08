@@ -23,12 +23,27 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>app.lampo.Lampo</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lampo</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>LampoRepositoryURL</key>
+	<string>$(LAMPO_REPOSITORY_URL)</string>
+	<key>LampoWebsiteURL</key>
+	<string>$(LAMPO_WEBSITE_URL)</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>Lampo adds the events you confirm to your calendar. It can't read your calendars.</string>
 	<key>NSHumanReadableCopyright</key>
@@ -39,5 +54,11 @@
 	<string>Lampo adds the reminders you confirm to your default list.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Lampo adds the reminders you confirm to your default list.</string>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<key>SUFeedURL</key>
+	<string>$(LAMPO_FEED_URL)</string>
+	<key>SUPublicEDKey</key>
+	<string>$(LAMPO_SPARKLE_PUBLIC_KEY)</string>
 </dict>
 </plist>

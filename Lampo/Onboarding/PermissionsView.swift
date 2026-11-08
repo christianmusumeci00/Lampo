@@ -136,18 +136,10 @@ struct PermissionRow: View {
     }
 }
 
-/// Small window that hosts `PermissionsView` for first launch and blocked actions.
+/// Small window that hosts `PermissionsView` when an action needs a permission (first launch uses `WelcomeView`).
 @MainActor
 final class OnboardingWindowController {
     private var window: NSWindow?
-    private static let shownKey = "didShowPermissionsOnboarding"
-
-    func showIfFirstLaunch(accessibilityGranted: Bool, defaults: UserDefaults = .standard) {
-        guard !defaults.bool(forKey: Self.shownKey), !accessibilityGranted else { return }
-        defaults.set(true, forKey: Self.shownKey)
-        show()
-    }
-
     func show() {
         if window == nil {
             let hosting = NSHostingController(rootView: PermissionsView(style: .onboarding) { [weak self] in

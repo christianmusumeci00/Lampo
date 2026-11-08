@@ -95,6 +95,11 @@ enum BuiltInActions {
     }
 
     /// Default global shortcuts (⌥⇧ + letter).
+    /// The shortcut name of a built-in action (the user may have changed its shortcut).
+    static func shortcutName(for id: UUID) -> KeyboardShortcuts.Name? {
+        all.first { $0.id == id }?.shortcutName
+    }
+
     static let defaultShortcuts: [UUID: KeyboardShortcuts.Shortcut] = [
         correctID: .init(.c, modifiers: [.option, .shift]),
         formalID: .init(.f, modifiers: [.option, .shift]),

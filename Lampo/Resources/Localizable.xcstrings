@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
+          }
+        }
+      }
+    },
     "%@ copy": {
       "localizations": {
         "it": {
@@ -103,6 +113,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Accessibilità"
+          }
+        }
+      }
+    },
+    "Action": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azione"
           }
         }
       }
@@ -277,6 +297,16 @@
         }
       }
     },
+    "Answers a question with Apple's model on this Mac. Nothing leaves your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risponde a una domanda con il modello di Apple su questo Mac. Nessun dato lascia il Mac."
+          }
+        }
+      }
+    },
     "Apple Intelligence is off": {
       "localizations": {
         "it": {
@@ -307,6 +337,16 @@
         }
       }
     },
+    "Ask Lampo ${question}": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi a Lampo ${question}"
+          }
+        }
+      }
+    },
     "Ask Lampo…": {
       "localizations": {
         "it": {
@@ -323,6 +363,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fai un’altra domanda…"
+          }
+        }
+      }
+    },
+    "Ask about the screen": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi allo schermo"
           }
         }
       }
@@ -353,6 +403,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiedi di nuovo con Private Cloud Compute, che può leggere più testo"
+          }
+        }
+      }
+    },
+    "Ask from anywhere": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi da qualsiasi app"
           }
         }
       }
@@ -457,6 +517,36 @@
         }
       }
     },
+    "Check for Updates…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla aggiornamenti…"
+          }
+        }
+      }
+    },
+    "Check for updates automatically": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla automaticamente gli aggiornamenti"
+          }
+        }
+      }
+    },
+    "Check the details in Lampo and confirm.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla i dettagli in Lampo e conferma."
+          }
+        }
+      }
+    },
     "Clear History": {
       "localizations": {
         "it": {
@@ -503,6 +593,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiudi il pannello dopo la copia"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua"
           }
         }
       }
@@ -947,6 +1047,16 @@
         }
       }
     },
+    "Lampo Action": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azione di Lampo"
+          }
+        }
+      }
+    },
     "Lampo Actions": {
       "localizations": {
         "it": {
@@ -997,12 +1107,42 @@
         }
       }
     },
+    "Lampo is disabled. Turn it on from the menu bar.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo è disattivato. Attivalo dalla barra dei menu."
+          }
+        }
+      }
+    },
     "Lampo is still answering the previous request.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Lampo sta ancora rispondendo alla richiesta precedente."
+          }
+        }
+      }
+    },
+    "Lampo looks at the window you're using and answers about it: an error, a chart, a form.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo guarda la finestra che stai usando e risponde su quella: un errore, un grafico, un modulo."
+          }
+        }
+      }
+    },
+    "Lampo only goes online to check for updates, and only if you allow it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo va online solo per controllare gli aggiornamenti, e solo se lo consenti."
           }
         }
       }
@@ -1287,6 +1427,16 @@
         }
       }
     },
+    "Offline, free and private. Nothing leaves your Mac unless you ask for Private Cloud Compute, and Lampo always tells you where a request ran.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline, gratis e privato. Nessun dato lascia il Mac a meno che tu non chieda Private Cloud Compute, e Lampo ti dice sempre dove ha girato una richiesta."
+          }
+        }
+      }
+    },
     "On Mac": {
       "localizations": {
         "it": {
@@ -1363,6 +1513,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apri nel pannello"
+          }
+        }
+      }
+    },
+    "Open the panel over any app. The answer starts right away, from the model on your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il pannello sopra qualsiasi app. La risposta arriva subito, dal modello sul tuo Mac."
           }
         }
       }
@@ -1533,6 +1693,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prompt"
+          }
+        }
+      }
+    },
+    "Question": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domanda"
           }
         }
       }
@@ -1727,6 +1897,46 @@
         }
       }
     },
+    "Rewrite where you are": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riscrivi dove sei"
+          }
+        }
+      }
+    },
+    "Run ${action} on ${text}": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui ${action} su ${text}"
+          }
+        }
+      }
+    },
+    "Run Lampo Action": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui azione Lampo"
+          }
+        }
+      }
+    },
+    "Runs a Lampo action (Correct, More formal, Translate, …) on a text and returns the result. Create event and Create reminder open a card to confirm.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegue un'azione di Lampo (Correggi, Più formale, Traduci, …) su un testo e restituisce il risultato. Crea evento e Crea promemoria aprono una scheda da confermare."
+          }
+        }
+      }
+    },
     "Same as the question": {
       "localizations": {
         "it": {
@@ -1804,6 +2014,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleziona prima del testo, poi riprova."
+          }
+        }
+      }
+    },
+    "Select text and press an action's shortcut: Lampo previews the result and replaces it in place. ⌘Z undoes it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona un testo e premi la scorciatoia di un'azione: Lampo mostra l'anteprima e sostituisce il testo al suo posto. ⌘Z annulla."
           }
         }
       }
@@ -1904,12 +2124,33 @@
         }
       }
     },
+    "Shortcut %@": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorciatoia %@"
+          }
+        }
+      }
+    },
     "Shortcuts": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Scorciatoie"
+          }
+        }
+      }
+    },
+    "Shortcuts app": {
+      "comment": "The Shortcuts app (Comandi rapidi), as a history source",
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandi rapidi"
           }
         }
       }
@@ -1950,6 +2191,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Si è verificato un problema durante la generazione della risposta."
+          }
+        }
+      }
+    },
+    "Source Code": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codice sorgente"
           }
         }
       }
@@ -2000,6 +2251,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Simbolo"
+          }
+        }
+      }
+    },
+    "Text": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testo"
+          }
+        }
+      }
+    },
+    "That Lampo action no longer exists.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quest'azione di Lampo non esiste più."
           }
         }
       }
@@ -2124,6 +2395,16 @@
         }
       }
     },
+    "There's no text to work on.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non c'è nessun testo su cui lavorare."
+          }
+        }
+      }
+    },
     "There's no window to look at. Click the window you mean, then try again.": {
       "localizations": {
         "it": {
@@ -2160,6 +2441,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questo Mac non supporta Apple Intelligence."
+          }
+        }
+      }
+    },
+    "This action looks at the screen: run it with its keyboard shortcut.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quest'azione guarda lo schermo: avviala con la sua scorciatoia da tastiera."
           }
         }
       }
@@ -2284,12 +2575,52 @@
         }
       }
     },
+    "Update Available…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiornamento disponibile…"
+          }
+        }
+      }
+    },
+    "Updates are available in release builds.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli aggiornamenti sono disponibili nelle versioni pubblicate."
+          }
+        }
+      }
+    },
     "Version %@": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Versione %@"
+          }
+        }
+      }
+    },
+    "Website": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sito web"
+          }
+        }
+      }
+    },
+    "Welcome to Lampo": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benvenuto in Lampo"
           }
         }
       }
@@ -2410,6 +2741,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "L’intelligenza del tuo Mac, a una scorciatoia di distanza."
+          }
+        }
+      }
+    },
+    "Your Mac's intelligence, one shortcut away. On your text, your screen, your apps.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'intelligenza del tuo Mac, a una scorciatoia di distanza. Sul tuo testo, sul tuo schermo, nelle tue app."
           }
         }
       }
