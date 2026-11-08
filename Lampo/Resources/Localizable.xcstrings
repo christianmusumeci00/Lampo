@@ -987,6 +987,16 @@
         }
       }
     },
+    "In the macOS alert, click “Open System Settings” and turn on Lampo. If Lampo isn't in the list, click + and choose Lampo (or drag it in from the Finder). Then quit and reopen Lampo.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nell'avviso di macOS fai clic su «Apri Impostazioni di Sistema» e attiva Lampo. Se Lampo non è nell'elenco, fai clic su + e scegli Lampo (oppure trascinalo dal Finder). Poi chiudi e riapri Lampo."
+          }
+        }
+      }
+    },
     "Input": {
       "localizations": {
         "it": {
@@ -2171,6 +2181,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostra cronologia…"
+          }
+        }
+      }
+    },
+    "Show Lampo in Finder": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra Lampo nel Finder"
           }
         }
       }

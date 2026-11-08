@@ -229,3 +229,18 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   by hand (`docs/media/README.md`).
 - **Fix found while recording:** Italian button labels ("Approfondisci") wrapped inside 34 pt buttons;
   `LampoButtonStyle` now keeps labels on one line.
+
+## After M5
+
+- **Screen Recording on macOS 27: an app can't add itself to the list.** The TCC log shows that
+  `CGRequestScreenCaptureAccess()`, and a ScreenCaptureKit request too, are answered with "Service
+  kTCCServiceScreenCapture does not allow prompting; returning denied" and `DB Action: None`: no entry is
+  created. macOS shows its own alert instead (`universalAccessAuthWarn`, "“Lampo.app” vorrebbe controllare
+  questo Mac…") with "Apri Impostazioni di Sistema". Lampo used to open the pane at the same moment, hiding
+  that alert behind a list without Lampo. Now "Consenti…" asks through ScreenCaptureKit, leaves the alert in
+  charge, and opens the pane itself only when no alert appears (e.g. after "Non consentire"). Settings ›
+  Privacy then explains what to do and offers "Apri Impostazioni di Sistema" and "Mostra Lampo nel Finder"
+  (to add it with + or by dragging). The alert is detected by its window owner name only.
+- **Deleted copies confuse System Settings.** Copies of Lampo.app that LaunchServices still knew after they
+  were deleted (`build/release`, `build/DerivedDataPCC`) made tccd fail to resolve the bundle when building
+  the list. Unregister removed copies with `lsregister -u <path>`.

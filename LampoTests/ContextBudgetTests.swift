@@ -167,6 +167,23 @@ struct WindowContextTests {
         #expect(granted == [.screenRecording])
     }
 
+    /// Without the macOS alert, the pane opens after the request (Lampo is then added with "+").
+    @Test func screenRecordingOpensSettingsWhenNoAlertShows() async {
+        let permissions = MockPermissions()
+        permissions.grant(.screenRecording)
+        await waitUntil { permissions.screenEvents.count == 2 }
+        #expect(permissions.screenEvents == ["request", "open settings"])
+    }
+
+    /// With the macOS alert on screen, its "Open System Settings" button adds Lampo: don't cover it.
+    @Test func screenRecordingLeavesTheSystemAlertInCharge() async {
+        let permissions = MockPermissions()
+        permissions.isSystemPrivacyAlertShowing = true
+        permissions.grant(.screenRecording)
+        await waitUntil { permissions.screenEvents.count == 2 }
+        #expect(permissions.screenEvents == ["request"])
+    }
+
     @Test func captureFailureIsExplained() async {
         capture.error = .noWindow
         let vm = makeViewModel()

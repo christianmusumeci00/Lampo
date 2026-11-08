@@ -15,6 +15,7 @@ struct PermissionsView: View {
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var calendarsGranted = false
     @State private var remindersGranted = false
+    @State private var requestedScreenRecording = false
     private let service = PermissionsService()
     private var calendars: CalendarService { Self.calendarService }
     /// One EventKit store for the app's lifetime (creating one is slow).
@@ -48,12 +49,21 @@ struct PermissionsView: View {
                 title: "Screen Recording",
                 detail: "Look at the window you're using when you ask about the screen (⌘⇧S). Optional.",
                 isGranted: screenRecordingGranted,
-                grant: { service.grant(.screenRecording) })
+                grant: {
+                    requestedScreenRecording = true
+                    service.grant(.screenRecording)
+                })
 
             if !screenRecordingGranted {
-                Text("After allowing Screen Recording, macOS may ask you to quit and reopen Lampo.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if requestedScreenRecording {
+                    ScreenRecordingHelp(
+                        openSettings: { service.openScreenRecordingSettings() },
+                        reveal: { service.revealApp() })
+                } else {
+                    Text("After allowing Screen Recording, macOS may ask you to quit and reopen Lampo.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             if style == .settings {
@@ -105,6 +115,27 @@ extension PermissionsView {
         } else {
             calendars.openSettings(for: kind)
         }
+    }
+}
+
+/// What to do after "Allow…" for Screen Recording: macOS 27 doesn't let apps add themselves.
+private struct ScreenRecordingHelp: View {
+    let openSettings: () -> Void
+    let reveal: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("In the macOS alert, click “Open System Settings” and turn on Lampo. If Lampo isn't in the list, click + and choose Lampo (or drag it in from the Finder). Then quit and reopen Lampo.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                Button("Open System Settings", action: openSettings)
+                Button("Show Lampo in Finder", action: reveal)
+            }
+            .controlSize(.small)
+        }
+        .padding(.leading, 30)
     }
 }
 

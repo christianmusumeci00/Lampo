@@ -179,8 +179,16 @@ final class MockPermissions: PermissionsChecking {
     private(set) var screenRequests = 0
     func requestAccessibility() { requests += 1 }
     func openAccessibilitySettings() {}
-    func requestScreenRecording() { screenRequests += 1 }
-    func openScreenRecordingSettings() {}
+    /// "request" / "open settings", in order.
+    private(set) var screenEvents: [String] = []
+    func requestScreenRecording() async {
+        screenRequests += 1
+        await Task.yield()
+        screenEvents.append("request")
+    }
+    func openScreenRecordingSettings() { screenEvents.append("open settings") }
+    var isSystemPrivacyAlertShowing = false
+    func revealApp() {}
 }
 
 /// Returns a 1×1 image for the front window, or fails.

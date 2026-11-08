@@ -172,3 +172,10 @@ First launch
 - [ ] Italian and English everywhere (System Settings › Language per app), including Shortcuts phrases
       and the calendar/reminders permission prompts.
 
+## After M5 — Screen Recording permission
+- [x] Settings › Privacy › Registrazione schermo › Consenti… (Lampo opened from the Finder): the macOS
+      alert appears and stays in front; Lampo shows the instructions with the two buttons. *(Checked live.)*
+- [ ] In the alert, "Apri Impostazioni di Sistema" opens the pane with Lampo in the list; turning it on and
+      reopening Lampo makes "Chiedi allo schermo" work.
+- [ ] If Lampo isn't listed: "Mostra Lampo nel Finder", then + (or drag) adds it.
+
