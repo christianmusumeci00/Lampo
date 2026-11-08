@@ -123,7 +123,7 @@ struct ShortcutsSettingsView: View {
                     revision += 1
                 }
             } footer: {
-                Text("⌥Space for Lampo, ⌥⇧ and a letter for the built-in actions. Custom actions lose their shortcut.")
+                Text("⌥⇧Space for Lampo, ⌥⇧ and a letter for the built-in actions. Custom actions lose their shortcut.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

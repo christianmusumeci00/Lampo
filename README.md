@@ -28,7 +28,7 @@ Selezioni, premi un tasto, il testo cambia al suo posto.
 
 ### Vetro: chiedi da qualsiasi app
 
-Premi **⌥Spazio**: il pannello si apre sopra l'app che stai usando, senza toglierle il controllo.
+Premi **⌥⇧Spazio**: il pannello si apre sopra l'app che stai usando, senza toglierle il controllo.
 Scrivi una domanda e la risposta arriva in streaming. Se hai selezionato del testo, Lampo lo aggiunge
 come contesto. Poi puoi copiare (⌘C), inserire la risposta nell'app sotto (⌘↩), fare una domanda di
 seguito o chiedere di approfondire. I calcoli ("12 * 3,5") li fa Lampo stesso, senza modello.
@@ -43,7 +43,7 @@ all'azione successiva. Gli appunti restano quelli che avevi.
 
 | Azione | Scorciatoia |
 |---|---|
-| Apri Lampo | ⌥Spazio |
+| Apri Lampo | ⌥⇧Spazio |
 | Correggi | ⌥⇧C |
 | Più formale | ⌥⇧F |
 | Più breve | ⌥⇧B |

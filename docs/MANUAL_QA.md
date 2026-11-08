@@ -11,18 +11,18 @@ Launch a Debug build from `/` (not from inside ~/Documents, which triggers a Doc
 Menu bar
 - [ ] Icon is `bolt.fill`; toggling "Enabled" off switches it to `bolt.slash`, and back.
 - [ ] Header shows "Lampo" with status ("Attivo · modello sul Mac" / "Modello non disponibile" / "Disabilitato").
-- [ ] "Apri Lampo" shows the current shortcut (⌥Space by default) and opens the panel.
+- [ ] "Apri Lampo" shows the current shortcut (⌥⇧Space by default) and opens the panel.
 - [ ] "Impostazioni…" (⌘,) opens Settings in front; "Esci da Lampo" (⌘Q) quits.
 - [ ] "Enabled" state survives relaunch.
 
 Hotkey and panel
-- [ ] ⌥Space opens the panel on the screen under the pointer, centred, ~20% from the top; again closes it.
-- [ ] With Lampo disabled, ⌥Space does nothing (the shortcut reaches the frontmost app instead).
+- [ ] ⌥⇧Space opens the panel on the screen under the pointer, centred, ~20% from the top; again closes it.
+- [ ] With Lampo disabled, ⌥⇧Space does nothing (the shortcut reaches the frontmost app instead).
 - [ ] Opening the panel does not activate Lampo: the app underneath keeps its menu bar and title highlight.
 - [ ] Works on every Space and over a full-screen app (Safari full screen, Keynote).
 - [ ] Multi-monitor: opens on the display with the pointer; moves when the pointer moves to the other display.
 - [ ] Esc closes when idle; click outside closes; ⌘W closes.
-- [ ] Changing the shortcut in Settings › Scorciatoie takes effect immediately; "Ripristina predefinite" restores ⌥Space.
+- [ ] Changing the shortcut in Settings › Scorciatoie takes effect immediately; "Ripristina predefinite" restores ⌥⇧Space.
 - [ ] Panel position "Vicino al puntatore" opens it under the pointer.
 
 Answers
@@ -106,7 +106,7 @@ Settings
 - [ ] Recording a combination already used by another command is refused with
       "Questa scorciatoia è già usata da “…”." A duplicate already present (e.g. from an import)
       shows an orange "… è assegnata a … Ne funzionerà solo una." row.
-- [ ] Ripristina predefinite restores ⌥Space and ⌥⇧C/F/B/T/R/S.
+- [ ] Ripristina predefinite restores ⌥⇧Space and ⌥⇧C/F/B/T/R/S.
 - [ ] Azioni: +, −, duplicate, drag to reorder; edits are saved immediately and survive a relaunch.
 - [ ] Editor: name, symbol, prompt, "Inserisci variabile", live preview with the sample text,
       unknown-variable warning, Input / Risultato / Modello, own shortcut recorder.
@@ -167,7 +167,7 @@ Updates and release
 - [ ] `brew install --cask` from the tap installs and launches; `brew uninstall --zap` removes the data.
 
 First launch
-- [x] Welcome screen with the icon, tagline and ⌥Spazio / ⌥⇧F / ⌥⇧S; Continua shows the permissions. *(Checked live.)*
+- [x] Welcome screen with the icon, tagline and ⌥⇧Spazio / ⌥⇧F / ⌥⇧S; Continua shows the permissions. *(Checked live.)*
 - [ ] Shown only once; the Dock/Finder/Get Info icon is the blue bolt.
 - [ ] Italian and English everywhere (System Settings › Language per app), including Shortcuts phrases
       and the calendar/reminders permission prompts.
@@ -179,3 +179,7 @@ First launch
 - [ ] Turning it on and reopening Lampo makes "Chiedi allo schermo" work.
 - [ ] If Lampo isn't listed: "Mostra Lampo nel Finder", then + (or drag) adds it.
 
+
+## After M5 — panel shortcut ⌥⇧Space
+- [ ] Fresh install: Settings › Scorciatoie shows ⌥⇧Space for "Apri Lampo"; ⌥Space reaches Codex.
+- [ ] An install that had ⌥Space moves to ⌥⇧Space on the next launch, once; setting ⌥Space again by hand sticks.

@@ -1,3 +1,4 @@
+import Foundation
 import KeyboardShortcuts
 import Testing
 @testable import Lampo
@@ -60,5 +61,45 @@ struct HotkeyManagerTests {
         backend.press(b)
         #expect(fired == ["action-test-a", "action-test-b"])
         #expect(manager.registeredNames.map(\.rawValue) == ["togglePanel", "action-test-b"])
+    }
+}
+
+@MainActor
+struct PanelShortcutMigrationTests {
+    let legacy = PanelShortcutMigration.legacy
+    let current = PanelShortcutMigration.current
+    let custom = KeyboardShortcuts.Shortcut(.l, modifiers: [.command, .option])
+
+    private func freshDefaults() -> UserDefaults {
+        let name = "PanelShortcutMigrationTests-\(UUID().uuidString)"
+        return UserDefaults(suiteName: name)!
+    }
+
+    @Test func newDefaultIsOptionShiftSpace() {
+        #expect(KeyboardShortcuts.Name.togglePanel.initialShortcut == current)
+        #expect(current != legacy)
+    }
+
+    @Test func movesTheOldDefaultOnce() {
+        let defaults = freshDefaults()
+        var stored: KeyboardShortcuts.Shortcut? = legacy
+        PanelShortcutMigration.run(defaults: defaults, taken: [], get: { stored }, set: { stored = $0 })
+        #expect(stored == current)
+
+        // The user deliberately goes back to ⌥Space: a later launch leaves it alone.
+        stored = legacy
+        PanelShortcutMigration.run(defaults: defaults, taken: [], get: { stored }, set: { stored = $0 })
+        #expect(stored == legacy)
+    }
+
+    @Test func keepsAShortcutTheUserChose() {
+        #expect(PanelShortcutMigration.replacement(for: custom, taken: []) == nil)
+        #expect(PanelShortcutMigration.replacement(for: nil, taken: []) == nil)
+        #expect(PanelShortcutMigration.replacement(for: current, taken: []) == nil)
+    }
+
+    @Test func leavesTheOldDefaultWhenTheNewOneIsTaken() {
+        #expect(PanelShortcutMigration.replacement(for: legacy, taken: [nil, current]) == nil)
+        #expect(PanelShortcutMigration.replacement(for: legacy, taken: [nil, custom]) == current)
     }
 }

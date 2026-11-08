@@ -2,8 +2,37 @@ import AppKit
 import KeyboardShortcuts
 
 extension KeyboardShortcuts.Name {
-    /// Opens or closes the Glass panel. Default ⌥Space.
-    static let togglePanel = Self("togglePanel", initial: .init(.space, modifiers: [.option]))
+    /// Opens or closes the Glass panel. Default ⌥⇧Space (⌥Space is taken by Codex, ChatGPT and others).
+    static let togglePanel = Self("togglePanel", initial: PanelShortcutMigration.current)
+}
+
+/// Builds up to 1.0 shipped ⌥Space for the panel. KeyboardShortcuts stores the initial shortcut on
+/// first use, so changing the default alone leaves existing installs on ⌥Space: move them once,
+/// unless the user picked something else or the new combination is already taken.
+@MainActor
+enum PanelShortcutMigration {
+    static let legacy = KeyboardShortcuts.Shortcut(.space, modifiers: [.option])
+    nonisolated static let current = KeyboardShortcuts.Shortcut(.space, modifiers: [.option, .shift])
+    static let doneKey = "migratedPanelShortcutFromOptionSpace"
+
+    /// The shortcut to store instead of `stored`, or nil to leave it alone.
+    static func replacement(for stored: KeyboardShortcuts.Shortcut?,
+                            taken: [KeyboardShortcuts.Shortcut?]) -> KeyboardShortcuts.Shortcut? {
+        guard stored == legacy, !taken.contains(current) else { return nil }
+        return current
+    }
+
+    /// Runs once per install; `taken` are the other commands' shortcuts.
+    static func run(defaults: UserDefaults = .standard, taken: [KeyboardShortcuts.Shortcut?],
+                    get: () -> KeyboardShortcuts.Shortcut? = { KeyboardShortcuts.getShortcut(for: .togglePanel) },
+                    set: (KeyboardShortcuts.Shortcut) -> Void = { KeyboardShortcuts.setShortcut($0, for: .togglePanel) }) {
+        guard !defaults.bool(forKey: doneKey) else { return }
+        defaults.set(true, forKey: doneKey)
+        if let new = replacement(for: get(), taken: taken) {
+            set(new)
+            Log.hotkeys.info("Moved the panel shortcut from ⌥Space to ⌥⇧Space")
+        }
+    }
 }
 
 /// The global-hotkey system, abstracted for tests.

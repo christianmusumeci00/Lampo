@@ -83,6 +83,7 @@ final class AppState {
         self.shortcuts = shortcuts
         AppDependencyManager.shared.add(dependency: shortcuts)
 
+        PanelShortcutMigration.run(taken: shortcutEntries.dropFirst().map(\.shortcut))
         hotkeys.register(.togglePanel) { [weak self] in self?.togglePanel() }
         syncActionHotkeys()
         actionStore.onActionsAddedOrRemoved = { [weak self] in self?.syncActionHotkeys() }

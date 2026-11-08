@@ -7,7 +7,7 @@ import Testing
 struct ShortcutConflictsTests {
     let c = KeyboardShortcuts.Shortcut(.c, modifiers: [.option, .shift])
     let f = KeyboardShortcuts.Shortcut(.f, modifiers: [.option, .shift])
-    let space = KeyboardShortcuts.Shortcut(.space, modifiers: [.option])
+    let space = KeyboardShortcuts.Shortcut(.space, modifiers: [.option, .shift])
 
     @Test func findsTheSameCombinationAssignedTwice() {
         let entries = [

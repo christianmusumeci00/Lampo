@@ -245,3 +245,9 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 - **Deleted copies confuse System Settings.** Copies of Lampo.app that LaunchServices still knew after they
   were deleted (`build/release`, `build/DerivedDataPCC`) made tccd fail to resolve the bundle when building
   the list. Unregister removed copies with `lsregister -u <path>`.
+- **Panel shortcut is ⌥⇧Space, not ⌥Space.** ⌥Space is the default of Codex (and ChatGPT, Raycast and
+  others), so two apps fought over it. ⌥⇧Space matches the ⌥⇧ + letter family of the actions and isn't a
+  macOS shortcut (⌃Space and ⌃⌥Space switch input sources, ⌘Space is Spotlight). KeyboardShortcuts stores
+  the initial shortcut on first use, so `PanelShortcutMigration` moves installs still on ⌥Space once
+  (`migratedPanelShortcutFromOptionSpace`), unless ⌥⇧Space is already taken by an action. A user who then
+  goes back to ⌥Space keeps it.

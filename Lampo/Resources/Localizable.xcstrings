@@ -2845,12 +2845,12 @@
         }
       }
     },
-    "⌥Space for Lampo, ⌥⇧ and a letter for the built-in actions. Custom actions lose their shortcut.": {
+    "⌥⇧Space for Lampo, ⌥⇧ and a letter for the built-in actions. Custom actions lose their shortcut.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌥Spazio per Lampo, ⌥⇧ e una lettera per le azioni predefinite. Le azioni personalizzate perdono la scorciatoia."
+            "value": "⌥⇧Spazio per Lampo, ⌥⇧ e una lettera per le azioni predefinite. Le azioni personalizzate perdono la scorciatoia."
           }
         }
       }
