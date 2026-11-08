@@ -46,9 +46,9 @@ struct ActionStoreTests {
         old.add(custom("Mine"))
         let updated = ActionStore(fileURL: url)
         #expect(updated.actions.count == BuiltInActions.all.count + 1)
-        // New built-ins go after "Correct"; the user's own actions keep their place at the end.
-        #expect(updated.actions[0].id == BuiltInActions.correctID)
-        #expect(updated.actions[1].id == BuiltInActions.translateID)
+        // New built-ins go after the built-in before them; the user's own actions stay at the end.
+        #expect(updated.actions.prefix(3).map(\.id) == [BuiltInActions.correctID, BuiltInActions.rewriteID,
+                                                       BuiltInActions.translateID])
         #expect(updated.actions.last?.name == "Mine")
     }
 

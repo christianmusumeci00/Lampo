@@ -60,6 +60,7 @@ Impostazioni › Azioni.
 | Correggi | ⌥⇧C |
 | Riscrivi | ⌥⇧R |
 | Traduci | ⌥⇧T |
+| Detta | ⌥⇧D (tieni premuto, o premi due volte) |
 | Chiedi allo schermo | ⌥⇧S |
 | Crea evento | ⌥⇧E |
 | Crea promemoria | ⌥⇧P |
@@ -68,6 +69,20 @@ Ogni scorciatoia si cambia in Impostazioni › Scorciatoie. In Impostazioni › 
 spegnere le azioni, modificarle, crearne di nuove con il tuo prompt (o con la Traduzione di Apple verso
 una lingua fissa, per esempio "Traduci in tedesco") e provarle su un testo di esempio. Ogni azione può
 mostrare l'anteprima, sostituire subito il testo, copiarlo o aprire la risposta nel pannello.
+
+### Detta e sistema
+
+Tieni premuto **⌥⇧D** e parla, poi rilascia: Lampo trascrive sul Mac, toglie le esitazioni ("ehm",
+"uhm"), mette la punteggiatura e scrive il testo dove c'è il cursore, in qualsiasi app (⌘Z lo toglie).
+Per dettature lunghe premi ⌥⇧D una volta, parla, e premilo di nuovo per finire. Esc annulla.
+
+- Il riconoscimento vocale è quello di Apple e gira sul Mac: serve solo il permesso del Microfono, e
+  Lampo ascolta solo mentre detti. Il modello vocale si scarica una volta da Apple, solo se lo confermi
+  (Impostazioni › Generali › Dettatura, dove scegli anche la lingua).
+- Il modello piccolo di Apple sistema il testo cambiandolo il meno possibile. Se non è disponibile, o la
+  dettatura è molto lunga, Lampo inserisce il testo così come l'hai detto.
+- Puoi creare azioni tue con "Input: Dettatura": per esempio "Detta un'email" con il tuo prompt, oppure
+  con risultato "Crea un evento" per dire "cena con Marco giovedì alle 20" e ritrovarti la scheda.
 
 ### Chiedi allo schermo
 
@@ -103,7 +118,9 @@ leggere i tuoi calendari. **⌥⇧P** fa lo stesso con i Promemoria.
 - La **cronologia** è spenta di default. Se la accendi resta solo sul Mac
   (`~/Library/Application Support/Lampo/history.json`) e spegnerla la cancella.
 - Permessi: Accessibilità (leggere e sostituire la selezione), Registrazione schermo (solo per
-  "Chiedi allo schermo"), Calendari e Promemoria (solo quando confermi un evento o un promemoria).
+  "Chiedi allo schermo"), Microfono (solo mentre detti), Calendari e Promemoria (solo quando confermi
+  un evento o un promemoria).
+- La dettatura gira sul Mac. L'unico download è il modello vocale di Apple, una volta e solo se confermi.
 
 ## Cosa non fa
 

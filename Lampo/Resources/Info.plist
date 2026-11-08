@@ -48,6 +48,8 @@
 	<string>Lampo adds the events you confirm to your calendar. It can't read your calendars.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 Lampo</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lampo listens only while you dictate, and turns what you say into text on this Mac.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSRemindersFullAccessUsageDescription</key>

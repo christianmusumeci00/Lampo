@@ -32,6 +32,14 @@ enum DesignTokens {
         static let cornerRadius: CGFloat = 9
     }
 
+    enum Dictation {
+        /// Panel width, shadow margins included.
+        static let width: CGFloat = 600
+        static let shadowMargin: CGFloat = 24
+        /// Distance of the capsule's panel from the bottom of the visible screen (above the Dock).
+        static let bottomOffset: CGFloat = 40
+    }
+
     enum Lens {
         static let width: CGFloat = 660
         static let cornerRadius: CGFloat = 16

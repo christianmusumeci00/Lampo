@@ -7,6 +7,8 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
         case selection
         case clipboard
         case screen
+        /// Speech: hold or press the shortcut and talk; the transcript is the input (`{{dictation}}`).
+        case dictation
         case none
     }
 
@@ -75,9 +77,14 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
         !isTranslation && promptTemplate.range(of: "\\{\\{\\s*tone\\s*\\}\\}", options: .regularExpression) != nil
     }
 
-    /// Translations can't continue in the panel: they preview, replace or copy.
+    var isDictation: Bool { input == .dictation }
+
+    /// Translations can't continue in the panel: they preview, replace or copy. Dictation has no
+    /// selection to preview against, so "preview" inserts at the cursor.
     var effectiveOutput: OutputMode {
-        isTranslation && !output.showsInLens ? .preview : output
+        if isTranslation && !output.showsInLens { return .preview }
+        if isDictation && output == .preview { return .replaceSilently }
+        return output
     }
 }
 

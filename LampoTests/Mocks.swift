@@ -239,11 +239,20 @@ final class MockHotkeyBackend: HotkeyBackend {
     private(set) var handlers: [KeyboardShortcuts.Name: @MainActor () -> Void] = [:]
     private(set) var disabled: Set<KeyboardShortcuts.Name> = []
 
+    private(set) var keyUpHandlers: [KeyboardShortcuts.Name: @MainActor () -> Void] = [:]
+
     func onKeyDown(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void) {
         handlers[name] = action
     }
 
-    func removeHandler(for name: KeyboardShortcuts.Name) { handlers[name] = nil }
+    func onKeyUp(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void) {
+        keyUpHandlers[name] = action
+    }
+
+    func removeHandler(for name: KeyboardShortcuts.Name) {
+        handlers[name] = nil
+        keyUpHandlers[name] = nil
+    }
     func enable(_ names: [KeyboardShortcuts.Name]) { disabled.subtract(names) }
     func disable(_ names: [KeyboardShortcuts.Name]) { disabled.formUnion(names) }
 
@@ -251,6 +260,11 @@ final class MockHotkeyBackend: HotkeyBackend {
     func press(_ name: KeyboardShortcuts.Name) {
         guard !disabled.contains(name) else { return }
         handlers[name]?()
+    }
+
+    func release(_ name: KeyboardShortcuts.Name) {
+        guard !disabled.contains(name) else { return }
+        keyUpHandlers[name]?()
     }
 }
 
@@ -333,4 +347,48 @@ final class MockTranslator: Translating, @unchecked Sendable {
     }
 
     func supportedLanguages() async -> [String] { languages }
+}
+
+/// Hands back `transcript` on stop; records starts, stops and cancels.
+@MainActor
+final class MockDictationEngine: DictationEngine {
+    var microphoneAccess: MicrophoneAccess = .granted
+    var grantsMicrophone = true
+    var readinessValue: DictationReadiness = .ready
+    var transcript = "ehm allora domani non vengo"
+    var startFailure: (any Error)?
+    private(set) var started: [String] = []
+    private(set) var stops = 0
+    private(set) var cancels = 0
+    private(set) var downloads: [String] = []
+    private var continuation: AsyncStream<DictationUpdate>.Continuation?
+
+    func requestMicrophone() async -> Bool {
+        microphoneAccess = grantsMicrophone ? .granted : .denied
+        return grantsMicrophone
+    }
+
+    func readiness(for language: String) async -> DictationReadiness { readinessValue }
+    func downloadModel(for language: String) async throws { downloads.append(language) }
+
+    func start(language: String) async throws -> AsyncStream<DictationUpdate> {
+        if let startFailure { throw startFailure }
+        started.append(language)
+        let (stream, continuation) = AsyncStream<DictationUpdate>.makeStream()
+        self.continuation = continuation
+        continuation.yield(.level(0.5))
+        continuation.yield(.text("ehm allora"))
+        return stream
+    }
+
+    func stop() async throws -> String {
+        stops += 1
+        continuation?.finish()
+        return transcript
+    }
+
+    func cancel() async {
+        cancels += 1
+        continuation?.finish()
+    }
 }

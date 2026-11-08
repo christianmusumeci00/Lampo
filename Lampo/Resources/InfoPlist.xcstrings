@@ -8,6 +8,13 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Lampo aggiunge al calendario gli eventi che confermi. Non può leggere i tuoi calendari." } }
       }
     },
+    "NSMicrophoneUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lampo listens only while you dictate, and turns what you say into text on this Mac." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Lampo ascolta solo mentre detti e trasforma quello che dici in testo sul Mac." } }
+      }
+    },
     "NSRemindersFullAccessUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {

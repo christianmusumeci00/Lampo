@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import CoreGraphics
 import SwiftUI
 
@@ -16,6 +17,7 @@ struct PermissionsView: View {
     @State private var calendarsGranted = false
     @State private var remindersGranted = false
     @State private var requestedScreenRecording = false
+    @State private var microphone = AVCaptureDevice.authorizationStatus(for: .audio)
     private let service = PermissionsService()
     private var calendars: CalendarService { Self.calendarService }
     /// One EventKit store for the app's lifetime (creating one is slow).
@@ -67,6 +69,13 @@ struct PermissionsView: View {
             }
 
             if style == .settings {
+                // Asked the first time you dictate; shown here for status.
+                PermissionRow(
+                    title: "Microphone",
+                    detail: "Listen while you dictate (⌥⇧D). Lampo hears nothing otherwise.",
+                    isGranted: microphone == .authorized,
+                    grant: grantMicrophone)
+
                 // Asked the first time you confirm an event or a reminder; shown here for status.
                 PermissionRow(
                     title: "Calendars",
@@ -98,6 +107,7 @@ struct PermissionsView: View {
                 accessibilityGranted = AXIsProcessTrusted()
                 screenRecordingGranted = CGPreflightScreenCaptureAccess()
                 if style == .settings {
+                    microphone = AVCaptureDevice.authorizationStatus(for: .audio)
                     calendarsGranted = calendars.access(for: .event) == .granted
                     remindersGranted = calendars.access(for: .reminder) == .granted
                 }
@@ -108,6 +118,15 @@ struct PermissionsView: View {
 }
 
 extension PermissionsView {
+    /// First time: the system prompt. After a refusal: the System Settings pane.
+    private func grantMicrophone() {
+        if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
+            Task { _ = await AVCaptureDevice.requestAccess(for: .audio) }
+        } else {
+            SystemDictationEngine.openMicrophoneSettings()
+        }
+    }
+
     /// First time: the system prompt. After a refusal: the System Settings pane.
     private func grantCalendar(_ kind: DraftKind) {
         if calendars.access(for: kind) == .notDetermined {

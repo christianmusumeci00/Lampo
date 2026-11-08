@@ -281,3 +281,33 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   language menu), resizing the panel synchronously from `onGeometryChange` crashed AppKit ("needs update
   constraints" thrown during layout) when switching from Rewrite to Translate. `LensController` now
   applies the new height on the next run-loop turn. Found in live QA.
+
+## Dictate (⌥⇧D)
+
+- **Speech:** `SpeechAnalyzer` + `DictationTranscriber` (`.progressiveLongDictation`: punctuation,
+  volatile results), macOS 26+. Probed on a synthesized Italian clip: about 0.3 s for 9 s of audio. It needs
+  no speech-recognition authorization, only the Microphone (TCC + `com.apple.security.device.audio-input`
+  for the Hardened Runtime, `NSMicrophoneUsageDescription`). Audio: `AVAudioEngine` input tap →
+  `AVAudioConverter` to `SpeechAnalyzer.bestAvailableAudioFormat` → `AsyncStream<AnalyzerInput>`. The tap is
+  a nonisolated class (audio thread). macOS 27 deprecates `installTap(onBus:bufferSize:format:block:)`; its
+  replacement has no Swift refinement yet, so `__installTap(…error:block:)` (throwing) is called directly.
+- **Model download:** `DictationTranscriber.installedLocales` first (it can list a locale whose
+  `AssetInventory.status` still says `.supported`; transcription works). Otherwise
+  `AssetInventory.assetInstallationRequest(…).downloadAndInstall()`, only after the user says yes (an alert
+  on first use, or Settings › General › Dictation). It's the only download Lampo starts besides Sparkle.
+- **Keys:** a press shorter than 400 ms toggles (press again to stop); longer is push-to-talk (release
+  stops). `HotkeyBackend` gained `onKeyUp`. Esc cancels through a `cancelDictation` hotkey registered only
+  while listening, so Esc reaches apps otherwise. Listening stops by itself after 5 minutes.
+- **It's an action** (`InputSource.dictation`, `{{dictation}}`), so the prompt, shortcut and on/off are
+  editable and custom dictation actions work, including "Open in the panel" and the event/reminder card.
+  "Preview" means insert (there is no selection to preview against).
+- **Cleanup prompt:** the small model rewrote too much with a "remove filler words" prompt (it dropped
+  "volevo dirti che" and turned a question into a statement). The shipped prompt says "change as little as
+  possible", lists only hesitations, and has one English example; compared on four Italian transcripts it
+  keeps words and question marks. Self-corrections ("martedì, anzi no, mercoledì") are not applied
+  reliably. When the model is unavailable, or the transcript is truncated to fit, the transcript is inserted
+  as said. An empty prompt always inserts it as said.
+- **Insert:** one paste (`OutputService.insert`, clipboard restored) into the app that was frontmost at the
+  start; without Accessibility the text is copied instead.
+- **QA:** DEBUG `LAMPO_QA_DICTATION_FILE=<audio>` feeds a file instead of the microphone (and skips the
+  microphone check).

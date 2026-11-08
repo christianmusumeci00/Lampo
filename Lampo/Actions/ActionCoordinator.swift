@@ -19,6 +19,8 @@ final class ActionCoordinator {
 
     /// Called when an action needs a permission the user hasn't granted.
     var onNeedsPermission: ((PermissionKind) -> Void)?
+    /// Dictation actions: their key presses go to the dictation controller.
+    var onDictate: ((LampoAction) -> Void)?
     /// Called with each finished Lens, replace or copy result: action name, input, output, route.
     var onResult: ((String, String, String, ModelRoute) -> Void)?
 
@@ -54,6 +56,10 @@ final class ActionCoordinator {
     }
 
     private func run(_ action: LampoAction) async {
+        if action.isDictation {
+            onDictate?(action)
+            return
+        }
         panel?.hide()
         lens.close()
 
@@ -80,6 +86,8 @@ final class ActionCoordinator {
             await openPanel(action, context: context, items: [])
         case .screen:
             await runOnScreen(action)
+        case .dictation:
+            break   // handled above
         }
     }
 
@@ -130,7 +138,7 @@ final class ActionCoordinator {
         }
     }
 
-    private func openPanel(_ action: LampoAction, context: TemplateContext, items: [ContextItem]) async {
+    func openPanel(_ action: LampoAction, context: TemplateContext, items: [ContextItem]) async {
         let images = items.contains { if case .window = $0 { true } else { false } } ? 1 : 0
         do {
             let prepared = try await runner.prepare(action, context: context, images: images)

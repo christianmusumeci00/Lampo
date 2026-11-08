@@ -80,12 +80,14 @@ final class ActionRunner {
         var empty = context
         empty.selection = context.selection.map { _ in "" }
         empty.clipboard = context.clipboard.map { _ in "" }
+        empty.dictation = context.dictation.map { _ in "" }
         let scaffold = prompt(for: action, context: empty)
-        let fitted = await budget.fit([context.selection, context.clipboard], route: route,
+        let fitted = await budget.fit([context.selection, context.clipboard, context.dictation], route: route,
                                       fixed: [instructions, scaffold], images: images)
         var final = context
         final.selection = fitted.texts[0]
         final.clipboard = fitted.texts[1]
+        final.dictation = fitted.texts[2]
         if fitted.wasTruncated {
             Log.model.info("context truncated to fit the window")
         }

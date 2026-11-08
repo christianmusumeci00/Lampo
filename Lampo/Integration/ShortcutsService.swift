@@ -76,8 +76,10 @@ final class ShortcutsService {
             return nil
         }
         let runner = ActionRunner(model: model, preferences: preferences)
-        let context = runner.templateContext(selection: action.input == .selection || action.isTranslation ? input : nil,
+        var context = runner.templateContext(selection: action.input == .selection || action.isTranslation ? input : nil,
                                              clipboard: action.input == .clipboard ? input : nil, app: nil)
+        // A dictation action run from Shortcuts cleans up the text it's given (e.g. a transcript).
+        if action.isDictation { context.dictation = input }
         let run = try await runner.start(action, context: context)
         var output = ""
         for try await chunk in run.stream { output = chunk }

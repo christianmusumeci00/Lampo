@@ -205,7 +205,7 @@ struct ActionEditor: View {
                 }
             }
 
-            if action.output.draftKind == nil && action.input != .screen {
+            if action.output.draftKind == nil && action.input != .screen && !action.isDictation {
                 Section {
                     Picker("Works with", selection: engine) {
                         Text("The model on this Mac").tag(false)
@@ -279,12 +279,17 @@ struct ActionEditor: View {
                         Text("Selected text").tag(LampoAction.InputSource.selection)
                         Text("Clipboard").tag(LampoAction.InputSource.clipboard)
                         Text("Window screenshot").tag(LampoAction.InputSource.screen)
+                        Text("Dictation").tag(LampoAction.InputSource.dictation)
                         Text("Nothing").tag(LampoAction.InputSource.none)
                     }
                 }
                 Picker("Result", selection: $action.output) {
-                    Text("Preview in the Lens").tag(LampoAction.OutputMode.preview)
-                    Text("Replace without preview").tag(LampoAction.OutputMode.replaceSilently)
+                    if action.isDictation {
+                        Text("Insert at the cursor").tag(LampoAction.OutputMode.replaceSilently)
+                    } else {
+                        Text("Preview in the Lens").tag(LampoAction.OutputMode.preview)
+                        Text("Replace without preview").tag(LampoAction.OutputMode.replaceSilently)
+                    }
                     Text("Copy").tag(LampoAction.OutputMode.copy)
                     if !action.isTranslation {
                         Text("Open in the panel").tag(LampoAction.OutputMode.openPanel)
@@ -294,6 +299,10 @@ struct ActionEditor: View {
                 }
                 if action.output.draftKind != nil {
                     Text("Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if action.isDictation {
+                    Text("Hold the shortcut and talk, or press it once and again to stop. Lampo cleans up what you said with the prompt (an empty prompt keeps it as said).")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else if !action.isTranslation && action.input != .selection && action.output != .openPanel {
@@ -366,6 +375,10 @@ struct ActionEditor: View {
         }
         .formStyle(.grouped)
         .onDisappear { stopTry() }
+        .onChange(of: action.input) { _, input in
+            // Dictation has nothing to preview against: it inserts at the cursor.
+            if input == .dictation && action.output == .preview { action.output = .replaceSilently }
+        }
     }
 
     /// Model or Apple Translation. Switching to Translation keeps the prompt for switching back.
@@ -401,10 +414,12 @@ struct ActionEditor: View {
 
     private var sampleContext: TemplateContext {
         let runner = state.makeRunner()
-        return runner.templateContext(
+        var context = runner.templateContext(
             selection: action.input == .selection || action.isTranslation ? sample : nil,
             clipboard: action.input == .clipboard ? sample : nil,
             app: "TextEdit")
+        if action.isDictation { context.dictation = sample }
+        return context
     }
 
     private var renderedPreview: String {

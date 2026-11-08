@@ -91,6 +91,7 @@ if grep -q "get-task-allow" <<<"$ENTITLEMENTS"; then
     fail "the app has get-task-allow (debug entitlement)"
 fi
 grep -q "personal-information.calendars" <<<"$ENTITLEMENTS" || fail "calendars entitlement missing"
+grep -q "device.audio-input" <<<"$ENTITLEMENTS" || fail "microphone entitlement missing"
 
 package() {
     rm -f "$ZIP"

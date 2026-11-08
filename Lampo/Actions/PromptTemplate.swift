@@ -10,10 +10,12 @@ struct TemplateContext: Equatable, Sendable {
     var language: String
     /// For `{{tone}}` ("Rewrite"): the tone picked in the Lens.
     var tone: RewriteTone = .clearer
+    /// For `{{dictation}}`: what the user said.
+    var dictation: String?
 
-    /// English name of the selection's own language ("Italian"), detected on device.
+    /// English name of the input's own language ("Italian"), detected on device.
     var textLanguage: String {
-        TextLanguage.name(of: selection ?? clipboard ?? "") ?? "the same language as the text"
+        TextLanguage.name(of: selection ?? clipboard ?? dictation ?? "") ?? "the same language as the text"
     }
 }
 
@@ -30,7 +32,7 @@ enum TextLanguage {
 }
 
 enum PromptTemplate {
-    static let variables = ["selection", "clipboard", "app", "language", "text_language", "tone"]
+    static let variables = ["selection", "clipboard", "dictation", "app", "language", "text_language", "tone"]
 
     /// Replaces `{{name}}` (spaces inside braces allowed). The input text is fenced so the model
     /// can tell instruction from content. If the template doesn't mention the action's input,
@@ -49,6 +51,9 @@ enum PromptTemplate {
             case "clipboard":
                 value = fenced(context.clipboard ?? "")
                 if input == .clipboard { usedInput = true }
+            case "dictation":
+                value = fenced(context.dictation ?? "")
+                if input == .dictation { usedInput = true }
             case "app":
                 value = context.app ?? ""
             case "text_language":
@@ -67,6 +72,8 @@ enum PromptTemplate {
                 if let selection = context.selection { output += "\n\n" + fenced(selection) }
             case .clipboard:
                 if let clipboard = context.clipboard { output += "\n\n" + fenced(clipboard) }
+            case .dictation:
+                if let dictation = context.dictation { output += "\n\n" + fenced(dictation) }
             case .screen, .none:
                 break
             }

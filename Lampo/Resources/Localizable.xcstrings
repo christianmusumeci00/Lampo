@@ -697,6 +697,16 @@
         }
       }
     },
+    "Copied: paste it with ⌘V": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiato: incollalo con ⌘V"
+          }
+        }
+      }
+    },
     "Copies the answer": {
       "localizations": {
         "it": {
@@ -867,6 +877,66 @@
         }
       }
     },
+    "Dictate": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detta"
+          }
+        }
+      }
+    },
+    "Dictation": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dettatura"
+          }
+        }
+      }
+    },
+    "Dictation is ready": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La dettatura è pronta"
+          }
+        }
+      }
+    },
+    "Dictation isn't available in %@ on this Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La dettatura in %@ non è disponibile su questo Mac."
+          }
+        }
+      }
+    },
+    "Dictation runs on this Mac with Apple's speech model. It's downloaded once from Apple; what you say never leaves your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La dettatura funziona sul Mac con il modello vocale di Apple. Si scarica una volta sola da Apple; quello che dici non lascia mai il Mac."
+          }
+        }
+      }
+    },
+    "Dictation stopped working. Try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La dettatura si è interrotta. Riprova."
+          }
+        }
+      }
+    },
     "Disabled": {
       "localizations": {
         "it": {
@@ -897,12 +967,62 @@
         }
       }
     },
+    "Download": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica"
+          }
+        }
+      }
+    },
     "Download %@ in System Settings › General › Language & Region › Translation Languages, then try again.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Scarica %@ in Impostazioni di Sistema › Generali › Lingua e Zona › Lingue di traduzione, poi riprova."
+          }
+        }
+      }
+    },
+    "Download the %@ dictation model in Lampo Settings › General.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica il modello di dettatura (%@) in Impostazioni di Lampo › Generali."
+          }
+        }
+      }
+    },
+    "Download the %@ dictation model?": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scaricare il modello di dettatura (%@)?"
+          }
+        }
+      }
+    },
+    "Downloading the dictation model…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarico il modello di dettatura…"
+          }
+        }
+      }
+    },
+    "Downloading…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarico…"
           }
         }
       }
@@ -1037,6 +1157,26 @@
         }
       }
     },
+    "Hold the Dictate shortcut and talk, or press it once and again to stop. Speech is turned into text on this Mac with Apple's speech model, downloaded once from Apple.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuta la scorciatoia di Detta e parla, oppure premila una volta e di nuovo per finire. La voce diventa testo sul Mac con il modello vocale di Apple, che si scarica una volta sola da Apple."
+          }
+        }
+      }
+    },
+    "Hold the shortcut and talk, or press it once and again to stop. Lampo cleans up what you said with the prompt (an empty prompt keeps it as said).": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuta la scorciatoia e parla, oppure premila una volta e di nuovo per finire. Lampo sistema quello che hai detto con il prompt (con il prompt vuoto lo inserisce così com'è)."
+          }
+        }
+      }
+    },
     "Import Actions…": {
       "localizations": {
         "it": {
@@ -1123,6 +1263,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inserisci variabile"
+          }
+        }
+      }
+    },
+    "Insert at the cursor": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci al cursore"
+          }
+        }
+      }
+    },
+    "Inserted as you said it: the model isn't available": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserito così come l'hai detto: il modello non è disponibile"
           }
         }
       }
@@ -1217,6 +1377,16 @@
         }
       }
     },
+    "Lampo can't use the microphone. Allow it in System Settings › Privacy & Security › Microphone.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo non può usare il microfono. Consentilo in Impostazioni di Sistema › Privacy e sicurezza › Microfono."
+          }
+        }
+      }
+    },
     "Lampo couldn't tell which language the text is in. Select a little more text.": {
       "localizations": {
         "it": {
@@ -1227,12 +1397,32 @@
         }
       }
     },
+    "Lampo didn't hear anything.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo non ha sentito niente."
+          }
+        }
+      }
+    },
     "Lampo is disabled. Turn it on from the menu bar.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Lampo è disattivato. Attivalo dalla barra dei menu."
+          }
+        }
+      }
+    },
+    "Lampo is listening": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo ti ascolta"
           }
         }
       }
@@ -1287,6 +1477,16 @@
         }
       }
     },
+    "Language": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lingua"
+          }
+        }
+      }
+    },
     "Later": {
       "localizations": {
         "it": {
@@ -1317,12 +1517,42 @@
         }
       }
     },
+    "Listen while you dictate (⌥⇧D). Lampo hears nothing otherwise.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascoltare mentre detti (⌥⇧D). Per il resto Lampo non sente niente."
+          }
+        }
+      }
+    },
+    "Listening…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ti ascolto…"
+          }
+        }
+      }
+    },
     "Location": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Luogo"
+          }
+        }
+      }
+    },
+    "Long dictation: inserted as you said it": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dettatura lunga: inserita così come l'hai detta"
           }
         }
       }
@@ -1353,6 +1583,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mac non supportato"
+          }
+        }
+      }
+    },
+    "Microphone": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microfono"
           }
         }
       }
@@ -1477,6 +1717,16 @@
         }
       }
     },
+    "No microphone is available.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun microfono disponibile."
+          }
+        }
+      }
+    },
     "No results": {
       "localizations": {
         "it": {
@@ -1503,6 +1753,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non disponibile in questa build"
+          }
+        }
+      }
+    },
+    "Not available in this language": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non disponibile in questa lingua"
           }
         }
       }
@@ -1887,6 +2147,26 @@
         }
       }
     },
+    "Ready on this Mac": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronta su questo Mac"
+          }
+        }
+      }
+    },
+    "Release or press %@ to finish · esc to cancel": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rilascia o premi %@ per finire · esc annulla"
+          }
+        }
+      }
+    },
     "Reminder": {
       "localizations": {
         "it": {
@@ -2073,6 +2353,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esegue un'azione di Lampo (Correggi, Più formale, Traduci, …) su un testo e restituisce il risultato. Crea evento e Crea promemoria aprono una scheda da confermare."
+          }
+        }
+      }
+    },
+    "Same as Lampo (%@)": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come Lampo (%@)"
           }
         }
       }
@@ -2435,6 +2725,16 @@
         }
       }
     },
+    "The download didn't work. Try again later.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il download non è riuscito. Riprova più tardi."
+          }
+        }
+      }
+    },
     "The model declined to answer this request.": {
       "localizations": {
         "it": {
@@ -2521,6 +2821,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il modello sul Mac non è disponibile."
+          }
+        }
+      }
+    },
+    "The speech model isn't on this Mac yet.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il modello vocale non è ancora su questo Mac."
           }
         }
       }
@@ -2671,6 +2981,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questa scorciatoia è già usata da “%@”."
+          }
+        }
+      }
+    },
+    "Tidying up…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistemo il testo…"
           }
         }
       }
@@ -3050,6 +3370,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le tue domande e le risposte di Lampo restano solo su questo Mac, fino a %lld richieste. Disattivando la cronologia la elimini."
+          }
+        }
+      }
+    },
+    "esc to cancel": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "esc annulla"
           }
         }
       }

@@ -25,6 +25,7 @@ final class Preferences {
         static let keepHistory = "keepHistory"
         static let rewriteTone = "rewriteTone"
         static let translationLanguage = "translationLanguage"
+        static let dictationLanguage = "dictationLanguage"
     }
 
     @ObservationIgnored private let defaults: UserDefaults
@@ -40,6 +41,8 @@ final class Preferences {
     var rewriteTone: RewriteTone { didSet { defaults.set(rewriteTone.rawValue, forKey: Key.rewriteTone) } }
     /// Where "Translate" sends text that is already in your language; nil until you pick one.
     var translationLanguage: String? { didSet { defaults.set(translationLanguage, forKey: Key.translationLanguage) } }
+    /// Language Lampo listens for when dictating; nil follows `userLanguage`.
+    var dictationLanguage: String? { didSet { defaults.set(dictationLanguage, forKey: Key.dictationLanguage) } }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -57,7 +60,11 @@ final class Preferences {
         responseLanguage = defaults.string(forKey: Key.responseLanguage).flatMap(ResponseLanguage.init(rawValue:)) ?? .automatic
         rewriteTone = defaults.string(forKey: Key.rewriteTone).flatMap(RewriteTone.init(rawValue:)) ?? .clearer
         translationLanguage = defaults.string(forKey: Key.translationLanguage)
+        dictationLanguage = defaults.string(forKey: Key.dictationLanguage)
     }
+
+    /// The language to dictate in, as an identifier ("it").
+    var dictationLanguageIdentifier: String { dictationLanguage ?? userLanguage }
 
     /// The language Lampo answers in, as an identifier ("it").
     var userLanguage: String { TranslationPlanner.userLanguage(responseLanguage) }

@@ -57,6 +57,7 @@ targets:
         NSCalendarsWriteOnlyAccessUsageDescription: Lampo adds the events you confirm to your calendar. It can't read your calendars.
         NSRemindersFullAccessUsageDescription: Lampo adds the reminders you confirm to your default list.
         NSRemindersUsageDescription: Lampo adds the reminders you confirm to your default list.
+        NSMicrophoneUsageDescription: Lampo listens only while you dictate, and turns what you say into text on this Mac.
         # Sparkle. Empty in development builds (no updater); scripts/release.sh fills them from
         # Packaging/release.env. Automatic checks are off until the user agrees (Sparkle asks).
         SUFeedURL: $(LAMPO_FEED_URL)
@@ -69,6 +70,8 @@ targets:
       properties:
         # Hardened Runtime resource access for EventKit (events and reminders).
         com.apple.security.personal-information.calendars: true
+        # Hardened Runtime resource access for the microphone ("Dictate").
+        com.apple.security.device.audio-input: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.lampo.Lampo

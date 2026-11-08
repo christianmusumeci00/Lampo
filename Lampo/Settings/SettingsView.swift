@@ -61,6 +61,7 @@ struct GeneralSettingsView: View {
                     Text("English").tag(ResponseLanguage.english)
                 }
             }
+            DictationSettingsSection(state: state)
         }
         .formStyle(.grouped)
         .onAppear { state.refreshAvailability() }
@@ -248,5 +249,80 @@ struct AboutSettingsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(30)
+    }
+}
+
+/// Settings › General › Dictation: the language and whether its speech model is on this Mac.
+struct DictationSettingsSection: View {
+    @Bindable var state: AppState
+    @State private var readiness: DictationReadiness?
+    @State private var isDownloading = false
+    @State private var downloadFailed = false
+
+    private static let languages = ["it", "en", "fr", "de", "es", "pt"]
+
+    var body: some View {
+        @Bindable var preferences = state.preferences
+        Section {
+            Picker("Language", selection: $preferences.dictationLanguage) {
+                Text("Same as Lampo (\(TranslationPlanner.displayName(state.preferences.userLanguage)))")
+                    .tag(String?.none)
+                ForEach(Self.languages, id: \.self) { language in
+                    Text(TranslationPlanner.displayName(language).localizedCapitalized).tag(String?.some(language))
+                }
+            }
+            HStack {
+                status
+                Spacer()
+                if readiness == .needsDownload {
+                    Button(isDownloading ? "Downloading…" : "Download") { download() }
+                        .disabled(isDownloading)
+                }
+            }
+        } header: {
+            Text("Dictation")
+        } footer: {
+            Text("Hold the Dictate shortcut and talk, or press it once and again to stop. Speech is turned into text on this Mac with Apple's speech model, downloaded once from Apple.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .task(id: preferences.dictationLanguageIdentifier) { await refresh() }
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        switch readiness {
+        case nil:
+            ProgressView().controlSize(.small)
+        case .ready:
+            Label("Ready on this Mac", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        case .needsDownload:
+            Label(downloadFailed ? "The download didn't work. Try again later." : "The speech model isn't on this Mac yet.",
+                  systemImage: "arrow.down.circle")
+                .foregroundStyle(.secondary)
+        case .unsupported:
+            Label("Not available in this language", systemImage: "exclamationmark.triangle")
+                .foregroundStyle(.orange)
+        }
+    }
+
+    private func refresh() async {
+        readiness = nil
+        readiness = await state.dictationEngine.readiness(for: state.preferences.dictationLanguageIdentifier)
+    }
+
+    private func download() {
+        isDownloading = true
+        downloadFailed = false
+        Task {
+            do {
+                try await state.dictationEngine.downloadModel(for: state.preferences.dictationLanguageIdentifier)
+            } catch {
+                downloadFailed = true
+            }
+            isDownloading = false
+            await refresh()
+        }
     }
 }

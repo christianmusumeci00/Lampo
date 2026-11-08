@@ -196,3 +196,17 @@ First launch
 - [ ] Turning Riassumi back on drops its old ⌥⇧R (now Riscrivi's) instead of creating a conflict.
 - [ ] A custom action with "Funziona con: Traduzione di Apple" and a fixed language translates there.
 - [x] Switching chips Riscrivi ↔ Traduci ↔ Correggi repeatedly doesn't crash. *(Checked live after the resize fix.)*
+
+## Dictate (⌥⇧D)
+- [x] Tap ⌥⇧D in a text field: the capsule shows the live transcript; ⌥⇧D again inserts the cleaned text.
+      *(Checked live with `LAMPO_QA_DICTATION_FILE`, TextEdit.)*
+- [x] Holding ⌥⇧D while talking and releasing inserts. *(Checked live, file input.)*
+- [x] Esc cancels: capsule gone, nothing inserted. *(Checked live.)*
+- [ ] First use with the real microphone: macOS asks for the Microphone; after "Allow", dictation listens
+      until the next press.
+- [ ] Microphone denied: the HUD says so and System Settings › Microphone opens.
+- [ ] A language without its model: the alert offers the download; Settings › General › Dictation shows
+      the status, the Download button and the language picker.
+- [ ] ⌘Z right after an insert removes the whole dictated text.
+- [ ] A custom action with Input: Dictation and Result: Create an event opens the card from what you said.
+- [ ] Apple Intelligence off: the transcript is inserted as said, with a note.

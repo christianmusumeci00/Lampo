@@ -39,6 +39,8 @@ enum PanelShortcutMigration {
 @MainActor
 protocol HotkeyBackend: AnyObject {
     func onKeyDown(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void)
+    func onKeyUp(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void)
+    /// Removes both the key-down and key-up handlers.
     func removeHandler(for name: KeyboardShortcuts.Name)
     func enable(_ names: [KeyboardShortcuts.Name])
     func disable(_ names: [KeyboardShortcuts.Name])
@@ -48,6 +50,10 @@ protocol HotkeyBackend: AnyObject {
 final class KeyboardShortcutsBackend: HotkeyBackend {
     func onKeyDown(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void) {
         KeyboardShortcuts.onKeyDown(for: name) { action() }
+    }
+
+    func onKeyUp(for name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void) {
+        KeyboardShortcuts.onKeyUp(for: name) { action() }
     }
 
     func removeHandler(for name: KeyboardShortcuts.Name) { KeyboardShortcuts.removeHandler(for: name) }
@@ -68,10 +74,12 @@ final class HotkeyManager {
         self.isEnabled = isEnabled
     }
 
-    func register(_ name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void) {
+    func register(_ name: KeyboardShortcuts.Name, action: @escaping @MainActor () -> Void,
+                  keyUp: (@MainActor () -> Void)? = nil) {
         guard !registeredNames.contains(name) else { return }
         registeredNames.append(name)
         backend.onKeyDown(for: name, action: action)
+        if let keyUp { backend.onKeyUp(for: name, action: keyUp) }
         if !isEnabled { backend.disable([name]) }
     }
 
@@ -84,13 +92,16 @@ final class HotkeyManager {
     /// Registers exactly `names` among names with `prefix`, removing stale ones
     /// (e.g. deleted actions) and adding new ones.
     func sync(_ names: [KeyboardShortcuts.Name], prefix: String,
-              action: @escaping @MainActor (KeyboardShortcuts.Name) -> Void) {
+              action: @escaping @MainActor (KeyboardShortcuts.Name) -> Void,
+              keyUp: (@MainActor (KeyboardShortcuts.Name) -> Void)? = nil) {
         let wanted = Set(names.map(\.rawValue))
         for name in registeredNames where name.rawValue.hasPrefix(prefix) && !wanted.contains(name.rawValue) {
             unregister(name)
         }
         for name in names where !registeredNames.contains(where: { $0.rawValue == name.rawValue }) {
-            register(name) { action(name) }
+            var release: (@MainActor () -> Void)?
+            if let keyUp { release = { keyUp(name) } }
+            register(name, action: { action(name) }, keyUp: release)
         }
     }
 

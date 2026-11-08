@@ -138,12 +138,14 @@ final class ActionStore {
             }
             changed = true
         }
-        // Built-ins added in a newer version of Lampo, placed after "Correct" when it's there.
+        // Built-ins added in a newer version of Lampo, each placed after the built-in that
+        // precedes it in the shipped order (e.g. Rewrite after Correct), or first.
         let known = Set(actions.map(\.id)).union(deletedBuiltIns)
-        let missing = originals.filter { !known.contains($0.id) }
-        if !missing.isEmpty {
-            let anchor = actions.firstIndex { $0.id == BuiltInActions.correctID }.map { $0 + 1 } ?? actions.endIndex
-            actions.insert(contentsOf: missing, at: anchor)
+        for (offset, original) in originals.enumerated() where !known.contains(original.id) {
+            let previous = originals[..<offset].reversed().compactMap { earlier in
+                actions.firstIndex { $0.id == earlier.id }
+            }.first
+            actions.insert(original, at: previous.map { $0 + 1 } ?? 0)
             changed = true
         }
         if changed { save() }

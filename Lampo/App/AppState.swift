@@ -13,6 +13,10 @@ final class AppState {
     let updates = UpdateController()
     @ObservationIgnored let modelService: any ModelService
     @ObservationIgnored let hotkeys: HotkeyManager
+    @ObservationIgnored private let hotkeyBackend: HotkeyBackend
+    @ObservationIgnored let dictationEngine: any DictationEngine
+    @ObservationIgnored private(set) var dictation: DictationController?
+    @ObservationIgnored private var dictationHUD: DictationHUDController?
     @ObservationIgnored private(set) var panelController: PanelController?
     @ObservationIgnored private(set) var actionCoordinator: ActionCoordinator?
     @ObservationIgnored private(set) var shortcuts: ShortcutsService?
@@ -26,8 +30,11 @@ final class AppState {
         preferences: Preferences = Preferences(),
         actionStore: ActionStore? = nil,
         modelService: any ModelService = FoundationModelService(),
-        hotkeyBackend: HotkeyBackend = KeyboardShortcutsBackend()
+        hotkeyBackend: HotkeyBackend = KeyboardShortcutsBackend(),
+        dictationEngine: (any DictationEngine)? = nil
     ) {
+        self.hotkeyBackend = hotkeyBackend
+        self.dictationEngine = dictationEngine ?? SystemDictationEngine()
         self.preferences = preferences
         self.actionStore = actionStore ?? ActionStore()
         self.history = HistoryStore(isEnabled: { [preferences] in preferences.keepHistory })
@@ -77,6 +84,25 @@ final class AppState {
         }
         actionCoordinator = coordinator
 
+        let hudModel = DictationHUDModel()
+        let dictationHUD = DictationHUDController(model: hudModel)
+        let dictation = DictationController(
+            engine: dictationEngine, runner: ActionRunner(model: modelService, preferences: preferences),
+            output: output, permissions: permissions, hotkeys: hotkeyBackend, statusHUD: HUDController(),
+            hud: hudModel, language: { [preferences] in preferences.dictationLanguageIdentifier })
+        dictation.onShowHUD = { [dictationHUD] visible in dictationHUD.setVisible(visible) }
+        dictation.onNeedsModel = { [weak self] in self?.offerDictationModel() }
+        dictation.onOpenPanel = { [weak coordinator] action, context in
+            Task { await coordinator?.openPanel(action, context: context, items: []) }
+        }
+        dictation.onShowDraft = { [weak panel] kind, text in panel?.showDraft(kind, from: text) }
+        dictation.onResult = { [history] source, input, output, route in
+            history.record(source: source, input: input, output: output, route: route)
+        }
+        coordinator.onDictate = { [weak dictation] action in dictation?.keyDown(action) }
+        self.dictation = dictation
+        self.dictationHUD = dictationHUD
+
         let shortcuts = ShortcutsService(model: modelService, preferences: preferences, actionStore: actionStore,
                                          history: history)
         shortcuts.showDraft = { [weak panel] kind, text in panel?.showDraft(kind, from: text) }
@@ -105,11 +131,17 @@ final class AppState {
     /// Registers one global hotkey per action (call again after editing actions).
     func syncActionHotkeys() {
         let names = actionStore.enabledActions.map(\.shortcutName)
-        hotkeys.sync(names, prefix: "action-") { [weak self] name in
+        hotkeys.sync(names, prefix: "action-", action: { [weak self] name in
             guard let self, self.isEnabled,
                   let action = self.actionStore.enabledActions.first(where: { $0.shortcutName.rawValue == name.rawValue }) else { return }
             self.actionCoordinator?.perform(action.id)
-        }
+        }, keyUp: { [weak self] name in
+            // Push-to-talk: releasing a dictation shortcut after a moment stops listening.
+            guard let self, let action = self.actionStore.enabledActions.first(where: {
+                $0.shortcutName.rawValue == name.rawValue
+            }), action.isDictation else { return }
+            self.dictation?.keyUp(action.id)
+        })
     }
 
     // MARK: Settings support
@@ -188,5 +220,36 @@ final class AppState {
         guard isEnabled else { return }
         refreshAvailability()
         panelController?.toggle()
+    }
+}
+
+extension AppState {
+    /// The speech model for the dictation language isn't on this Mac: ask before downloading it
+    /// from Apple (the only download Lampo starts, and only on this explicit yes).
+    func offerDictationModel() {
+        let language = TranslationPlanner.displayName(preferences.dictationLanguageIdentifier)
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Download the \(language) dictation model?")
+        alert.informativeText = String(localized: "Dictation runs on this Mac with Apple's speech model. It's downloaded once from Apple; what you say never leaves your Mac.")
+        alert.addButton(withTitle: String(localized: "Download"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate()
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        downloadDictationModel()
+    }
+
+    func downloadDictationModel() {
+        let language = preferences.dictationLanguageIdentifier
+        let hud = HUDController()
+        hud.show(String(localized: "Downloading the dictation model…"), style: .working, near: nil)
+        Task { [dictationEngine] in
+            do {
+                try await dictationEngine.downloadModel(for: language)
+                hud.show(String(localized: "Dictation is ready"), style: .success, near: nil)
+            } catch {
+                Log.app.error("dictation model download failed: \(error.localizedDescription, privacy: .public)")
+                hud.show(String(localized: "The download didn't work. Try again later."), style: .failure, near: nil)
+            }
+        }
     }
 }

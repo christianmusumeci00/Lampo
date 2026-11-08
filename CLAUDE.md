@@ -24,7 +24,7 @@ the process cwd is inside ~/Documents):
 cd / && LAMPO_OPEN_PANEL=1 LAMPO_QA_QUERY="..." ~/Documents/Lampo/build/DerivedData/Build/Products/Debug/Lampo.app/Contents/MacOS/Lampo
 ```
 `LAMPO_OPEN_PANEL` / `LAMPO_QA_QUERY` / `LAMPO_QA_ACTION=<uuid>` / `LAMPO_QA_AUTOREPLACE=1` /
-`LAMPO_QA_DRAFT=event|reminder` (opens the confirmation card for `LAMPO_QA_QUERY`) are
+`LAMPO_QA_DRAFT=event|reminder` (opens the confirmation card for `LAMPO_QA_QUERY`) / `LAMPO_QA_DICTATION_FILE=<audio>` are
 DEBUG-only helpers (`AppDelegate`, `LensViewModel`); `LAMPO_QA_ACTION` + `LAMPO_QA_QUERY` asks a question
 after a panel action ("Ask the screen" is `6C0A0008-0000-4000-8000-00000000C0DE`). Launched from a shell that has Accessibility,
 Lampo inherits it, so selection read/replace can be checked end to end (e.g. on a scratch TextEdit doc).
@@ -55,6 +55,8 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
 - Panel hotkey ⌥⇧Space (⌥Space clashes with Codex); `PanelShortcutMigration` moves old installs once.
 - Translate uses Apple's Translation framework, not the model (`translationTarget`, `TranslationPlanner`); Rewrite
   uses `{{tone}}`. Actions can be turned off (`isEnabled`); `actions.json` v2 turns off the Writing Tools duplicates once.
+- Dictate (⌥⇧D): `SpeechAnalyzer` + `DictationTranscriber` on device (`DictationEngine`), cleaned by the model, pasted at
+  the cursor (`DictationController`). Tap = toggle, hold = push-to-talk, Esc cancels. DEBUG `LAMPO_QA_DICTATION_FILE=<audio>`.
 - Selection: AX first, ⌘C clipboard fallback (Lens/silent only) with full clipboard snapshot/restore.
   Replace: AX write for native text (verified), one ⌘V elsewhere (web content) so ⌘Z always works.
 - Built-in action prompts use `{{text_language}}` (NLLanguageRecognizer): the small model otherwise
