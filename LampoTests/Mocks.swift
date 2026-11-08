@@ -303,10 +303,43 @@ final class MockHotkeyBackend: HotkeyBackend {
 
 /// A fresh, isolated UserDefaults suite per test.
 func makeTestDefaults() -> UserDefaults {
+    TestDefaultsCleanup.install
     let name = "LampoTests.\(UUID().uuidString)"
+    TestDefaultsCleanup.track(name)
     let defaults = UserDefaults(suiteName: name)!
     defaults.removePersistentDomain(forName: name)
     return defaults
+}
+
+/// Each test's UserDefaults suite is a plist in ~/Library/Preferences. They're removed when the
+/// run ends, and leftovers of runs that were killed are removed at the start of the next one.
+enum TestDefaultsCleanup {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var names: [String] = []
+
+    static let install: Void = {
+        removeLeftovers()
+        atexit { TestDefaultsCleanup.removeAll() }
+    }()
+
+    static func track(_ name: String) {
+        lock.withLock { names.append(name) }
+    }
+
+    static func removeAll() {
+        let all = lock.withLock { names }
+        for name in all { UserDefaults.standard.removePersistentDomain(forName: name) }
+    }
+
+    private static func removeLeftovers() {
+        let folder = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Preferences")
+        let files = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
+        for file in files where file.hasPrefix("LampoTests.") && file.hasSuffix(".plist") {
+            let name = String(file.dropLast(".plist".count))
+            UserDefaults.standard.removePersistentDomain(forName: name)
+            try? FileManager.default.removeItem(at: folder.appendingPathComponent(file))
+        }
+    }
 }
 
 /// Manually advanced clock for session-timeout tests.
