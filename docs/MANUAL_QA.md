@@ -210,3 +210,22 @@ First launch
 - [ ] ⌘Z right after an insert removes the whole dictated text.
 - [ ] A custom action with Input: Dictation and Result: Create an event opens the card from what you said.
 - [ ] Apple Intelligence off: the transcript is inserted as said, with a note.
+
+## 1.1 — Reply, text in screenshots, lists, Extract
+- [x] Ask the screen on a TextEdit order confirmation: order code, total and delivery date answered exactly.
+      *(Checked live.)*
+- [x] Reply on an English email selected in TextEdit: English draft, no signature; the Italian follow-up
+      "più breve e dì che giovedì alle 15 va bene" rewrites it in English. *(Checked live.)*
+- [ ] Reply › Insert (⌘↩) types at the cursor (e.g. in Mail's reply window), not over the message.
+- [x] Create reminder on "latte, chiamare Luca domani alle 10, bolletta venerdì": three rows, Luca
+      tomorrow at 10, the bill on Friday. *(Checked live, `LAMPO_QA_DRAFT`.)*
+- [x] Create event on "riunione lunedì alle 10, dentista giovedì alle 15 e palestra sabato mattina": three
+      events; "cena con Marco, giovedì alle 20 da Gino" stays one event. *(Checked live.)*
+- [ ] Unticking a row and confirming adds only the ticked ones to Reminders.
+- [x] Extract on an email signature: contact with name, company, role, two phones, email, address, site.
+      *(Checked live, `LAMPO_QA_EXTRACT=auto`.)*
+- [ ] Extract › Add to Contacts: Contacts opens the card and asks before adding it.
+- [x] Extract on four "Name - age - city" lines: a table; on a meeting email: four to-dos with Friday and
+      Tuesday deadlines. *(Checked live.)*
+- [ ] Copy a table and paste it in Numbers: one cell per value.
+- [ ] Switching Contact/Table/To-dos in the card re-reads the text.

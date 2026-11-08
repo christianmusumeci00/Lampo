@@ -1,6 +1,7 @@
 import AppKit
 import CoreGraphics
 import ScreenCaptureKit
+import Vision
 
 /// A screenshot of one window, attached to a question as an image.
 struct WindowCapture: Identifiable, Sendable {
@@ -9,6 +10,9 @@ struct WindowCapture: Identifiable, Sendable {
     let app: SourceApp
     /// Window title, when the app exposes one.
     let title: String?
+    /// Text read from the screenshot on this Mac (Vision), sent with the image: the small model
+    /// reads small print in images poorly. Nil when nothing was recognized.
+    var text: String? = nil
 }
 
 enum ScreenCaptureError: LocalizedError, Equatable {
@@ -74,7 +78,8 @@ final class ScreenCaptureService: ScreenCapturing {
         do {
             let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
             Log.context.debug("captured window \(image.width, privacy: .public)×\(image.height, privacy: .public)")
-            return WindowCapture(image: image, app: app, title: window.title)
+            let text = await ScreenText.recognize(in: image)
+            return WindowCapture(image: image, app: app, title: window.title, text: text)
         } catch {
             Log.context.error("window capture failed: \(error.localizedDescription, privacy: .public)")
             throw Self.map(error)
@@ -106,5 +111,59 @@ final class ScreenCaptureService: ScreenCapturing {
     private static func map(_ error: any Error) -> ScreenCaptureError {
         if let error = error as? SCStreamError, error.code == .userDeclined { return .permissionDenied }
         return CGPreflightScreenCaptureAccess() ? .failed : .permissionDenied
+    }
+}
+
+
+/// On-device text recognition of a window screenshot.
+enum ScreenText {
+    /// A recognized line: its text and where it sits (normalized, origin at the bottom left).
+    struct Line: Equatable, Sendable {
+        var text: String
+        var x: Double
+        var y: Double
+        var height: Double
+    }
+
+    /// Lines below this confidence are mostly noise (icons, textures).
+    static let minimumConfidence: Float = 0.3
+
+    static func recognize(in image: CGImage) async -> String? {
+        var request = RecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.automaticallyDetectsLanguage = true
+        request.usesLanguageCorrection = true
+        do {
+            let observations = try await request.perform(on: image)
+            let lines = observations.compactMap { observation -> Line? in
+                guard observation.confidence >= minimumConfidence else { return nil }
+                let text = observation.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !text.isEmpty else { return nil }
+                let box = observation.boundingBox
+                return Line(text: text, x: box.origin.x, y: box.origin.y + box.height, height: box.height)
+            }
+            let text = layout(lines)
+            Log.context.debug("recognized \(lines.count, privacy: .public) lines of text")
+            return text.isEmpty ? nil : text
+        } catch {
+            Log.context.error("text recognition failed: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    /// Reading order: top to bottom; pieces at the same height (columns, toolbars) left to right on
+    /// one line, separated by wide gaps.
+    static func layout(_ lines: [Line]) -> String {
+        let sorted = lines.sorted { $0.y > $1.y }
+        var rows: [[Line]] = []
+        for line in sorted {
+            if let last = rows.last?.first, abs(last.y - line.y) < min(last.height, line.height) * 0.5 {
+                rows[rows.count - 1].append(line)
+            } else {
+                rows.append([line])
+            }
+        }
+        return rows.map { row in row.sorted { $0.x < $1.x }.map(\.text).joined(separator: "   ") }
+            .joined(separator: "\n")
     }
 }

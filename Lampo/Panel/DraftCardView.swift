@@ -15,6 +15,8 @@ struct DraftCardView: View {
                         Text("Reading the details…").foregroundStyle(.secondary)
                     }
                     .font(.system(size: DesignTokens.Panel.bodyFontSize))
+                } else if card.isList {
+                    DraftListFields(kind: card.kind, items: itemsBinding, disabled: isLocked(card))
                 } else if card.kind == .event {
                     EventFields(draft: eventBinding, disabled: isLocked(card))
                 } else {
@@ -34,20 +36,30 @@ struct DraftCardView: View {
 
     private func header(_ card: DraftCard) -> some View {
         HStack(spacing: 8) {
-            Label(card.kind == .event ? "New event" : "New reminder",
-                  systemImage: card.kind == .event ? "calendar.badge.plus" : "checklist")
+            Label(headerTitle(card), systemImage: card.kind == .event ? "calendar.badge.plus" : "checklist")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(.secondary)
             Spacer(minLength: 8)
-            ProvenanceBadge(route: .onDevice)
+            // Under "Extract", whose header already has it.
+            if viewModel.extraction == nil {
+                ProvenanceBadge(route: .onDevice)
+            }
         }
+    }
+
+    private func headerTitle(_ card: DraftCard) -> String {
+        if card.isList {
+            return card.kind == .event ? String(localized: "\(card.items.count) new events")
+                : String(localized: "\(card.items.count) new reminders")
+        }
+        return card.kind == .event ? String(localized: "New event") : String(localized: "New reminder")
     }
 
     @ViewBuilder
     private func status(_ card: DraftCard) -> some View {
         switch card.phase {
         case .saved:
-            Label(card.kind == .event ? "Added to Calendar" : "Added to Reminders", systemImage: "checkmark.circle.fill")
+            Label(PanelViewModel.savedMessage(card.kind, count: card.savedCount), systemImage: "checkmark.circle.fill")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.green)
         case .failed(let message):
@@ -105,6 +117,12 @@ struct DraftCardView: View {
         Binding(
             get: { viewModel.draft?.event ?? CalendarEventDraft(title: "", start: .now, end: .now, isAllDay: true, location: "", notes: "") },
             set: { viewModel.draft?.event = $0 })
+    }
+
+    private var itemsBinding: Binding<[DraftItem]> {
+        Binding(
+            get: { viewModel.draft?.items ?? [] },
+            set: { if !$0.isEmpty { viewModel.draft?.items = $0 } })
     }
 
     private var reminderBinding: Binding<ReminderDraft> {
@@ -195,6 +213,74 @@ private struct ReminderFields: View {
         }
         .font(.system(size: 13))
         .disabled(disabled)
+    }
+}
+
+/// A list of events or reminders: one row each, ticked to be added.
+private struct DraftListFields: View {
+    let kind: DraftKind
+    @Binding var items: [DraftItem]
+    var disabled: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach($items) { $item in
+                HStack(spacing: 10) {
+                    Toggle(isOn: $item.isIncluded) { Text(verbatim: item.title(for: kind)) }
+                        .toggleStyle(.checkbox)
+                        .labelsHidden()
+                        .accessibilityLabel(Text(verbatim: item.title(for: kind)))
+                    TextField("Title", text: kind == .event ? $item.event.title : $item.reminder.title)
+                        .textFieldStyle(.roundedBorder)
+                    if kind == .event {
+                        EventWhen(draft: $item.event)
+                    } else {
+                        ReminderWhen(draft: $item.reminder)
+                    }
+                }
+                .opacity(item.isIncluded ? 1 : 0.55)
+            }
+        }
+        .font(.system(size: 13))
+        .disabled(disabled)
+    }
+}
+
+private struct EventWhen: View {
+    @Binding var draft: CalendarEventDraft
+
+    var body: some View {
+        DatePicker("Starts", selection: Binding(get: { draft.start }, set: { draft.moveStart(to: $0) }),
+                   displayedComponents: draft.isAllDay ? [.date] : [.date, .hourAndMinute])
+            .labelsHidden()
+            .fixedSize()
+    }
+}
+
+private struct ReminderWhen: View {
+    @Binding var draft: ReminderDraft
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if draft.hasDueDate {
+                DatePicker("When", selection: $draft.due,
+                           displayedComponents: draft.hasDueTime ? [.date, .hourAndMinute] : [.date])
+                    .labelsHidden()
+                    .fixedSize()
+                Button {
+                    draft.hasDueDate = false
+                    draft.hasDueTime = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Remove the date"))
+            } else {
+                Button("Add date") { draft.hasDueDate = true }
+                    .controlSize(.small)
+            }
+        }
+        .fixedSize()
     }
 }
 

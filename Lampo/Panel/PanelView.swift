@@ -32,7 +32,10 @@ struct PanelView: View {
                     .padding(.horizontal, DesignTokens.Panel.horizontalPadding)
                     .padding(.vertical, 10)
             }
-            if viewModel.draft != nil {
+            if viewModel.extraction != nil {
+                Divider()
+                ExtractionView(viewModel: viewModel)
+            } else if viewModel.draft != nil {
                 Divider()
                 DraftCardView(viewModel: viewModel)
             } else if viewModel.hasContent {
@@ -59,6 +62,10 @@ struct PanelView: View {
         case nil: break
         }
         if viewModel.hasWindowContext { return "Ask about this window…" }
+        if viewModel.extraction != nil || viewModel.draft != nil { return "Ask Lampo…" }
+        if viewModel.replyLanguage != nil && viewModel.hasContent {
+            return "Change the reply, e.g. shorter, or say yes to Thursday…"
+        }
         return viewModel.hasContent ? "Ask a follow-up…" : "Ask Lampo…"
     }
 

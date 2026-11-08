@@ -230,13 +230,17 @@ struct DictationActionTests {
     @Test func newBuiltInsGoAfterTheirPredecessor() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("LampoTests-\(UUID().uuidString)").appendingPathComponent("actions.json")
-        // Lampo 1.1 without Dictate.
-        let old = ActionStore(fileURL: url, builtIns: { BuiltInActions.all.filter { $0.id != BuiltInActions.dictateID } })
+        // Lampo 1.1 without Dictate, Reply and Extract.
+        let added: Set<UUID> = [BuiltInActions.dictateID, BuiltInActions.replyID, BuiltInActions.extractID]
+        let old = ActionStore(fileURL: url, builtIns: { BuiltInActions.all.filter { !added.contains($0.id) } })
         old.add(LampoAction(name: "Mine", symbol: "star", promptTemplate: "P"))
         let updated = ActionStore(fileURL: url)
         let ids = updated.actions.map(\.id)
         let translate = try #require(ids.firstIndex(of: BuiltInActions.translateID))
-        #expect(ids[translate + 1] == BuiltInActions.dictateID)
+        #expect(ids[translate + 1] == BuiltInActions.replyID)
+        #expect(ids[translate + 2] == BuiltInActions.dictateID)
+        let reminder = try #require(ids.firstIndex(of: BuiltInActions.createReminderID))
+        #expect(ids[reminder + 1] == BuiltInActions.extractID)
         #expect(updated.actions.last?.name == "Mine")
     }
 

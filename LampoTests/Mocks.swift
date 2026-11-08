@@ -35,6 +35,37 @@ final class MockModelService: ModelService, @unchecked Sendable {
         return extracted
     }
 
+    /// nil: split like the model would on new lines, semicolons and commas.
+    var splitResult: [String]?
+    var contact = ContactDraft()
+    var table = ExtractedTable()
+    var tasks: [String] = []
+    private(set) var extractCalls: [String] = []
+
+    func splitItems(_ text: String) async throws -> [String] {
+        extractCalls.append("split")
+        if let extractionFailure { throw extractionFailure }
+        return splitResult ?? ListSplitter.segments(of: text, splittingCommas: true)
+    }
+
+    func extractContact(from text: String) async throws -> ContactDraft {
+        extractCalls.append("contact")
+        if let extractionFailure { throw extractionFailure }
+        return contact
+    }
+
+    func extractTable(from text: String) async throws -> ExtractedTable {
+        extractCalls.append("table")
+        if let extractionFailure { throw extractionFailure }
+        return table
+    }
+
+    func extractTasks(from text: String) async throws -> [String] {
+        extractCalls.append("tasks")
+        if let extractionFailure { throw extractionFailure }
+        return tasks
+    }
+
     func makeConversation(route: ModelRoute, instructions: String) throws -> any ModelConversation {
         makeConversationCalls += 1
         let conversation = MockConversation(route: route, owner: self)
@@ -194,12 +225,14 @@ final class MockPermissions: PermissionsChecking {
 /// Returns a 1×1 image for the front window, or fails.
 final class MockScreenCapture: ScreenCapturing, @unchecked Sendable {
     var error: ScreenCaptureError?
+    /// Text "recognized" in the window.
+    var text: String?
     private(set) var captures = 0
 
     func captureFrontWindow(of app: SourceApp) async throws -> WindowCapture {
         captures += 1
         if let error { throw error }
-        return WindowCapture(image: Self.image, app: app, title: "main.swift")
+        return WindowCapture(image: Self.image, app: app, title: "main.swift", text: text)
     }
 
     static let image: CGImage = {
@@ -290,6 +323,8 @@ final class MockCalendarWriter: CalendarWriting {
     /// What the system prompt answers when access is not determined.
     var grantsOnRequest = true
     var saveFailure: CalendarWriteError?
+    /// Saves this many items, then fails with `saveFailure` (or `.saveFailed`).
+    var failAfter: Int?
     private(set) var accessRequests: [DraftKind] = []
     private(set) var savedEvents: [CalendarEventDraft] = []
     private(set) var savedReminders: [ReminderDraft] = []
@@ -303,13 +338,21 @@ final class MockCalendarWriter: CalendarWriting {
         return grantsOnRequest
     }
 
+    private func check() throws {
+        if let failAfter {
+            if savedEvents.count + savedReminders.count >= failAfter { throw saveFailure ?? .saveFailed }
+        } else if let saveFailure {
+            throw saveFailure
+        }
+    }
+
     func save(_ draft: CalendarEventDraft) throws {
-        if let saveFailure { throw saveFailure }
+        try check()
         savedEvents.append(draft)
     }
 
     func save(_ draft: ReminderDraft) throws {
-        if let saveFailure { throw saveFailure }
+        try check()
         savedReminders.append(draft)
     }
 

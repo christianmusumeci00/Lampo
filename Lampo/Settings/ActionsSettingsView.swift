@@ -205,7 +205,7 @@ struct ActionEditor: View {
                 }
             }
 
-            if action.output.draftKind == nil && action.input != .screen && !action.isDictation {
+            if !action.output.isStructured && action.input != .screen && !action.isDictation {
                 Section {
                     Picker("Works with", selection: engine) {
                         Text("The model on this Mac").tag(false)
@@ -228,7 +228,7 @@ struct ActionEditor: View {
                 .task { languages = await state.makeRunner().translationLanguages() }
             }
 
-            if action.output.draftKind == nil && !action.isTranslation {
+            if !action.output.isStructured && !action.isTranslation {
             Section {
                 TextEditor(text: $action.promptTemplate)
                     .font(.system(size: 12, design: .monospaced))
@@ -295,10 +295,15 @@ struct ActionEditor: View {
                         Text("Open in the panel").tag(LampoAction.OutputMode.openPanel)
                         Text("Create a calendar event").tag(LampoAction.OutputMode.calendarEvent)
                         Text("Create a reminder").tag(LampoAction.OutputMode.reminder)
+                        Text("Extract a contact, table or to-dos").tag(LampoAction.OutputMode.extract)
                     }
                 }
                 if action.output.draftKind != nil {
-                    Text("Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.")
+                    Text("Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. A list (“milk, call Luca tomorrow, bill Friday”) becomes one item each. Nothing is added until you confirm. No prompt is used.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if action.output == .extract {
+                    Text("Lampo picks a contact, a table or a to-do list from the selected text (or the clipboard), and you can switch in the panel. Nothing is saved until you confirm. No prompt is used.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else if action.isDictation {
@@ -336,7 +341,7 @@ struct ActionEditor: View {
                 }
             }
 
-            if action.output.draftKind == nil {
+            if !action.output.isStructured {
             Section("Try it") {
                 TextField("Sample text", text: $sample, axis: .vertical)
                     .lineLimit(2...5)

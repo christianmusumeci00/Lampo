@@ -31,6 +31,8 @@ final class ShortcutsService {
     private let history: HistoryStore?
     /// Opens the confirmation card for "Create event"/"Create reminder" (it needs the user).
     var showDraft: ((DraftKind, String) -> Void)?
+    /// Opens the Extract card for a text.
+    var showExtraction: ((String) -> Void)?
 
     init(model: any ModelService, preferences: Preferences, actionStore: ActionStore, history: HistoryStore? = nil) {
         self.model = model
@@ -73,6 +75,10 @@ final class ShortcutsService {
 
         if let kind = action.output.draftKind {
             showDraft?(kind, input)
+            return nil
+        }
+        if action.output == .extract {
+            showExtraction?(input)
             return nil
         }
         let runner = ActionRunner(model: model, preferences: preferences)

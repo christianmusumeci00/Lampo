@@ -25,6 +25,8 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
         case calendarEvent
         /// Turn the text into a reminder, confirmed in an editable card.
         case reminder
+        /// Pull a contact, a table or to-dos out of the text, in an editable card.
+        case extract
 
         /// Structured outputs don't use the prompt template.
         var draftKind: DraftKind? {
@@ -34,6 +36,9 @@ struct LampoAction: Codable, Identifiable, Hashable, Sendable {
             default: return nil
             }
         }
+
+        /// Outputs built with guided generation, in a card: they don't use the prompt template.
+        var isStructured: Bool { draftKind != nil || self == .extract }
 
         /// Actions offered as Lens chips: the ones that rewrite text.
         var showsInLens: Bool { self == .preview || self == .replaceSilently || self == .copy }

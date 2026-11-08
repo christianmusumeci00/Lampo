@@ -67,6 +67,10 @@ final class ActionCoordinator {
             await runStructured(action, kind: kind)
             return
         }
+        if action.output == .extract {
+            await runExtract(action)
+            return
+        }
 
         // Translations always work on the selected text.
         switch action.isTranslation ? .selection : action.input {
@@ -105,6 +109,25 @@ final class ActionCoordinator {
         } else {
             panel?.showDraftInput(kind)
         }
+    }
+
+    /// "Extract": needs a text (the selection or the clipboard).
+    private func runExtract(_ action: LampoAction) async {
+        var text: String?
+        if action.input == .clipboard {
+            text = pasteboard.string()
+        } else {
+            guard permissions.isAccessibilityGranted else {
+                onNeedsPermission?(.accessibility)
+                return
+            }
+            text = await selectionReader.readSelection(allowClipboardFallback: true)?.text
+        }
+        guard let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            hud.show(String(localized: "Select some text first, then try again."), style: .failure, near: nil)
+            return
+        }
+        panel?.showExtraction(from: text)
     }
 
     /// "Ask the screen" and custom screen actions: capture the front window, then either wait
@@ -165,6 +188,8 @@ final class ActionCoordinator {
             await openPanel(action, context: context, items: [.selection(selection)])
         case .calendarEvent, .reminder:
             panel?.showDraft(action.output.draftKind ?? .event, from: selection.text)
+        case .extract:
+            panel?.showExtraction(from: selection.text)
         case .replaceSilently, .copy:
             hud.show(String(localized: "\(action.name)…"), style: .working, near: selection.anchor)
             do {

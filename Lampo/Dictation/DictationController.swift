@@ -53,6 +53,8 @@ final class DictationController {
     var onOpenPanel: ((LampoAction, TemplateContext) -> Void)?
     /// "Create event/reminder" actions: the transcript becomes a draft card.
     var onShowDraft: ((DraftKind, String) -> Void)?
+    /// "Extract" actions: the transcript goes to the Extract card.
+    var onExtract: ((String) -> Void)?
     /// Finished dictations, for the history: action name, transcript, inserted text, route.
     var onResult: ((String, String, String, ModelRoute) -> Void)?
 
@@ -230,6 +232,10 @@ final class DictationController {
         case .calendarEvent, .reminder:
             reset()
             onShowDraft?(action.output.draftKind ?? .event, transcript)
+            return
+        case .extract:
+            reset()
+            onExtract?(transcript)
             return
         case .preview, .replaceSilently, .copy:
             break

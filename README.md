@@ -60,15 +60,24 @@ Impostazioni › Azioni.
 | Correggi | ⌥⇧C |
 | Riscrivi | ⌥⇧R |
 | Traduci | ⌥⇧T |
+| Rispondi | ⌥⇧M |
 | Detta | ⌥⇧D (tieni premuto, o premi due volte) |
 | Chiedi allo schermo | ⌥⇧S |
 | Crea evento | ⌥⇧E |
 | Crea promemoria | ⌥⇧P |
+| Estrai | ⌥⇧X |
 
 Ogni scorciatoia si cambia in Impostazioni › Scorciatoie. In Impostazioni › Azioni puoi accendere o
 spegnere le azioni, modificarle, crearne di nuove con il tuo prompt (o con la Traduzione di Apple verso
 una lingua fissa, per esempio "Traduci in tedesco") e provarle su un testo di esempio. Ogni azione può
 mostrare l'anteprima, sostituire subito il testo, copiarlo o aprire la risposta nel pannello.
+
+### Rispondi
+
+Seleziona un'email o un messaggio e premi **⌥⇧M**: Lampo scrive una bozza di risposta nella lingua del
+messaggio, senza firma e senza inventare date o promesse. Nel pannello puoi cambiarla scrivendo in
+italiano ("più breve", "di' che giovedì alle 15 va bene"): la risposta resta nella lingua del messaggio.
+⌘C la copia, ⌘↩ la scrive dove c'è il cursore (mai sopra il messaggio selezionato).
 
 ### Detta e sistema
 
@@ -88,6 +97,8 @@ Per dettature lunghe premi ⌥⇧D una volta, parla, e premilo di nuovo per fini
 
 **⌥⇧S** fotografa solo la finestra che stai usando (mai Lampo stesso, mai il resto dello schermo) e
 apre il pannello pronto per la domanda: "cosa significa questo errore?", "riassumi questa pagina".
+Il Mac legge anche il testo della finestra (riconoscimento del testo di Apple, sul Mac) e lo manda
+insieme all'immagine, così codici, cifre e scritte piccole arrivano esatti.
 
 <!-- GIF da registrare: docs/media/schermo.gif (vedi docs/media/README.md) -->
 
@@ -97,6 +108,22 @@ Seleziona "cena con Marco giovedì alle 20" (o un'email con data e ora) e premi 
 prepara l'evento con giorno, ora, luogo e titolo. **Non aggiunge nulla finché non confermi**: tutto è
 modificabile nella scheda. Per gli eventi Lampo chiede solo il permesso di scrittura, quindi non può
 leggere i tuoi calendari. **⌥⇧P** fa lo stesso con i Promemoria.
+
+Un elenco diventa più voci in una sola scheda: "latte, chiamare Luca domani, bolletta venerdì" dà tre
+promemoria, ognuno con la sua data. Togli la spunta a quelli che non vuoi e conferma una volta.
+
+### Estrai
+
+Seleziona un testo e premi **⌥⇧X**: Lampo capisce cosa contiene e lo mette in una scheda.
+
+- **Contatto** (una firma email): nome, azienda, telefoni, email, indirizzo. "Aggiungi a Contatti" lo
+  apre in Contatti, che chiede conferma: Lampo non legge né modifica la tua rubrica.
+- **Tabella** (righe di dati): "Copia" la incolla come celle in Numbers o Excel; c'è anche "Copia come
+  Markdown".
+- **Cose da fare** (un'email con richieste): diventano promemoria da confermare, con le scadenze.
+
+Se Lampo sceglie il tipo sbagliato, cambialo in alto nella scheda. Senza Apple Intelligence usa regole
+semplici (numeri di telefono, email, colonne separate) e te lo dice.
 
 ![La scheda di conferma di "Crea evento"](docs/media/crea-evento.png)
 
@@ -119,7 +146,8 @@ leggere i tuoi calendari. **⌥⇧P** fa lo stesso con i Promemoria.
   (`~/Library/Application Support/Lampo/history.json`) e spegnerla la cancella.
 - Permessi: Accessibilità (leggere e sostituire la selezione), Registrazione schermo (solo per
   "Chiedi allo schermo"), Microfono (solo mentre detti), Calendari e Promemoria (solo quando confermi
-  un evento o un promemoria).
+  un evento o un promemoria). Nessun accesso ai Contatti: un contatto estratto passa a Contatti, che
+  chiede conferma.
 - La dettatura gira sul Mac. L'unico download è il modello vocale di Apple, una volta e solo se confermi.
 
 ## Cosa non fa

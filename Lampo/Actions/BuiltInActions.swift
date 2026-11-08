@@ -19,6 +19,8 @@ enum BuiltInActions {
     static let rewriteID = UUID(uuidString: "6C0A000B-0000-4000-8000-00000000C0DE")!
     static let translateID = UUID(uuidString: "6C0A000C-0000-4000-8000-00000000C0DE")!
     static let dictateID = UUID(uuidString: "6C0A000D-0000-4000-8000-00000000C0DE")!
+    static let replyID = UUID(uuidString: "6C0A000E-0000-4000-8000-00000000C0DE")!
+    static let extractID = UUID(uuidString: "6C0A000F-0000-4000-8000-00000000C0DE")!
 
     /// Built-ins that duplicate Apple's Writing Tools: shipped turned off (Rewrite covers them),
     /// and turned off once in installs from before 1.1. They're kept, so the user can turn them on.
@@ -26,6 +28,9 @@ enum BuiltInActions {
     /// Built-ins replaced by "Translate" (Apple's Translation). No longer shipped; old installs
     /// keep them turned off.
     static let retired: Set<UUID> = [toEnglishID, toItalianID]
+    /// Panel actions whose answer is new text for somewhere else (a reply), not a replacement of
+    /// the selection: "Insert" types it at the cursor instead of over the selected message.
+    static let insertsAtCursor: Set<UUID> = [replyID]
 
     static var all: [LampoAction] {
         [
@@ -53,6 +58,20 @@ enum BuiltInActions {
             LampoAction(
                 id: translateID, name: String(localized: "Translate"), symbol: "character.bubble",
                 promptTemplate: "", isBuiltIn: true, translationTarget: TranslationPlanner.automatic),
+            // A draft in the message's language, in the panel so it can be changed with follow-ups
+            // ("shorter", "say yes to Thursday").
+            LampoAction(
+                id: replyID, name: String(localized: "Reply"), symbol: "arrowshape.turn.up.left",
+                promptTemplate: """
+                Write a reply to the message below, which is in {{text_language}}. \
+                Write the reply in {{text_language}}, as the person who received the message, ready to send: \
+                no subject line, no notes, no placeholders in brackets, and no name or signature at the end. \
+                Answer what the message asks without inventing facts, dates or promises; \
+                where a decision is needed, keep the reply open. Match the message's tone and keep it short.
+
+                {{selection}}
+                """,
+                output: .openPanel, isBuiltIn: true),
             // Speech on device, then the model cleans it up, then it's typed where the cursor is.
             // An empty prompt would insert the raw transcript.
             LampoAction(
@@ -84,6 +103,11 @@ enum BuiltInActions {
             LampoAction(
                 id: createReminderID, name: String(localized: "Create reminder"), symbol: "checklist",
                 promptTemplate: "", output: .reminder, isBuiltIn: true),
+            // Structured: a contact (to Contacts), a table (to copy) or to-dos (to Reminders), chosen
+            // from the text and switchable in the panel. Nothing is saved without confirmation.
+            LampoAction(
+                id: extractID, name: String(localized: "Extract"), symbol: "tablecells",
+                promptTemplate: "", output: .extract, isBuiltIn: true),
             LampoAction(
                 id: explainID, name: String(localized: "Explain"), symbol: "lightbulb",
                 promptTemplate: """
@@ -134,6 +158,8 @@ enum BuiltInActions {
         rewriteID: .init(.r, modifiers: [.option, .shift]),
         translateID: .init(.t, modifiers: [.option, .shift]),
         dictateID: .init(.d, modifiers: [.option, .shift]),
+        replyID: .init(.m, modifiers: [.option, .shift]),
+        extractID: .init(.x, modifiers: [.option, .shift]),
         formalID: .init(.f, modifiers: [.option, .shift]),
         shorterID: .init(.b, modifiers: [.option, .shift]),
         askScreenID: .init(.s, modifiers: [.option, .shift]),

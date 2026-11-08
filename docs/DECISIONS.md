@@ -311,3 +311,41 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   start; without Accessibility the text is copied instead.
 - **QA:** DEBUG `LAMPO_QA_DICTATION_FILE=<audio>` feeds a file instead of the microphone (and skips the
   microphone check).
+
+## 1.1 — Reply, text in screenshots, lists, Extract
+
+- **Text in screenshots:** Vision `RecognizeTextRequest` (`.accurate`, automatic language, language
+  correction; verified in the macOS 27 SDK) runs on the captured image right after the capture
+  (`ScreenText`, `WindowCapture.text`). Lines under 0.3 confidence are dropped; lines at the same height are
+  joined left to right. The text goes in the context block as `<screen>…</screen>`, labelled as possibly
+  wrong, next to the image (which still gets its 1000-token reserve). `ContextBudget` fits it with the
+  selection and clipboard; for panel actions (whose selection the runner already fitted) only the screen
+  text is fitted. Checked live: an order code, total and date read exactly from a TextEdit window.
+- **Reply (⌥⇧M, `6C0A000E`):** a panel action, so follow-ups refine it. ⌥⇧A was avoided (VS Code's block
+  comment). The prompt asks for the message's `{{text_language}}`, no subject, no placeholders and no
+  signature (the system instructions say "You are Lampo" and the model signed as Lampo). Follow-ups typed in
+  the panel are wrapped as "Change the reply as the user asks: “…”. Write the whole reply again in
+  <language>", since the user writes in Italian and the general rule would switch the reply's language.
+  `BuiltInActions.insertsAtCursor` makes Insert type at the cursor instead of over the selected message.
+- **Lists in Create event/reminder:** commas are ambiguous ("cena con Marco, giovedì alle 20 da Gino" is
+  one event), so the model splits (`GeneratedSplit`, guided generation) and `ListSplitter.reconcile` checks
+  it: items not copied from the text are dropped, overlapping items keep the finer ones, a lone day/time/place
+  joins the item before it, and — only when the model returned two or more items — pieces it skipped come
+  back ("latte" was dropped in the probe). The split runs only for texts up to 60 words with a separator
+  (new line, `;`, `,`, bullet, "e"/"and"/"poi"). List items are dated by `WhenParser` alone, with their own
+  words minus the day and time as the title: one model call in all, and no invented titles. One item keeps
+  the existing detailed extraction. Without the model, only new lines, bullets and semicolons split.
+  Saving goes item by item; after a partial failure the saved items leave the card, so a retry doesn't add
+  them twice.
+- **Extract (⌥⇧X, `6C0A000F`, `OutputMode.extract`):** one action with a switcher (Contact · Table ·
+  To-dos) instead of three actions and three shortcuts. The kind is guessed from the text: phone/email
+  found by `NSDataDetector` in ≤ 80 words → contact; 3+ lines sharing a separator → table; else to-dos.
+  Each is a `@Generable` schema; probes on an Italian signature, an order and a meeting email gave correct
+  fields. Contact fields are kept only if they appear in the text (phones compared by digits). The contact
+  is saved by opening a vCard (`CNContactVCardSerialization`, no Contacts authorization needed) with
+  Contacts, which shows it for confirmation; Lampo never reads the address book. Tables are copied as
+  tab-separated text (cells in Numbers/Excel) or Markdown. To-dos continue in the reminder list card.
+  Without the model: `NSDataDetector` for contacts, the shared separator for tables, lines for to-dos,
+  with a note in the card. Texts longer than 6000 characters are cut to beginning and end before extraction.
+- **Panel resize:** the panel now defers its height change to the next run-loop turn, like the Lens, since
+  the Extract picker is an AppKit segmented control.

@@ -48,16 +48,19 @@ struct PromptParts {
     /// English name of the answer language, stated with the context.
     var answerLanguage: String?
 
-    var hasText: Bool { selection != nil || clipboard != nil }
+    /// Text read from the attached window.
+    var screenText: String? { window?.text }
+
+    var hasText: Bool { selection != nil || clipboard != nil || screenText != nil }
 
     /// The untruncated prompt.
-    var full: ModelPrompt { compose(selection: selection, clipboard: clipboard) }
+    var full: ModelPrompt { compose(selection: selection, clipboard: clipboard, screenText: screenText) }
 
     /// The prompt with the given (possibly cut) context texts.
-    func compose(selection: String?, clipboard: String?) -> ModelPrompt {
+    func compose(selection: String?, clipboard: String?, screenText: String?) -> ModelPrompt {
         let block = SystemInstructions.contextBlock(
             selection: selection, app: app, clipboard: clipboard,
-            window: window.map { (app: $0.app.name, title: $0.title) },
+            window: window.map { (app: $0.app.name, title: $0.title) }, screenText: screenText,
             answerLanguage: answerLanguage)
         let text: String
         if block.isEmpty {
@@ -69,7 +72,19 @@ struct PromptParts {
     }
 }
 
-/// The "Create event" / "Create reminder" confirmation card.
+/// One event or reminder of a confirmation card.
+struct DraftItem: Identifiable, Equatable {
+    let id = UUID()
+    var event: CalendarEventDraft
+    var reminder: ReminderDraft
+    /// Unticked items of a list aren't added.
+    var isIncluded = true
+
+    func title(for kind: DraftKind) -> String { kind == .event ? event.title : reminder.title }
+}
+
+/// The "Create event" / "Create reminder" confirmation card: one item, or a list of them
+/// ("latte, chiamare Luca domani, bolletta venerdì").
 struct DraftCard: Equatable {
     enum Phase: Equatable {
         /// The model is reading the text.
@@ -81,20 +96,67 @@ struct DraftCard: Equatable {
     }
 
     var kind: DraftKind
-    var event: CalendarEventDraft
-    var reminder: ReminderDraft
+    /// Never empty.
+    var items: [DraftItem]
     var phase: Phase
     /// The failure is a denied permission: offer System Settings.
     var needsSettings = false
+    /// Items added so far. After a partial failure the added ones leave the list, so a retry
+    /// doesn't add them twice.
+    var savedCount = 0
+
+    init(kind: DraftKind, event: CalendarEventDraft, reminder: ReminderDraft, phase: Phase) {
+        self.init(kind: kind, items: [DraftItem(event: event, reminder: reminder)], phase: phase)
+    }
+
+    init(kind: DraftKind, items: [DraftItem], phase: Phase) {
+        self.kind = kind
+        self.items = items
+        self.phase = phase
+    }
+
+    var isList: Bool { items.count > 1 }
+    var included: [DraftItem] { items.filter(\.isIncluded) }
+
+    /// The first item (the only one, unless it's a list).
+    var event: CalendarEventDraft {
+        get { items[0].event }
+        set { items[0].event = newValue }
+    }
+
+    var reminder: ReminderDraft {
+        get { items[0].reminder }
+        set { items[0].reminder = newValue }
+    }
 
     var canConfirm: Bool {
         switch phase {
-        case .editing, .failed: return !title.trimmingCharacters(in: .whitespaces).isEmpty
+        case .editing, .failed:
+            return !included.isEmpty
+                && included.allSatisfy { !$0.title(for: kind).trimmingCharacters(in: .whitespaces).isEmpty }
         default: return false
         }
     }
 
-    var title: String { kind == .event ? event.title : reminder.title }
+    var title: String { items[0].title(for: kind) }
+}
+
+/// "Extract": a contact, a table or to-dos pulled out of a text. To-dos continue in the
+/// draft card (a list of reminders).
+struct ExtractionCard: Equatable {
+    enum Phase: Equatable {
+        case reading
+        case ready
+        case failed(String)
+    }
+
+    var kind: ExtractKind
+    var source: String
+    var contact = ContactDraft()
+    var table = ExtractedTable()
+    var phase: Phase = .reading
+    /// The model couldn't help: the result comes from simple rules (phone numbers, separators).
+    var isFallback = false
 }
 
 /// State and behaviour of the Glass panel. UI-free, so it is unit-tested with mocks.
@@ -121,6 +183,10 @@ final class PanelViewModel {
     var draft: DraftCard?
     /// The panel is waiting for the user to describe an event or reminder.
     private(set) var draftInputKind: DraftKind?
+    /// "Extract" card, shown instead of the conversation.
+    var extraction: ExtractionCard?
+    /// "Reply": the language of the message being answered. Follow-ups rewrite the reply in it.
+    private(set) var replyLanguage: String?
     /// A system permission prompt is up: the panel must not close when it loses focus.
     private(set) var isWaitingForSystemPrompt = false
 
@@ -156,6 +222,8 @@ final class PanelViewModel {
     @ObservationIgnored var onGrantPermission: ((PermissionKind) -> Void)?
     /// Called when a system prompt closes, so the panel can take focus back.
     @ObservationIgnored var onSystemPromptFinished: (() -> Void)?
+    /// Saves a contact by handing it to Contacts, which asks before adding. Returns false on failure.
+    @ObservationIgnored var openContact: (ContactDraft) -> Bool = { ContactExporter.open($0) }
     /// Called with each completed model answer (for the optional local history).
     @ObservationIgnored var onTurnCompleted: ((ConversationTurn) -> Void)?
 
@@ -184,7 +252,7 @@ final class PanelViewModel {
     var currentTurn: ConversationTurn? { turns.last }
     var previousTurns: ArraySlice<ConversationTurn> { turns.dropLast() }
     var isGenerating: Bool { currentTurn?.state == .streaming }
-    var hasContent: Bool { !turns.isEmpty || draft != nil }
+    var hasContent: Bool { !turns.isEmpty || draft != nil || extraction != nil }
     var canCopy: Bool { !(currentTurn?.answer.isEmpty ?? true) }
     var canFollowUp: Bool { conversation != nil && !isGenerating && currentTurn?.kind == .model }
     var canInsert: Bool { canCopy && !isGenerating }
@@ -302,6 +370,8 @@ final class PanelViewModel {
         draftTask = nil
         draft = nil
         draftInputKind = nil
+        extraction = nil
+        replyLanguage = nil
         query = ""
         notice = nil
         focusRequest += 1
@@ -318,9 +388,10 @@ final class PanelViewModel {
             startDraft(kind, from: text)
             return
         }
-        if draft != nil {
+        if draft != nil || extraction != nil {
             draftTask?.cancel()
             draft = nil
+            extraction = nil
         }
         touch()
 
@@ -334,6 +405,17 @@ final class PanelViewModel {
             return
         }
 
+        if let replyLanguage, contextItems.isEmpty, canFollowUp {
+            // "più breve", "say yes to Thursday": the reply is rewritten, in the message's language.
+            let instruction = """
+                Change the reply as the user asks: “\(text)”. Write the whole reply again in \(replyLanguage), \
+                ready to send, without a name or signature at the end, and return only the reply.
+                """
+            ask(Request(displayedQuestion: text, route: conversation?.route ?? .onDevice,
+                        parts: PromptParts(question: instruction), fitsContext: false))
+            return
+        }
+
         let (parts, summary) = consumeContext(question: text)
         ask(Request(displayedQuestion: text, route: .onDevice, contextSummary: summary, parts: parts))
     }
@@ -344,6 +426,12 @@ final class PanelViewModel {
         resetConversation()
         contextItems = items
         let (parts, summary) = consumeContext(question: "")
+        if BuiltInActions.insertsAtCursor.contains(action.id) {
+            // A reply goes where the cursor is, never over the selected message.
+            activeSelection = nil
+            replyLanguage = parts.selection.flatMap { TextLanguage.name(of: $0) }
+                ?? SystemInstructions.languageName(preferences.responseLanguage)
+        }
         touch()
         ask(Request(displayedQuestion: action.name, route: action.route, contextSummary: summary,
                     parts: PromptParts(question: prompt, window: parts.window),
@@ -481,14 +569,20 @@ final class PanelViewModel {
 
         generationTask = Task { [weak self, budget] in
             var prompt = request.parts.full
-            if request.fitsContext && request.parts.hasText {
-                let parts = request.parts
+            // Actions arrive with their selection already fitted; the window's text never is.
+            if (request.fitsContext && request.parts.hasText) || request.parts.screenText != nil {
+                var parts = request.parts
+                if !request.fitsContext {
+                    parts.selection = nil
+                    parts.clipboard = nil
+                }
                 let scaffold = parts.compose(selection: parts.selection.map { _ in "" },
-                                             clipboard: parts.clipboard.map { _ in "" }).text
-                let fitted = await budget.fit([parts.selection, parts.clipboard], route: route,
+                                             clipboard: parts.clipboard.map { _ in "" },
+                                             screenText: parts.screenText.map { _ in "" }).text
+                let fitted = await budget.fit([parts.selection, parts.clipboard, parts.screenText], route: route,
                                               fixed: [instructions, scaffold] + history,
                                               images: parts.window == nil ? 0 : 1)
-                prompt = parts.compose(selection: fitted.texts[0], clipboard: fitted.texts[1])
+                prompt = parts.compose(selection: fitted.texts[0], clipboard: fitted.texts[1], screenText: fitted.texts[2])
                 if fitted.wasTruncated { self?.update(turnID) { $0.wasTruncated = true } }
             }
             if Task.isCancelled {
@@ -534,17 +628,29 @@ final class PanelViewModel {
     // MARK: Drafts (Create event / Create reminder)
 
     /// Reads `text` into an editable draft. If the model can't help (unavailable, refused),
-    /// the draft is built from the date parser alone and is still editable.
+    /// the draft is built from the date parser alone and is still editable. A short list
+    /// becomes one item each, dated by the parser alone (one model call in all).
     func startDraft(_ kind: DraftKind, from text: String) {
         resetConversation()
         let parser = WhenParser(now: now(), calendar: userCalendar)
-        let start = parser.calendar.startOfDay(for: parser.now)
-        draft = DraftCard(
-            kind: kind,
-            event: CalendarEventDraft(title: "", start: start, end: start, isAllDay: true, location: "", notes: ""),
-            reminder: ReminderDraft(title: "", hasDueDate: false, due: start, hasDueTime: false, notes: ""),
-            phase: .reading)
+        draft = Self.placeholderCard(kind, parser: parser)
         draftTask = Task { [weak self, model] in
+            var items = [text]
+            if ListSplitter.mayBeList(text) {
+                do {
+                    items = ListSplitter.reconcile(source: text, items: try await model.splitItems(text))
+                } catch is CancellationError {
+                    return
+                } catch {
+                    items = ListSplitter.fallback(text)
+                }
+            }
+            if items.count > 1 {
+                guard !Task.isCancelled, let self, self.draft?.phase == .reading else { return }
+                self.fillDraft(with: items, parser: parser)
+                return
+            }
+
             var details = ExtractedDetails()
             do {
                 details = try await model.extractDetails(from: text, kind: kind)
@@ -560,6 +666,25 @@ final class PanelViewModel {
         }
     }
 
+    /// One item per entry, titled with its own words minus the day and time.
+    private func fillDraft(with entries: [String], parser: WhenParser) {
+        draft?.items = entries.map { entry in
+            let details = ExtractedDetails(title: DraftBuilder.withoutWhen(entry))
+            return DraftItem(event: DraftBuilder.event(from: entry, details: details, parser: parser),
+                             reminder: DraftBuilder.reminder(from: entry, details: details, parser: parser))
+        }
+        draft?.phase = .editing
+    }
+
+    private static func placeholderCard(_ kind: DraftKind, parser: WhenParser) -> DraftCard {
+        let start = parser.calendar.startOfDay(for: parser.now)
+        return DraftCard(
+            kind: kind,
+            event: CalendarEventDraft(title: "", start: start, end: start, isAllDay: true, location: "", notes: ""),
+            reminder: ReminderDraft(title: "", hasDueDate: false, due: start, hasDueTime: false, notes: ""),
+            phase: .reading)
+    }
+
     /// No selected text: the panel asks for a description ("cena con Marco giovedì alle 20").
     func enterDraftInput(_ kind: DraftKind) {
         resetConversation()
@@ -570,7 +695,7 @@ final class PanelViewModel {
         draftInputKind = nil
     }
 
-    /// Writes the confirmed draft. Asks for Calendar/Reminders access the first time.
+    /// Writes the confirmed draft (every ticked item). Asks for Calendar/Reminders access the first time.
     func confirmDraft() {
         guard let card = draft, card.canConfirm else { return }
         draft?.phase = .saving
@@ -590,23 +715,143 @@ final class PanelViewModel {
                 self.draft?.needsSettings = true
                 return
             }
+            var saved: Set<UUID> = []
             do {
-                switch card.kind {
-                case .event: try writer.save(card.event)
-                case .reminder: try writer.save(card.reminder)
+                for item in card.included {
+                    switch card.kind {
+                    case .event: try writer.save(item.event)
+                    case .reminder: try writer.save(item.reminder)
+                    }
+                    saved.insert(item.id)
                 }
+                self.draft?.savedCount += saved.count
                 self.draft?.phase = .saved
-                let message = card.kind == .event ? String(localized: "Added to Calendar") : String(localized: "Added to Reminders")
-                AccessibilityNotification.Announcement(message).post()
+                AccessibilityNotification.Announcement(Self.savedMessage(card.kind, count: self.draft?.savedCount ?? 1)).post()
             } catch {
+                if !saved.isEmpty, (self.draft?.items.count ?? 0) > saved.count {
+                    self.draft?.items.removeAll { saved.contains($0.id) }
+                    self.draft?.savedCount += saved.count
+                }
                 self.draft?.phase = .failed((error as? LocalizedError)?.errorDescription ?? CalendarWriteError.saveFailed.localizedDescription)
             }
         }
     }
 
+    static func savedMessage(_ kind: DraftKind, count: Int) -> String {
+        if count > 1 {
+            return kind == .event ? String(localized: "Added \(count) events to Calendar")
+                : String(localized: "Added \(count) reminders to Reminders")
+        }
+        return kind == .event ? String(localized: "Added to Calendar") : String(localized: "Added to Reminders")
+    }
+
+    // MARK: Extract
+
+    /// "Extract" on a text: guesses the kind from its shape; the user can switch.
+    func startExtraction(from text: String, kind: ExtractKind? = nil) {
+        resetConversation()
+        extraction = ExtractionCard(kind: kind ?? ExtractKind.guess(for: text), source: text)
+        runExtraction()
+    }
+
+    func switchExtraction(to kind: ExtractKind) {
+        guard let card = extraction, card.kind != kind else { return }
+        draftTask?.cancel()
+        draft = nil
+        extraction = ExtractionCard(kind: kind, source: card.source)
+        runExtraction()
+    }
+
+    private func runExtraction() {
+        guard let card = extraction else { return }
+        let text = card.source
+        let parser = WhenParser(now: now(), calendar: userCalendar)
+        draftTask = Task { [weak self, model] in
+            var updated = card
+            do {
+                switch card.kind {
+                case .contact:
+                    updated.contact = try await model.extractContact(from: text).checked(against: text)
+                case .table:
+                    updated.table = try await model.extractTable(from: text).normalized()
+                case .todos:
+                    let tasks = try await model.extractTasks(from: text)
+                    guard !Task.isCancelled, let self, self.extraction?.kind == .todos else { return }
+                    self.showTasks(tasks, parser: parser)
+                    return
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                Log.model.info("extraction failed; using simple rules")
+                updated.isFallback = true
+                switch card.kind {
+                case .contact: updated.contact = ContactDraft.detected(in: text)
+                case .table: updated.table = TableShape.parse(text)
+                case .todos:
+                    guard !Task.isCancelled, let self, self.extraction?.kind == .todos else { return }
+                    self.extraction?.isFallback = true
+                    self.showTasks(ListSplitter.segments(of: text, splittingCommas: false), parser: parser)
+                    return
+                }
+            }
+            guard !Task.isCancelled, let self, self.extraction?.kind == card.kind,
+                  self.extraction?.phase == .reading else { return }
+            let isEmpty = card.kind == .contact ? updated.contact.isEmpty : updated.table.isEmpty
+            updated.phase = isEmpty ? .failed(Self.nothingFound(card.kind)) : .ready
+            self.extraction = updated
+        }
+    }
+
+    /// To-dos continue as a list of reminders in the draft card.
+    private func showTasks(_ tasks: [String], parser: WhenParser) {
+        var seen: Set<String> = []
+        let entries = tasks.map(ListSplitter.cleanItem).filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
+        guard !entries.isEmpty else {
+            extraction?.phase = .failed(Self.nothingFound(.todos))
+            return
+        }
+        extraction?.phase = .ready
+        draft = Self.placeholderCard(.reminder, parser: parser)
+        fillDraft(with: Array(entries.prefix(ListSplitter.maximumItems)), parser: parser)
+    }
+
+    static func nothingFound(_ kind: ExtractKind) -> String {
+        switch kind {
+        case .contact: return String(localized: "No contact details in this text.")
+        case .table: return String(localized: "No table in this text.")
+        case .todos: return String(localized: "No to-dos in this text.")
+        }
+    }
+
+    /// Opens the contact in Contacts, which asks before adding it.
+    func saveContact() {
+        guard let contact = extraction?.contact, extraction?.phase == .ready, !contact.isEmpty else { return }
+        if openContact(contact) {
+            onRequestClose?()
+        } else {
+            extraction?.phase = .failed(String(localized: "Couldn't open Contacts. Try again."))
+        }
+    }
+
+    func copyContact() {
+        guard let contact = extraction?.contact, !contact.isEmpty else { return }
+        pasteboard.setString(contact.plainText)
+        showFlash(String(localized: "Copied"))
+    }
+
+    /// Tab-separated (pastes as cells in Numbers and Excel), or Markdown.
+    func copyTable(asMarkdown: Bool = false) {
+        guard let table = extraction?.table, !table.isEmpty else { return }
+        pasteboard.setString(asMarkdown ? table.markdown : table.tabSeparated)
+        showFlash(String(localized: "Copied"))
+        if preferences.closePanelAfterCopy { onRequestClose?() }
+    }
+
     func discardDraft() {
         draftTask?.cancel()
         draft = nil
+        extraction = nil
         onRequestClose?()
     }
 

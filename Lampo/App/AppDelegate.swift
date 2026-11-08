@@ -38,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 // With `LAMPO_QA_QUERY`, a panel action ("Ask the screen") also gets a question.
                 if let query = environment["LAMPO_QA_QUERY"], let viewModel = state.panelController?.viewModel {
                     try? await Task.sleep(for: .seconds(2))
+                    for _ in 0..<60 where viewModel.isGenerating { try? await Task.sleep(for: .milliseconds(500)) }
                     viewModel.query = query
                     viewModel.submit()
                 }
@@ -50,6 +51,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task {
                 try? await Task.sleep(for: .seconds(1))
                 state.panelController?.showDraft(kind, from: query)
+            }
+        }
+        // `LAMPO_QA_EXTRACT=auto|contact|table|todos` + `LAMPO_QA_QUERY` opens the Extract card for that text.
+        if let kind = environment["LAMPO_QA_EXTRACT"], let query = environment["LAMPO_QA_QUERY"] {
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                state.panelController?.showExtraction(from: query)
+                if let forced = ExtractKind(rawValue: kind) {
+                    state.panelController?.viewModel.switchExtraction(to: forced)
+                }
             }
         }
         // Manual QA helper: `LAMPO_OPEN_PANEL=1` opens the panel at launch.

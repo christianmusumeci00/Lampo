@@ -161,7 +161,7 @@ enum DraftBuilder {
             + "|lunedi|lunedì|martedi|martedì|mercoledi|mercoledì|giovedi|giovedì|venerdi|venerdì|sabato|domenica"
             + "|monday|tuesday|wednesday|thursday|friday|saturday|sunday"
         let patterns = [
-            #"(?i)\b(?:(?:il|la|next|this|on|questo|questa|prossimo|prossima)\s+)?(?:"# + days + #")(?:\s+(?:prossimo|prossima|mattina|pomeriggio|sera|morning|afternoon|evening))?\b"#,
+            #"(?i)\b(?:(?:entro|by|before|di|del|per|for|il|la|next|this|on|questo|questa|prossimo|prossima)\s+){0,2}(?:"# + days + #")(?:\s+(?:prossimo|prossima|mattina|pomeriggio|sera|morning|afternoon|evening))?\b"#,
             #"(?i)\b(?:alle(?:\s+ore)?|ore|at|verso\s+le|by|entro\s+le)\s+\d{1,2}(?:[:.]\d{2})?\s*(?:am|pm)?(?:\s+e\s+(?:mezza|mezzo|un\s+quarto))?"#,
             #"(?i)\b\d{1,2}:\d{2}\s*(?:am|pm)?|\b\d{1,2}\s*(?:am|pm)\b"#,
         ]
@@ -184,7 +184,7 @@ enum DraftBuilder {
         TextMetrics.wordCount(text) > notesWordThreshold ? String(text.prefix(1000)) : ""
     }
 
-    private static func isPlaceholder(_ value: String) -> Bool {
+    static func isPlaceholder(_ value: String) -> Bool {
         ["empty", "none", "null", "n/a", "nil", "nessuno", "nessuna", "vuoto", "unknown", "-"]
             .contains(value.lowercased())
     }

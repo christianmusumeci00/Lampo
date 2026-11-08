@@ -47,6 +47,26 @@
         }
       }
     },
+    "%lld new events": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuovi eventi"
+          }
+        }
+      }
+    },
+    "%lld new reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuovi promemoria"
+          }
+        }
+      }
+    },
     "%lld saved": {
       "localizations": {
         "it": {
@@ -93,6 +113,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "+ %lld more rows": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ altre %lld righe"
           }
         }
       }
@@ -147,6 +177,16 @@
         }
       }
     },
+    "Add date": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi data"
+          }
+        }
+      }
+    },
     "Add the events you confirm. Lampo can't read your calendars.": {
       "localizations": {
         "it": {
@@ -177,12 +217,42 @@
         }
       }
     },
+    "Add to Contacts": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi a Contatti"
+          }
+        }
+      }
+    },
     "Add to Reminders": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Aggiungi ai promemoria"
+          }
+        }
+      }
+    },
+    "Added %lld events to Calendar": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld eventi aggiunti a Calendario"
+          }
+        }
+      }
+    },
+    "Added %lld reminders to Reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld promemoria aggiunti a Promemoria"
           }
         }
       }
@@ -203,6 +273,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aggiunto ai promemoria"
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indirizzo"
           }
         }
       }
@@ -313,6 +393,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apple Intelligence è disattivata"
+          }
+        }
+      }
+    },
+    "Apple Intelligence isn't available: Lampo used simple rules. Check the result.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence non è disponibile: Lampo ha usato regole semplici. Controlla il risultato."
           }
         }
       }
@@ -557,6 +647,16 @@
         }
       }
     },
+    "Change the reply, e.g. shorter, or say yes to Thursday…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica la risposta, ad es. più breve, oppure di' di sì per giovedì…"
+          }
+        }
+      }
+    },
     "Check again": {
       "localizations": {
         "it": {
@@ -667,6 +767,36 @@
         }
       }
     },
+    "Company": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azienda"
+          }
+        }
+      }
+    },
+    "Contact": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contatto"
+          }
+        }
+      }
+    },
+    "Contacts asks before adding it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contatti chiede conferma prima di aggiungerlo."
+          }
+        }
+      }
+    },
     "Continue": {
       "localizations": {
         "it": {
@@ -747,6 +877,16 @@
         }
       }
     },
+    "Copy as Markdown": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia come Markdown"
+          }
+        }
+      }
+    },
     "Correct": {
       "localizations": {
         "it": {
@@ -783,6 +923,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Non è stato possibile esportare le azioni."
+          }
+        }
+      }
+    },
+    "Couldn't open Contacts. Try again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aprire Contatti. Riprova."
           }
         }
       }
@@ -1037,6 +1187,16 @@
         }
       }
     },
+    "Email": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        }
+      }
+    },
     "Empty prompt: Lampo opens the panel with the window attached and waits for your question.": {
       "localizations": {
         "it": {
@@ -1093,6 +1253,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esporta azioni…"
+          }
+        }
+      }
+    },
+    "Extract": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estrai"
+          }
+        }
+      }
+    },
+    "Extract a contact, table or to-dos": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estrai un contatto, una tabella o cose da fare"
+          }
+        }
+      }
+    },
+    "First name": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome"
           }
         }
       }
@@ -1297,6 +1487,16 @@
         }
       }
     },
+    "Job title": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruolo"
+          }
+        }
+      }
+    },
     "Keep a local history": {
       "localizations": {
         "it": {
@@ -1457,6 +1657,16 @@
         }
       }
     },
+    "Lampo picks a contact, a table or a to-do list from the selected text (or the clipboard), and you can switch in the panel. Nothing is saved until you confirm. No prompt is used.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo estrae un contatto, una tabella o un elenco di cose da fare dal testo selezionato (o dagli appunti) e puoi cambiare tipo nel pannello. Non viene salvato nulla finché non confermi. Non usa un prompt."
+          }
+        }
+      }
+    },
     "Lampo reads the text you select and writes the result back in place. Nothing leaves your Mac.": {
       "localizations": {
         "it": {
@@ -1467,12 +1677,12 @@
         }
       }
     },
-    "Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. Nothing is added until you confirm. No prompt is used.": {
+    "Lampo reads the title, day and time from the selected text (or the clipboard) and shows an editable card. A list (“milk, call Luca tomorrow, bill Friday”) becomes one item each. Nothing is added until you confirm. No prompt is used.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lampo legge titolo, giorno e ora dal testo selezionato (o dagli appunti) e mostra una scheda modificabile. Non viene aggiunto nulla finché non confermi. Il prompt non viene usato."
+            "value": "Lampo legge titolo, giorno e ora dal testo selezionato (o dagli appunti) e mostra una scheda modificabile. Un elenco («latte, chiamare Luca domani, bolletta venerdì») diventa una voce per ciascuno. Non viene aggiunto nulla finché non confermi. Non usa un prompt."
           }
         }
       }
@@ -1483,6 +1693,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lingua"
+          }
+        }
+      }
+    },
+    "Last name": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cognome"
           }
         }
       }
@@ -1707,6 +1927,16 @@
         }
       }
     },
+    "No contact details in this text.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun recapito in questo testo."
+          }
+        }
+      }
+    },
     "No history yet": {
       "localizations": {
         "it": {
@@ -1733,6 +1963,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nessun risultato"
+          }
+        }
+      }
+    },
+    "No table in this text.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna tabella in questo testo."
+          }
+        }
+      }
+    },
+    "No to-dos in this text.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna cosa da fare in questo testo."
           }
         }
       }
@@ -1957,12 +2207,32 @@
         }
       }
     },
+    "Pastes as cells in Numbers and Excel.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si incolla come celle in Numbers ed Excel."
+          }
+        }
+      }
+    },
     "Permissions": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Permessi"
+          }
+        }
+      }
+    },
+    "Phone": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telefono"
           }
         }
       }
@@ -2137,6 +2407,16 @@
         }
       }
     },
+    "Reading the text…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lettura del testo…"
+          }
+        }
+      }
+    },
     "Ready": {
       "localizations": {
         "it": {
@@ -2197,6 +2477,16 @@
         }
       }
     },
+    "Remove the date": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi la data"
+          }
+        }
+      }
+    },
     "Replace": {
       "localizations": {
         "it": {
@@ -2243,6 +2533,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sostituisce il testo selezionato nell’app di origine"
+          }
+        }
+      }
+    },
+    "Reply": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rispondi"
           }
         }
       }
@@ -2695,6 +2995,16 @@
         }
       }
     },
+    "Table": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabella"
+          }
+        }
+      }
+    },
     "Target language": {
       "localizations": {
         "it": {
@@ -3011,6 +3321,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Titolo"
+          }
+        }
+      }
+    },
+    "To-dos": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cose da fare"
           }
         }
       }

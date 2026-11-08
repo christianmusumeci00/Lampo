@@ -25,6 +25,8 @@ final class PanelController: NSObject, NSWindowDelegate {
     private let presentation = PanelPresentation()
     private var hostingView: NSHostingView<PanelView>?
     private var hideGeneration = 0
+    private var pendingHeight: CGFloat = 0
+    private var isResizeScheduled = false
     private(set) var isVisible = false
 
     init(viewModel: PanelViewModel, preferences: Preferences, selectionReader: any SelectionReading,
@@ -89,6 +91,12 @@ final class PanelController: NSObject, NSWindowDelegate {
     func showDraft(_ kind: DraftKind, from text: String) {
         show()
         viewModel.startDraft(kind, from: text)
+    }
+
+    /// "Extract" on a text: a contact, a table or to-dos, in an editable card.
+    func showExtraction(from text: String) {
+        show()
+        viewModel.startExtraction(from: text)
     }
 
     /// "Create event"/"Create reminder" without a selection: asks for a description.
@@ -214,6 +222,12 @@ final class PanelController: NSObject, NSWindowDelegate {
         if modifiers == .command, event.keyCode == 36 || event.keyCode == 76 {   // ⌘↩ Insert / Add
             if viewModel.draft != nil {
                 viewModel.confirmDraft()
+            } else if let extraction = viewModel.extraction {
+                switch extraction.kind {
+                case .contact: viewModel.saveContact()
+                case .table: viewModel.copyTable()
+                case .todos: break
+                }
             } else {
                 viewModel.insertCurrentAnswer()
             }
@@ -231,6 +245,14 @@ final class PanelController: NSObject, NSWindowDelegate {
         switch key {
         case "c":
             let hasSelection = (panel.activeTextView?.selectedRange().length ?? 0) > 0
+            if !hasSelection, let extraction = viewModel.extraction, extraction.phase == .ready {
+                switch extraction.kind {
+                case .contact: viewModel.copyContact()
+                case .table: viewModel.copyTable()
+                case .todos: return false
+                }
+                return true
+            }
             guard !hasSelection, viewModel.canCopy else { return false }
             viewModel.copyCurrentAnswer()
             return true
@@ -249,7 +271,22 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     private var fullWidth: CGFloat { DesignTokens.Panel.width + 2 * DesignTokens.Panel.shadowMargin }
 
+    /// Resizes on the next run-loop turn, like the Lens: resizing inside SwiftUI's layout pass
+    /// while AppKit-backed controls (the Extract picker) appear makes AppKit abort.
     private func updateHeight(_ height: CGFloat) {
+        pendingHeight = height
+        guard !isResizeScheduled else { return }
+        isResizeScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.isResizeScheduled = false
+                self.applyHeight(self.pendingHeight)
+            }
+        }
+    }
+
+    private func applyHeight(_ height: CGFloat) {
         guard height > 0 else { return }
         let screen = panel.screen ?? Self.screenUnderMouse()
         let maxHeight = screen.visibleFrame.height

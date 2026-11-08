@@ -37,6 +37,12 @@ protocol ModelService: AnyObject, Sendable {
     func makeConversation(route: ModelRoute, instructions: String) throws -> any ModelConversation
     /// Pulls an event's or reminder's words out of `text` with guided generation. Always on device.
     func extractDetails(from text: String, kind: DraftKind) async throws -> ExtractedDetails
+    /// Splits a short list into its items, as the model copies them (checked by `ListSplitter`).
+    func splitItems(_ text: String) async throws -> [String]
+    /// "Extract": contact details, a table or the to-dos in `text`. Always on device.
+    func extractContact(from text: String) async throws -> ContactDraft
+    func extractTable(from text: String) async throws -> ExtractedTable
+    func extractTasks(from text: String) async throws -> [String]
 }
 
 /// A multi-turn session with the model.

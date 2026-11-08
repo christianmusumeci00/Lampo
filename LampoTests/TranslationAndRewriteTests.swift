@@ -168,9 +168,9 @@ struct ActionLineupTests {
     @Test func newInstallsTurnOnTheDistinctActions() {
         let store = ActionStore(fileURL: url)
         #expect(store.enabledActions.map(\.id) == [
-            BuiltInActions.correctID, BuiltInActions.rewriteID, BuiltInActions.translateID,
+            BuiltInActions.correctID, BuiltInActions.rewriteID, BuiltInActions.translateID, BuiltInActions.replyID,
             BuiltInActions.dictateID, BuiltInActions.askScreenID, BuiltInActions.createEventID, BuiltInActions.createReminderID,
-            BuiltInActions.explainID,
+            BuiltInActions.extractID, BuiltInActions.explainID,
         ])
         #expect(store.selectionActions.allSatisfy { $0.isEnabled })
         #expect(store.action(id: BuiltInActions.toEnglishID) == nil)
@@ -206,7 +206,7 @@ struct ActionLineupTests {
         #expect(store.action(id: custom)?.isEnabled == true)
         #expect(store.actions.map(\.id).prefix(3) == [BuiltInActions.correctID, BuiltInActions.rewriteID,
                                                      BuiltInActions.translateID])
-        #expect(store.actions.count == 14)
+        #expect(store.actions.count == 16)
 
         // Migrated once: turning one back on sticks.
         var formal = try #require(store.action(id: BuiltInActions.formalID))

@@ -96,6 +96,7 @@ final class AppState {
             Task { await coordinator?.openPanel(action, context: context, items: []) }
         }
         dictation.onShowDraft = { [weak panel] kind, text in panel?.showDraft(kind, from: text) }
+        dictation.onExtract = { [weak panel] text in panel?.showExtraction(from: text) }
         dictation.onResult = { [history] source, input, output, route in
             history.record(source: source, input: input, output: output, route: route)
         }
@@ -106,6 +107,7 @@ final class AppState {
         let shortcuts = ShortcutsService(model: modelService, preferences: preferences, actionStore: actionStore,
                                          history: history)
         shortcuts.showDraft = { [weak panel] kind, text in panel?.showDraft(kind, from: text) }
+        shortcuts.showExtraction = { [weak panel] text in panel?.showExtraction(from: text) }
         self.shortcuts = shortcuts
         AppDependencyManager.shared.add(dependency: shortcuts)
 

@@ -31,7 +31,7 @@ enum SystemInstructions {
     /// - Parameter answerLanguage: English name of the language to answer in. The context is
     ///   usually in another language than the question, and the small model then drifts to it.
     static func contextBlock(selection: String?, app: String?, clipboard: String?,
-                             window: (app: String, title: String?)? = nil,
+                             window: (app: String, title: String?)? = nil, screenText: String? = nil,
                              answerLanguage: String? = nil) -> String {
         var parts: [String] = []
         if let window {
@@ -41,6 +41,14 @@ enum SystemInstructions {
             Read it carefully and answer the question about what it shows. \
             If it shows an error, explain what it means and how to fix it.
             """)
+            if let screenText, !screenText.isEmpty {
+                parts.append("""
+                Text read from the screenshot, line by line (it may contain recognition errors):
+                <screen>
+                \(screenText)
+                </screen>
+                """)
+            }
         }
         if let selection {
             let source = app.map { " (selected in \($0))" } ?? ""
