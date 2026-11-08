@@ -202,8 +202,8 @@ First launch
       *(Checked live with `LAMPO_QA_DICTATION_FILE`, TextEdit.)*
 - [x] Holding ⌥⇧D while talking and releasing inserts. *(Checked live, file input.)*
 - [x] Esc cancels: capsule gone, nothing inserted. *(Checked live.)*
-- [ ] First use with the real microphone: macOS asks for the Microphone; after "Allow", dictation listens
-      until the next press.
+- [x] First use with the real microphone: macOS asks for the Microphone; after "Allow", dictation listens
+      until the next press. *(Confirmed by the user.)*
 - [ ] Microphone denied: the HUD says so and System Settings › Microphone opens.
 - [ ] A language without its model: the alert offers the download; Settings › General › Dictation shows
       the status, the Download button and the language picker.
