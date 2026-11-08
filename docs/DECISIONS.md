@@ -241,6 +241,7 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   charge, and opens the pane itself only when no alert appears (e.g. after "Non consentire"). Settings ›
   Privacy then explains what to do and offers "Apri Impostazioni di Sistema" and "Mostra Lampo nel Finder"
   (to add it with + or by dragging). The alert is detected by its window owner name only.
+  Confirmed: the alert's "Apri Impostazioni di Sistema" is what adds Lampo to the list.
 - **Deleted copies confuse System Settings.** Copies of Lampo.app that LaunchServices still knew after they
   were deleted (`build/release`, `build/DerivedDataPCC`) made tccd fail to resolve the bundle when building
   the list. Unregister removed copies with `lsregister -u <path>`.
