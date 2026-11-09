@@ -49,8 +49,8 @@ struct DraftCardView: View {
 
     private func headerTitle(_ card: DraftCard) -> String {
         if card.isList {
-            return card.kind == .event ? String(localized: "\(card.items.count) new events")
-                : String(localized: "\(card.items.count) new reminders")
+            return card.kind == .event ? String(localized: "\(card.included.count) new events")
+                : String(localized: "\(card.included.count) new reminders")
         }
         return card.kind == .event ? String(localized: "New event") : String(localized: "New reminder")
     }

@@ -120,6 +120,11 @@ struct ContactDraft: Equatable, Sendable {
         var copy = ContactDraft(givenName: keep(givenName), familyName: keep(familyName),
                                 organization: keep(organization), jobTitle: keep(jobTitle),
                                 address: keep(address), website: keep(website))
+        // The small model sometimes repeats the first name as the last name ("Marco Marco").
+        if !copy.familyName.isEmpty, Self.normalized(copy.familyName) == Self.normalized(copy.givenName),
+           !haystack.contains(Self.normalized("\(copy.givenName) \(copy.familyName)")) {
+            copy.familyName = ""
+        }
         copy.emails = emails.map(keep).filter { !$0.isEmpty }
         // Phone numbers are compared by their digits: spacing and dots vary.
         copy.phones = phones.compactMap { phone in

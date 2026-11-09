@@ -11,6 +11,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installURLHandler()
     }
 
+    /// Clicking Lampo's Dock icon (shown while the welcome guide is open) brings the guide back.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        DockPresence.shared.bringBack()
+        return false
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !RuntimeEnvironment.isRunningTests else { return }
         state.start()

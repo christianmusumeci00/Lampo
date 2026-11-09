@@ -5,6 +5,11 @@ import SwiftUI
 struct LampoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
+    init() {
+        // Before any window or string is loaded: English unless the user chose Italian.
+        if !RuntimeEnvironment.isRunningTests { AppLanguage.applyDefault() }
+    }
+
     var body: some Scene {
         MenuBarExtra {
             MenuContent(state: appDelegate.state)
@@ -59,6 +64,8 @@ struct MenuContent: View {
                 state.updates.checkForUpdates()
             }
         }
+
+        Button("Welcome Guide…") { state.showWelcome() }
 
         Button("Settings…") {
             NSApp.activate()

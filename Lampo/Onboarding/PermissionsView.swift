@@ -21,7 +21,7 @@ struct PermissionsView: View {
     private let service = PermissionsService()
     private var calendars: CalendarService { Self.calendarService }
     /// One EventKit store for the app's lifetime (creating one is slow).
-    private static let calendarService = CalendarService()
+    static let calendarService = CalendarService()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -49,7 +49,7 @@ struct PermissionsView: View {
 
             PermissionRow(
                 title: "Screen Recording",
-                detail: "Look at the window you're using when you ask about the screen (⌘⇧S). Optional.",
+                detail: "Look at the window you're using when you ask about the screen.",
                 isGranted: screenRecordingGranted,
                 grant: {
                     requestedScreenRecording = true
@@ -74,20 +74,20 @@ struct PermissionsView: View {
                     title: "Microphone",
                     detail: "Listen while you dictate (⌥⇧D). Lampo hears nothing otherwise.",
                     isGranted: microphone == .authorized,
-                    grant: grantMicrophone)
+                    grant: Self.grantMicrophone)
 
                 // Asked the first time you confirm an event or a reminder; shown here for status.
                 PermissionRow(
                     title: "Calendars",
                     detail: "Add the events you confirm. Lampo can't read your calendars.",
                     isGranted: calendarsGranted,
-                    grant: { grantCalendar(.event) })
+                    grant: { Self.grantCalendar(.event) })
 
                 PermissionRow(
                     title: "Reminders",
                     detail: "Add the reminders you confirm to your default list.",
                     isGranted: remindersGranted,
-                    grant: { grantCalendar(.reminder) })
+                    grant: { Self.grantCalendar(.reminder) })
             }
 
             if style == .onboarding {
@@ -119,7 +119,7 @@ struct PermissionsView: View {
 
 extension PermissionsView {
     /// First time: the system prompt. After a refusal: the System Settings pane.
-    private func grantMicrophone() {
+    static func grantMicrophone() {
         if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
             Task { _ = await AVCaptureDevice.requestAccess(for: .audio) }
         } else {
@@ -128,17 +128,17 @@ extension PermissionsView {
     }
 
     /// First time: the system prompt. After a refusal: the System Settings pane.
-    private func grantCalendar(_ kind: DraftKind) {
-        if calendars.access(for: kind) == .notDetermined {
-            Task { _ = await calendars.requestAccess(for: kind) }
+    static func grantCalendar(_ kind: DraftKind) {
+        if calendarService.access(for: kind) == .notDetermined {
+            Task { _ = await calendarService.requestAccess(for: kind) }
         } else {
-            calendars.openSettings(for: kind)
+            calendarService.openSettings(for: kind)
         }
     }
 }
 
 /// What to do after "Allow…" for Screen Recording: macOS 27 doesn't let apps add themselves.
-private struct ScreenRecordingHelp: View {
+struct ScreenRecordingHelp: View {
     let openSettings: () -> Void
     let reveal: () -> Void
 
@@ -192,18 +192,16 @@ final class OnboardingWindowController {
     private var window: FrontWindow?
     func show() {
         if window == nil {
-            let hosting = NSHostingController(rootView: PermissionsView(style: .onboarding) { [weak self] in
+            let content = PermissionsView(style: .onboarding) { [weak self] in
                 self?.window?.close()
             }
             .padding(24)
-            .frame(width: 480))
-            let window = FrontWindow(contentViewController: hosting)
-            window.title = String(localized: "Lampo Permissions")
-            window.styleMask = [.titled, .closable]
-            window.isReleasedWhenClosed = false
-            window.center()
-            self.window = window
+            .frame(maxHeight: .infinity, alignment: .top)
+            window = FrontWindow.make(title: String(localized: "Lampo Permissions"),
+                                      size: NSSize(width: 500, height: 400), content: content)
         }
-        window?.presentAboveEverything()
+        guard let window else { return }
+        DockPresence.shared.attach(window)
+        window.presentAboveEverything()
     }
 }

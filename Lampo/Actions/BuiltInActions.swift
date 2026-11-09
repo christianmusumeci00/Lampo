@@ -145,6 +145,27 @@ enum BuiltInActions {
         ]
     }
 
+    /// English names of the built-ins, which are also their String Catalog keys.
+    static let englishNames: [UUID: String] = [
+        correctID: "Correct", rewriteID: "Rewrite", translateID: "Translate", replyID: "Reply",
+        dictateID: "Dictate", askScreenID: "Ask the screen", createEventID: "Create event",
+        createReminderID: "Create reminder", extractID: "Extract", explainID: "Explain",
+        formalID: "More formal", shorterID: "Shorter", summarizeID: "Summarize",
+    ]
+
+    /// The names a built-in ships with in every language Lampo has, to tell a saved name the
+    /// user never changed (which follows Lampo's language) from one they chose.
+    static func shippedNames(for id: UUID, bundle: Bundle = .main) -> Set<String> {
+        guard let key = englishNames[id] else { return [] }
+        var names: Set<String> = [key]
+        for localization in bundle.localizations {
+            guard let path = bundle.path(forResource: localization, ofType: "lproj"),
+                  let strings = Bundle(path: path) else { continue }
+            names.insert(strings.localizedString(forKey: key, value: key, table: nil))
+        }
+        return names
+    }
+
     /// The shortcut name of a built-in action (the user may have changed its shortcut).
     static func shortcutName(for id: UUID) -> KeyboardShortcuts.Name? {
         all.first { $0.id == id }?.shortcutName

@@ -52,6 +52,10 @@ Signing: team 9K3LNS3KHP, "Apple Development" (Debug) / "Developer ID Applicatio
 - Private Cloud Compute code compiles only with `LAMPO_PCC`: without the managed entitlement
   `com.apple.developer.private-cloud-compute` FoundationModels **traps** on any PCC call.
 - No App Sandbox (Accessibility); Hardened Runtime on; distribution outside the Mac App Store.
+- UI in English unless the user picks Italian: `AppLanguage` = `AppleLanguages` in Lampo's own domain, relaunch to
+  change; the Mac's language (`SystemLanguage`, global domain) still drives answers, Translate and Dictate.
+- First launch: 8-step `WelcomeView` guide, centered fixed-size `FrontWindow.make`, Dock icon while open
+  (`DockPresence`, reopen brings it back), step saved in `onboardingStep`.
 - Panel hotkey ⌥⇧Space (⌥Space clashes with Codex); `PanelShortcutMigration` moves old installs once.
 - Translate uses Apple's Translation framework, not the model (`translationTarget`, `TranslationPlanner`); Rewrite
   uses `{{tone}}`. Actions can be turned off (`isEnabled`); `actions.json` v2 turns off the Writing Tools duplicates once.

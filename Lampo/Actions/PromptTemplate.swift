@@ -21,13 +21,34 @@ struct TemplateContext: Equatable, Sendable {
 
 enum TextLanguage {
     /// Dominant language of `text` as an English name, or nil when unsure (very short text).
-    static func name(of text: String) -> String? {
-        guard text.count >= 12 else { return nil }
-        let recognizer = NLLanguageRecognizer()
-        recognizer.processString(String(text.prefix(2000)))
-        guard let (language, confidence) = recognizer.languageHypotheses(withMaximum: 1).first,
+    static func name(of text: String, likely: [String] = likelyLanguages()) -> String? {
+        guard text.count >= 12,
+              let (language, confidence) = detect(String(text.prefix(2000)), likely: likely),
               confidence >= 0.6 else { return nil }
         return Locale(identifier: "en").localizedString(forLanguageCode: language.rawValue)
+    }
+
+    /// Typos fool the recognizer ("i cant come tomorow … becuase" reads as Catalan, 0.89), and
+    /// Correct would then rewrite the text in that language. A guess that isn't one of the
+    /// user's languages and isn't certain is checked again with the user's languages favored.
+    static func detect(_ text: String, likely: [String]) -> (NLLanguage, Double)? {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+        guard let (top, confidence) = recognizer.languageHypotheses(withMaximum: 1).first else { return nil }
+        let favored = likely.map(NLLanguage.init(rawValue:))
+        guard confidence < 0.95, !favored.contains(top) else { return (top, confidence) }
+        let second = NLLanguageRecognizer()
+        var hints: [NLLanguage: Double] = [top: 0.05]
+        for language in favored { hints[language] = 1 }
+        second.languageHints = hints
+        second.processString(text)
+        return second.languageHypotheses(withMaximum: 1).first.map { ($0.key, $0.value) } ?? (top, confidence)
+    }
+
+    /// The Mac's languages and English, as language codes.
+    static func likelyLanguages() -> [String] {
+        let codes = SystemLanguage.preferred().compactMap { Locale.Language(identifier: $0).languageCode?.identifier }
+        return Array(Set(codes + ["en"]))
     }
 }
 

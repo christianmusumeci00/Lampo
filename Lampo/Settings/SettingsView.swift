@@ -30,8 +30,7 @@ struct SettingsView: View {
 
 struct GeneralSettingsView: View {
     @Bindable var state: AppState
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
-    @State private var launchAtLoginError: String?
+    @State private var language = AppLanguage.current()
 
     var body: some View {
         @Bindable var preferences = state.preferences
@@ -43,11 +42,22 @@ struct GeneralSettingsView: View {
             }
             Section {
                 Toggle("Enabled", isOn: $state.isEnabled)
-                Toggle("Launch at login", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, newValue in setLaunchAtLogin(newValue) }
-                if let launchAtLoginError {
-                    Text(launchAtLoginError).font(.caption).foregroundStyle(.red)
+                LaunchAtLoginToggle()
+            }
+            Section {
+                Picker("Language", selection: $language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(verbatim: language.nativeName).tag(language)
+                    }
                 }
+                .onChange(of: language) { _, newValue in
+                    AppLanguage.choose(newValue)
+                    AppRelauncher.relaunch()
+                }
+            } footer: {
+                Text("The language of Lampo's menus and windows. Lampo restarts to change it. Answers follow the setting below.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Section {
                 Picker("Panel position", selection: $preferences.panelPosition) {
@@ -65,6 +75,20 @@ struct GeneralSettingsView: View {
         }
         .formStyle(.grouped)
         .onAppear { state.refreshAvailability() }
+    }
+}
+
+/// "Launch at login", read from and written to the system's login items.
+struct LaunchAtLoginToggle: View {
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var launchAtLoginError: String?
+
+    var body: some View {
+        Toggle("Launch at login", isOn: $launchAtLogin)
+            .onChange(of: launchAtLogin) { _, newValue in setLaunchAtLogin(newValue) }
+        if let launchAtLoginError {
+            Text(launchAtLoginError).font(.caption).foregroundStyle(.red)
+        }
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
@@ -255,9 +279,6 @@ struct AboutSettingsView: View {
 /// Settings › General › Dictation: the language and whether its speech model is on this Mac.
 struct DictationSettingsSection: View {
     @Bindable var state: AppState
-    @State private var readiness: DictationReadiness?
-    @State private var isDownloading = false
-    @State private var downloadFailed = false
 
     private static let languages = ["it", "en", "fr", "de", "es", "pt"]
 
@@ -265,20 +286,13 @@ struct DictationSettingsSection: View {
         @Bindable var preferences = state.preferences
         Section {
             Picker("Language", selection: $preferences.dictationLanguage) {
-                Text("Same as Lampo (\(TranslationPlanner.displayName(state.preferences.userLanguage)))")
+                Text("Automatic (\(TranslationPlanner.displayName(state.preferences.userLanguage)))")
                     .tag(String?.none)
                 ForEach(Self.languages, id: \.self) { language in
                     Text(TranslationPlanner.displayName(language).localizedCapitalized).tag(String?.some(language))
                 }
             }
-            HStack {
-                status
-                Spacer()
-                if readiness == .needsDownload {
-                    Button(isDownloading ? "Downloading…" : "Download") { download() }
-                        .disabled(isDownloading)
-                }
-            }
+            SpeechModelStatus(state: state)
         } header: {
             Text("Dictation")
         } footer: {
@@ -286,7 +300,26 @@ struct DictationSettingsSection: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .task(id: preferences.dictationLanguageIdentifier) { await refresh() }
+    }
+}
+
+/// Whether the dictation language's speech model is on this Mac, with "Download" when it isn't.
+struct SpeechModelStatus: View {
+    let state: AppState
+    @State private var readiness: DictationReadiness?
+    @State private var isDownloading = false
+    @State private var downloadFailed = false
+
+    var body: some View {
+        HStack {
+            status
+            Spacer()
+            if readiness == .needsDownload {
+                Button(isDownloading ? "Downloading…" : "Download") { download() }
+                    .disabled(isDownloading)
+            }
+        }
+        .task(id: state.preferences.dictationLanguageIdentifier) { await refresh() }
     }
 
     @ViewBuilder

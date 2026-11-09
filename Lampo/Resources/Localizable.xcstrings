@@ -127,6 +127,16 @@
         }
       }
     },
+    "A few preferences": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualche preferenza"
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "it": {
@@ -307,12 +317,32 @@
         }
       }
     },
+    "Allow Accessibility": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti Accessibilità"
+          }
+        }
+      }
+    },
     "Allow Accessibility to use the text you select in other apps.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Consenti l’accesso Accessibilità per usare il testo che selezioni nelle altre app."
+          }
+        }
+      }
+    },
+    "Allow Screen Recording": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti Registrazione schermo"
           }
         }
       }
@@ -393,6 +423,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apple Intelligence è disattivata"
+          }
+        }
+      }
+    },
+    "Apple Intelligence is ready on this Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Intelligence è pronta su questo Mac."
           }
         }
       }
@@ -557,12 +597,32 @@
         }
       }
     },
+    "Automatic (%@)": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatica (%@)"
+          }
+        }
+      }
+    },
     "Automatic: into your language, or into the language you last picked when the text is already in yours. Apple Translation works on this Mac, even without Apple Intelligence.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Automatica: nella tua lingua, oppure nell'ultima lingua che hai scelto se il testo è già nella tua. La Traduzione di Apple funziona sul Mac, anche senza Apple Intelligence."
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indietro"
           }
         }
       }
@@ -747,6 +807,16 @@
         }
       }
     },
+    "Click “Allow…”. macOS opens System Settings › Privacy & Security › Accessibility.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su “Consenti…”. macOS apre Impostazioni di Sistema › Privacy e sicurezza › Accessibilità."
+          }
+        }
+      }
+    },
     "Clipboard": {
       "localizations": {
         "it": {
@@ -763,6 +833,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiudi il pannello dopo la copia"
+          }
+        }
+      }
+    },
+    "Come back here: this window returns by itself when it's done. If you lose it, click Lampo in the Dock.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna qui: questa finestra ricompare da sola quando hai finito. Se la perdi, fai clic su Lampo nel Dock."
           }
         }
       }
@@ -893,6 +973,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Correggi"
+          }
+        }
+      }
+    },
+    "Correct, rewrite, translate": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correggi, riscrivi, traduci"
           }
         }
       }
@@ -1117,6 +1207,26 @@
         }
       }
     },
+    "Done: Lampo can look at the window you're using.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto: Lampo può guardare la finestra che stai usando."
+          }
+        }
+      }
+    },
+    "Done: Lampo can work with the text you select.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto: Lampo può lavorare sul testo che selezioni."
+          }
+        }
+      }
+    },
     "Download": {
       "localizations": {
         "it": {
@@ -1153,6 +1263,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Scaricare il modello di dettatura (%@)?"
+          }
+        }
+      }
+    },
+    "Downloaded once from Apple. What you say never leaves your Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scaricato una volta da Apple. Quello che dici non lascia mai il Mac."
           }
         }
       }
@@ -1233,6 +1353,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inglese"
+          }
+        }
+      }
+    },
+    "Events and reminders": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventi e promemoria"
+          }
+        }
+      }
+    },
+    "Events, reminders and more": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventi, promemoria e altro"
+          }
+        }
+      }
+    },
+    "Everything works in any app, with a shortcut. These are the ones to remember.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto funziona in qualsiasi app, con una scorciatoia. Queste sono quelle da ricordare."
           }
         }
       }
@@ -1327,6 +1477,16 @@
         }
       }
     },
+    "Good defaults are already set. Everything else is in Lampo Settings.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le impostazioni predefinite vanno già bene. Tutto il resto è nelle Impostazioni di Lampo."
+          }
+        }
+      }
+    },
     "Hides the answer": {
       "localizations": {
         "it": {
@@ -1357,12 +1517,42 @@
         }
       }
     },
+    "Hold the Dictate shortcut and talk, or press it once to start and again to stop. Your voice becomes text on this Mac.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuta la scorciatoia di Detta e parla, oppure premila una volta per iniziare e di nuovo per fermarti. La tua voce diventa testo su questo Mac."
+          }
+        }
+      }
+    },
     "Hold the shortcut and talk, or press it once and again to stop. Lampo cleans up what you said with the prompt (an empty prompt keeps it as said).": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Tieni premuta la scorciatoia e parla, oppure premila una volta e di nuovo per finire. Lampo sistema quello che hai detto con il prompt (con il prompt vuoto lo inserisce così com'è)."
+          }
+        }
+      }
+    },
+    "Hold the shortcut and talk. Lampo tidies up what you said and types it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuta la scorciatoia e parla. Lampo sistema quello che hai detto e lo scrive."
+          }
+        }
+      }
+    },
+    "If macOS asks you to quit and reopen Lampo, do it: this guide opens again at this step. If you lose this window, click Lampo in the Dock.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se macOS chiede di chiudere e riaprire Lampo, fallo: la guida si riapre a questo passo. Se perdi questa finestra, fai clic su Lampo nel Dock."
           }
         }
       }
@@ -1637,12 +1827,43 @@
         }
       }
     },
+    "Lampo lives in the menu bar, under the lightning bolt. From there you can open Settings and this guide again.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo vive nella barra dei menu, sotto il fulmine. Da lì puoi aprire le Impostazioni e di nuovo questa guida."
+          }
+        }
+      }
+    },
     "Lampo looks at the window you're using and answers about it: an error, a chart, a form.": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Lampo guarda la finestra che stai usando e risponde su quella: un errore, un grafico, un modulo."
+          }
+        }
+      }
+    },
+    "Lampo looks at the window you're using and reads its text: an error, a chart, a form.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo guarda la finestra che stai usando e ne legge il testo: un errore, un grafico, un modulo."
+          }
+        }
+      }
+    },
+    "Lampo needs it to read the text you select and to write the result back in place, in any app. It's the one permission Lampo really needs.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serve a Lampo per leggere il testo che selezioni e scrivere il risultato al suo posto, in qualsiasi app. È l'unico permesso davvero necessario."
           }
         }
       }
@@ -1683,6 +1904,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lampo legge titolo, giorno e ora dal testo selezionato (o dagli appunti) e mostra una scheda modificabile. Un elenco («latte, chiamare Luca domani, bolletta venerdì») diventa una voce per ciascuno. Non viene aggiunto nulla finché non confermi. Non usa un prompt."
+          }
+        }
+      }
+    },
+    "Lampo restarts in the language you choose. You can change it later in Settings › General.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lampo si riavvia nella lingua che scegli. Puoi cambiarla in seguito in Impostazioni › Generali."
           }
         }
       }
@@ -1747,6 +1978,16 @@
         }
       }
     },
+    "Listen while you dictate. Lampo hears nothing otherwise.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascolta mentre detti. Altrimenti Lampo non sente nulla."
+          }
+        }
+      }
+    },
     "Listening…": {
       "localizations": {
         "it": {
@@ -1788,11 +2029,22 @@
       }
     },
     "Look at the window you're using when you ask about the screen (⌘⇧S). Optional.": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Guardare la finestra che stai usando quando chiedi allo schermo (⌘⇧S). Facoltativo."
+          }
+        }
+      }
+    },
+    "Look at the window you're using when you ask about the screen.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda la finestra che stai usando quando chiedi allo schermo."
           }
         }
       }
@@ -1923,6 +2175,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nuovo promemoria"
+          }
+        }
+      }
+    },
+    "Next: a quick tour, then the permissions Lampo needs, one at a time. It takes about two minutes.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poi: un breve giro, quindi i permessi che servono a Lampo, uno alla volta. Ci vogliono circa due minuti."
           }
         }
       }
@@ -2157,7 +2419,18 @@
         }
       }
     },
+    "Open the panel over any app. It sees the text you selected, and the answer starts right away.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il pannello sopra qualsiasi app. Vede il testo che hai selezionato e la risposta parte subito."
+          }
+        }
+      }
+    },
     "Open the panel over any app. The answer starts right away, from the model on your Mac.": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
@@ -2173,6 +2446,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Facoltativo"
+          }
+        }
+      }
+    },
+    "Optional, only for “Ask the screen”: Lampo looks at the window you're using, only when you ask, and never keeps the picture.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facoltativo, solo per “Chiedi allo schermo”: Lampo guarda la finestra che stai usando, solo quando lo chiedi, e non conserva l'immagine."
+          }
+        }
+      }
+    },
+    "Optional: macOS also asks the first time you confirm an event or a reminder.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facoltativo: macOS lo chiede comunque la prima volta che confermi un evento o un promemoria."
+          }
+        }
+      }
+    },
+    "Optional: you can also do this the first time you dictate.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facoltativo: puoi farlo anche la prima volta che detti."
           }
         }
       }
@@ -2233,6 +2536,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Telefono"
+          }
+        }
+      }
+    },
+    "Press it in any app and ask something. Try it on a selected paragraph: “summarize this”.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premila in qualsiasi app e chiedi qualcosa. Provala su un paragrafo selezionato: “riassumi”."
           }
         }
       }
@@ -2618,6 +2931,7 @@
       }
     },
     "Rewrite where you are": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
@@ -2658,6 +2972,7 @@
       }
     },
     "Same as Lampo (%@)": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
@@ -2728,6 +3043,16 @@
         }
       }
     },
+    "Select a message: Lampo drafts the reply in its language and types it where your cursor is.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona un messaggio: Lampo scrive la risposta nella sua lingua e la inserisce dove si trova il cursore."
+          }
+        }
+      }
+    },
     "Select an action to edit it.": {
       "localizations": {
         "it": {
@@ -2748,12 +3073,33 @@
         }
       }
     },
+    "Select text and press a shortcut: Lampo previews the result and replaces it in place. ⌘Z undoes it.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo e premi una scorciatoia: Lampo mostra l'anteprima e lo sostituisce al suo posto. ⌘Z annulla."
+          }
+        }
+      }
+    },
     "Select text and press an action's shortcut: Lampo previews the result and replaces it in place. ⌘Z undoes it.": {
+      "extractionState": "stale",
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Seleziona un testo e premi la scorciatoia di un'azione: Lampo mostra l'anteprima e sostituisce il testo al suo posto. ⌘Z annulla."
+          }
+        }
+      }
+    },
+    "Select text with a date, like “dinner with Anna Friday at 8”, and Lampo prepares the event. It always shows you a card first: nothing is saved until you confirm.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona un testo con una data, come “cena con Anna venerdì alle 8”, e Lampo prepara l'evento. Prima ti mostra sempre una scheda: nulla viene salvato finché non confermi."
           }
         }
       }
@@ -2945,12 +3291,38 @@
         }
       }
     },
+    "Speech model (%@)": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modello vocale (%@)"
+          }
+        }
+      }
+    },
     "Starts": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Inizio"
+          }
+        }
+      }
+    },
+    "Step %lld of %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Step %1$lld of %2$lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passo %1$lld di %2$lld"
           }
         }
       }
@@ -3041,6 +3413,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Il download non è riuscito. Riprova più tardi."
+          }
+        }
+      }
+    },
+    "The language of Lampo's menus and windows. Lampo restarts to change it. Answers follow the setting below.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La lingua dei menu e delle finestre di Lampo. Lampo si riavvia per cambiarla. Le risposte seguono l'impostazione qui sotto."
           }
         }
       }
@@ -3433,12 +3815,42 @@
         }
       }
     },
+    "Try it now": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova ora"
+          }
+        }
+      }
+    },
     "Turn on Apple Intelligence in System Settings to use Lampo.": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Attiva Apple Intelligence nelle Impostazioni di Sistema per usare Lampo."
+          }
+        }
+      }
+    },
+    "Turn on Lampo. macOS may ask for your password or Touch ID.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva Lampo. macOS potrebbe chiedere la password o Touch ID."
+          }
+        }
+      }
+    },
+    "Turn selected text into events, reminders, a contact or a table. Nothing is saved until you confirm.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trasforma il testo selezionato in eventi, promemoria, un contatto o una tabella. Nulla viene salvato finché non confermi."
           }
         }
       }
@@ -3523,12 +3935,32 @@
         }
       }
     },
+    "Welcome Guide…": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guida di benvenuto…"
+          }
+        }
+      }
+    },
     "Welcome to Lampo": {
       "localizations": {
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Benvenuto in Lampo"
+          }
+        }
+      }
+    },
+    "What Lampo does": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cosa fa Lampo"
           }
         }
       }
@@ -3644,6 +4076,16 @@
         }
       }
     },
+    "You can change every shortcut, and turn actions off, in Settings.": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi cambiare ogni scorciatoia, e disattivare le azioni, nelle Impostazioni."
+          }
+        }
+      }
+    },
     "You can change this later in Lampo Settings › Privacy.": {
       "localizations": {
         "it": {
@@ -3660,6 +4102,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hai raggiunto il limite di Private Cloud Compute per ora. Riprova più tardi."
+          }
+        }
+      }
+    },
+    "You're ready": {
+      "localizations": {
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto pronto"
           }
         }
       }

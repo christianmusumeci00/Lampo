@@ -354,3 +354,36 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   welcome and permissions windows at the floating level on the current Space (full-screen apps included) and
   drops to the normal level once the window becomes key, so System Settings comes in front when the user goes
   to grant a permission. Checked live: activation refused, window still above the frontmost TextEdit.
+
+## Welcome guide and English by default
+
+- **Step-by-step guide:** `WelcomeView` is now eight steps (`OnboardingStep`): welcome with language and
+  Apple Intelligence status, features with their current shortcuts, Accessibility, Screen Recording,
+  Microphone + speech model, Calendars/Reminders, preferences, try it. The step is saved
+  (`OnboardingProgress`, `onboardingStep`) so the guide resumes after "Quit & Reopen" or a language change;
+  `didShowWelcome` is set only by Done or the close button (`windowShouldClose`, which quitting doesn't call).
+  The menu has "Welcome Guide…".
+- **Centered, fixed size:** `FrontWindow.make` builds a fixed-size window (`sizingOptions = []`) and centers
+  it exactly in the visible frame of the screen with the pointer. With `NSHostingController` sizing,
+  `center()` ran before the final size and the window ended at the top of the screen.
+- **Dock icon while a guide window is open:** `DockPresence` switches to `.regular` while the welcome or
+  permissions window is open and back to `.accessory` when the last one closes;
+  `applicationShouldHandleReopen` (a click on the Dock icon) brings them back above everything.
+  `PermissionMonitor` polls once a second and brings the guide back in front when Accessibility or Screen
+  Recording turns on. Checked live: window buried behind System Settings, Dock click → in front.
+- **UI language:** English unless the user picks Italian. `AppLanguage` stores it as `AppleLanguages` in
+  Lampo's own domain (what `Bundle.main` reads), written in `LampoApp.init` on first launch; changing it
+  relaunches Lampo (`AppRelauncher`). The relaunch helper is spawned with `POSIX_SPAWN_SETSID`: with
+  `Process`, launchd killed it together with Lampo when Lampo had been opened from the Finder (checked live).
+- **The Mac's language still decides answers:** with Lampo in English, `Locale.current` and
+  `Locale.preferredLanguages` say English, so "Same as the question", Translate's other language and
+  Dictate's language now read the Mac's languages from the global domain (`SystemLanguage`).
+- **Built-in names follow the language:** names are saved in `actions.json`; on load a built-in whose name
+  is one of its shipped names in any language (`BuiltInActions.shippedNames`) takes the current one, while a
+  name the user changed is kept.
+- **Insert is plain text:** answers are Markdown, and Insert typed `**` and `#` into the target app.
+  `MarkdownText.plain` drops fences and heading markers, renders inline markup and keeps links as
+  "text (url)". Copy keeps the Markdown.
+- **Language detection hints:** `NLLanguageRecognizer` reads short English with typos as Catalan. When the
+  top guess is under 0.95 and isn't one of the Mac's languages or English, `TextLanguage.detect` runs
+  again with those as hints. A clear Spanish or German text is still Spanish or German.

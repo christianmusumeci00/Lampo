@@ -171,7 +171,14 @@ Scarica l'ultima versione dalla pagina delle release, oppure con Homebrew (dal t
 brew install --cask lampo
 ```
 
-Al primo avvio una schermata di benvenuto spiega le tre scorciatoie e chiede il permesso di Accessibilità.
+Al primo avvio una guida passo passo, al centro dello schermo, spiega cosa fa Lampo e le sue scorciatoie,
+poi chiede i permessi uno alla volta (Accessibilità, Registrazione schermo, Microfono, Calendari e Promemoria)
+e qualche preferenza. Finché la guida è aperta Lampo ha un'icona nel Dock: se la finestra finisce dietro
+Impostazioni di Sistema, un clic sull'icona la riporta davanti (torna davanti anche da sola quando concedi un
+permesso). Se Lampo si riavvia, la guida riparte dal passo in cui eri; si riapre dal menu › Guida di benvenuto.
+
+Lampo è in inglese; puoi passare all'italiano nel primo passo della guida o in Impostazioni › Generali › Lingua
+(Lampo si riavvia). La lingua delle risposte, della traduzione e della dettatura segue comunque il Mac.
 
 ## Sviluppo
 

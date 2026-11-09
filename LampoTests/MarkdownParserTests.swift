@@ -52,3 +52,22 @@ struct MarkdownParserTests {
         #expect(MarkdownParser.parse("").isEmpty)
     }
 }
+
+struct MarkdownTextTests {
+    @Test func insertTypesPlainText() {
+        #expect(MarkdownText.plain("**Lampo: Apple nelle app**") == "Lampo: Apple nelle app")
+        #expect(MarkdownText.plain("Use *this* and `that` and __more__.") == "Use this and that and more.")
+        #expect(MarkdownText.plain("# Title\n\n- one\n- **two**\n1. three") == "Title\n\n- one\n- two\n1. three")
+        #expect(MarkdownText.plain("```\nlet x = **y**\n```") == "let x = **y**")
+    }
+
+    @Test func plainTextStaysAsItIs() {
+        #expect(MarkdownText.plain("3 * 4 = 12, snake_case_name, 50% off") == "3 * 4 = 12, snake_case_name, 50% off")
+        #expect(MarkdownText.plain("Ciao Marco,\n\n  indentato\nfine") == "Ciao Marco,\n\n  indentato\nfine")
+    }
+
+    @Test func linksKeepTheirAddress() {
+        #expect(MarkdownText.plain("See [Apple](https://apple.com).") == "See Apple (https://apple.com).")
+        #expect(MarkdownText.plain("Go to https://apple.com") == "Go to https://apple.com")
+    }
+}

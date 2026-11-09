@@ -64,24 +64,25 @@ enum SystemInstructions {
     }
 
     /// English name of the answer language, for templates' {{language}}.
-    static func languageName(_ language: ResponseLanguage, locale: Locale = .current) -> String {
+    static func languageName(_ language: ResponseLanguage, systemLanguage: String = SystemLanguage.code()) -> String {
         switch language {
         case .italian: return "Italian"
         case .english: return "English"
         case .automatic:
-            let code = locale.language.languageCode?.identifier ?? "en"
+            let code = systemLanguage
             return Locale(identifier: "en").localizedString(forLanguageCode: code) ?? "English"
         }
     }
 
     /// Language of the answer to a question: forced by Settings, else the question's own
     /// language, else the user's system language.
-    static func answerLanguage(for question: String, preference: ResponseLanguage, locale: Locale = .current) -> String {
+    static func answerLanguage(for question: String, preference: ResponseLanguage,
+                               systemLanguage: String = SystemLanguage.code()) -> String {
         switch preference {
         case .italian, .english:
-            return languageName(preference, locale: locale)
+            return languageName(preference, systemLanguage: systemLanguage)
         case .automatic:
-            return TextLanguage.name(of: question) ?? languageName(.automatic, locale: locale)
+            return TextLanguage.name(of: question) ?? languageName(.automatic, systemLanguage: systemLanguage)
         }
     }
 

@@ -186,6 +186,16 @@ struct ExtractShapeTests {
         #expect(checked.displayName == "Giulia Bianchi")
     }
 
+    @Test func aRepeatedFirstNameIsNotALastName() {
+        let text = "Marco prepara il preventivo entro venerdì."
+        let checked = ContactDraft(givenName: "Marco", familyName: "Marco").checked(against: text)
+        #expect(checked.givenName == "Marco")
+        #expect(checked.familyName == "")
+        // A real "Marco Marco" stays.
+        let real = ContactDraft(givenName: "Marco", familyName: "Marco").checked(against: "Firmato: Marco Marco")
+        #expect(real.familyName == "Marco")
+    }
+
     @Test func contactWithoutTheModel() {
         let detected = ContactDraft.detected(in: signature)
         #expect(detected.phones.count == 1)

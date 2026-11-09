@@ -229,3 +229,37 @@ First launch
       Tuesday deadlines. *(Checked live.)*
 - [ ] Copy a table and paste it in Numbers: one cell per value.
 - [ ] Switching Contact/Table/To-dos in the card re-reads the text.
+
+## Welcome guide, Dock icon, English by default
+- [x] First launch on an Italian Mac: the guide opens in English, exactly centered (x 436 on a 1512-pt
+      screen), above the frontmost app, with a Dock icon. *(Checked live.)*
+- [x] All eight steps render; shortcuts show the current keys. *(Checked live.)*
+- [x] Quit at step 8 and relaunch: the guide reopens at step 8. *(Checked live.)*
+- [x] Guide buried behind System Settings: clicking Lampo in the Dock brings it back in front. *(Checked live.)*
+- [x] English → Italiano → English → Italiano in the first step: Lampo relaunches each time in that language,
+      also when opened from the Finder (`open`). *(Checked live.)*
+- [x] An action without Accessibility opens the permissions window, centered, with a Dock icon. *(Checked live.)*
+- [ ] Turning on Accessibility in System Settings brings the guide back in front by itself.
+      *(Not checked live: Accessibility was already allowed for the Developer ID build, and permissions
+      aren't removed during QA. `PermissionMonitor.onGranted` is covered by tests.)*
+- [x] Release build (Developer ID, not notarized) installed in /Applications with no saved settings: guide
+      centered, English, above the frontmost app, Dock icon; all eight steps. *(Checked live.)*
+- [x] Settings › General › Language relaunches Lampo in the chosen language (English → Italiano → English);
+      built-in action names follow. *(Checked live.)*
+
+## Full pass on 1.1 + welcome guide (9 Nov 2026, Debug build, Italian Mac)
+- [x] Panel, Lens (Correct, Rewrite, Translate, Replace + ⌘Z in TextEdit and Safari), Dictate (audio file),
+      Reply, Ask the screen, Create event/reminder lists (card only), Extract (contact, table into Numbers,
+      to-dos), Settings (action on/off, custom action + Try, shortcut conflict alert and change, History
+      on → `history.json` 0600, off → deleted, Near the pointer, Close after copying), `lampo://ask`.
+- Fixed during the pass:
+  - Insert typed Markdown markers (`**`, `#`): it now inserts plain text (`MarkdownText.plain`).
+  - English with typos was taken for Catalan, so Correct answered in Catalan: `TextLanguage.detect`
+    re-runs with the Mac's languages + English as hints when the guess is unsure and unlikely.
+  - The to-dos/list card header counted every item, not the ticked ones.
+  - Extract › contact: "Marco Marco" when the model repeated the first name as the last name.
+  - The dictation language said "Same as Lampo (…)" although Lampo's language is no longer the Mac's: now
+    "Automatic (…)".
+- Not checked: Confirm on the event/reminder cards and "Add" in Contacts (they would write to the real
+  calendar/contacts and ask for Calendars access); Mail itself (Reply checked in TextEdit); the Shortcuts
+  app; removing the Microphone permission.

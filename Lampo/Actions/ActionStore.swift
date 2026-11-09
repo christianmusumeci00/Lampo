@@ -138,6 +138,14 @@ final class ActionStore {
             }
             changed = true
         }
+        // Built-in names follow Lampo's language (it can change), unless the user renamed them.
+        for index in actions.indices {
+            let id = actions[index].id
+            guard let name = originals.first(where: { $0.id == id })?.name, actions[index].name != name,
+                  BuiltInActions.shippedNames(for: id).contains(actions[index].name) else { continue }
+            actions[index].name = name
+            changed = true
+        }
         // Built-ins added in a newer version of Lampo, each placed after the built-in that
         // precedes it in the shipped order (e.g. Rewrite after Correct), or first.
         let known = Set(actions.map(\.id)).union(deletedBuiltIns)

@@ -41,6 +41,18 @@ struct PromptTemplateTests {
         #expect(short.textLanguage == "the same language as the text")
     }
 
+    @Test func typosDontMakeEnglishCatalan() {
+        let sloppy = "hi Marta, i cant come tomorow to the meeting becuase i have a dentist appointment, can we move it to friday?"
+        #expect(TextLanguage.name(of: sloppy, likely: ["it", "en"]) == "English")
+        // Clear text in another language keeps its language.
+        #expect(TextLanguage.name(of: "Bon dia Marta, demà no puc venir a la reunió perquè tinc hora amb el dentista.",
+                                  likely: ["it", "en"]) == "Catalan")
+        #expect(TextLanguage.name(of: "Hola Marta, no puedo ir mañana a la reunión porque tengo cita con el dentista.",
+                                  likely: ["it", "en"]) == "Spanish")
+        #expect(TextLanguage.name(of: "Salut Marta, je ne peux pas venir demain à la réunion car j'ai rendez-vous chez le dentiste.",
+                                  likely: ["it", "en"]) == "French")
+    }
+
     @Test func unknownVariables() {
         #expect(PromptTemplate.unknownVariables(in: "{{selecton}} {{app}} {{ foo }}") == ["selecton", "foo"])
     }

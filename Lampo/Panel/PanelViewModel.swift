@@ -355,7 +355,7 @@ final class PanelViewModel {
 
     func insertCurrentAnswer() {
         guard canInsert, let answer = currentTurn?.answer else { return }
-        onInsert?(answer, activeSelection)
+        onInsert?(MarkdownText.plain(answer), activeSelection)
     }
 
     func resetConversation() {

@@ -93,18 +93,19 @@ enum TranslationPlanner {
             ?? identifier
     }
 
-    /// The language Lampo answers in, as an identifier.
-    static func userLanguage(_ preference: ResponseLanguage, locale: Locale = .current) -> String {
+    /// The language Lampo answers in, as an identifier. "Automatic" is the Mac's language,
+    /// not the language of Lampo's menus.
+    static func userLanguage(_ preference: ResponseLanguage, systemLanguage: String = SystemLanguage.code()) -> String {
         switch preference {
         case .italian: return "it"
         case .english: return "en"
-        case .automatic: return locale.language.languageCode?.identifier ?? "en"
+        case .automatic: return systemLanguage
         }
     }
 
     /// The first of the Mac's preferred languages that isn't the user's own, else English (or Italian).
     static func defaultOtherLanguage(userLanguage: String,
-                                     preferred: [String] = Locale.preferredLanguages) -> String {
+                                     preferred: [String] = SystemLanguage.preferred()) -> String {
         for identifier in preferred {
             let language = Locale.Language(identifier: identifier)
             guard let code = language.languageCode?.identifier, !sameLanguage(code, userLanguage) else { continue }

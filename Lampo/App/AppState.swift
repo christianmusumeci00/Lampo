@@ -116,7 +116,7 @@ final class AppState {
         syncActionHotkeys()
         actionStore.onActionsAddedOrRemoved = { [weak self] in self?.syncActionHotkeys() }
         refreshAvailability()
-        welcome.showIfFirstLaunch(availability: availability)
+        welcome.showIfFirstLaunch(state: self)
         updates.start()
         activationObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
@@ -202,6 +202,11 @@ final class AppState {
 
     func showPermissions() {
         onboarding.show()
+    }
+
+    /// The welcome guide, from the menu bar (it opens by itself until it's finished).
+    func showWelcome() {
+        welcome.show(state: self)
     }
 
     /// Handles a `lampo://` link.
