@@ -7,7 +7,7 @@ working: the text you select in any app, the window in front of you, what you ju
 Select, press a key, and the text changes in place. No chat window to copy into, no account, no API key,
 no subscription.
 
-![The Lampo panel: a question, the answer streaming in, and the "On Mac" badge (Italian UI)](docs/media/vetro.gif)
+![The Lampo panel: a question, the answer streaming in, and the "On Mac" badge](docs/media/panel.gif)
 
 The app is available in **English** (default) and **Italian**.
 
@@ -130,7 +130,7 @@ editable on the card. For events Lampo asks for write-only access, so it can't r
 **⌥⇧P** does the same for Reminders. A list ("milk, call Luca tomorrow, pay the bill Friday") becomes one
 card with several items, each with its own date; untick the ones you don't want and confirm once.
 
-![The confirmation card of "Create event" (Italian UI)](docs/media/crea-evento.png)
+![The confirmation card of "Create event"](docs/media/create-event.png)
 
 ### Extract
 
@@ -199,13 +199,17 @@ already cover them; you can turn them back on.
 Lampo is distributed outside the Mac App Store (it needs Accessibility, which sandboxed apps can't
 use), as a signed and notarized app with automatic updates through Sparkle.
 
-- **Download:** the notarized builds are published on the
-  [Releases](https://github.com/christianmusumeci00/Lampo/releases) page. Unzip and move `Lampo.app` to
-  `/Applications`.
-- **Homebrew:** each release also produces a cask (`Packaging/Homebrew`), to be published in a tap with
-  the first public release.
+- **Download:** get `Lampo-<version>.zip` from the
+  [latest release](https://github.com/christianmusumeci00/Lampo/releases/latest), unzip it and move
+  `Lampo.app` to `/Applications`.
+- **Homebrew:**
 
-No public release has been published yet: until then, [build it from source](#build-from-source).
+  ```bash
+  brew install --cask christianmusumeci00/tap/lampo
+  ```
+
+Updates arrive automatically: Lampo checks the signed update feed (Sparkle) once you allow it (Lampo asks
+on the second launch), or whenever you choose the menu bar › Check for Updates…
 
 ### First launch
 
@@ -297,10 +301,14 @@ the zip, the Sparkle appcast and the Homebrew cask. One-time setup:
 1. A "Developer ID Application" certificate in your keychain.
 2. Notarization credentials:
    `xcrun notarytool store-credentials lampo-notary --apple-id <id> --team-id <team>`
-3. The Sparkle EdDSA key (it stays in the keychain; the command prints the public key):
-   `build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys`
+3. The Sparkle EdDSA key, under its own keychain account (it stays in the keychain; the command prints the
+   public key): `build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys --account lampo`
 4. `cp Packaging/release.env.example Packaging/release.env` and fill in the feed URL, the download prefix
    and the public key. `release.env` is git-ignored.
+
+The appcast is served from GitHub Pages (`gh-pages` branch), the zip from GitHub Releases, and the cask
+lives in [christianmusumeci00/homebrew-tap](https://github.com/christianmusumeci00/homebrew-tap). Release
+notes go in `Packaging/ReleaseNotes/<version>.html` (Sparkle) and `<version>.md` (GitHub).
 
 Then:
 

@@ -388,3 +388,18 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
 - **Language detection hints:** `NLLanguageRecognizer` reads short English with typos as Catalan. When the
   top guess is under 0.95 and isn't one of the Mac's languages or English, `TextLanguage.detect` runs
   again with those as hints. A clear Spanish or German text is still Spanish or German.
+
+## 1.0.0 — first public release
+
+- **Version 1.0.0** (was 0.1.0): the first public build, from the public repository
+  `christianmusumeci00/Lampo` (MIT).
+- **Notarization** uses the team's existing notarytool profile `KeepMeOn` (team 9K3LNS3KHP, shared with the
+  other apps), set as `NOTARY_PROFILE` in `Packaging/release.env`.
+- **Sparkle key** under its own keychain account, `lampo` (`generate_keys --account lampo`), apart from
+  Orpheus's; `release.sh` passes `--account` to `generate_appcast`. Public key
+  `ECDvRhPcBkqcc7tYoHbyQDveFVbStEn5oV3dLqJHQ0M=`.
+- **Hosting:** zip on GitHub Releases (`v<version>`), appcast on GitHub Pages
+  (`https://christianmusumeci00.github.io/Lampo/appcast.xml`, `gh-pages` branch), cask in
+  `christianmusumeci00/homebrew-tap` (`brew install --cask christianmusumeci00/tap/lampo`), as for Orpheus.
+- **README media in English:** `panel.gif` and `create-event.png` re-captured from the English UI; the GIF is
+  assembled with ImageIO (no gifski/ffmpeg on this Mac), see `docs/media/README.md`.

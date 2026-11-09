@@ -8,7 +8,7 @@
 # One-time setup (see README › Releasing):
 #   1. A "Developer ID Application" certificate in the login keychain.
 #   2. xcrun notarytool store-credentials lampo-notary --apple-id … --team-id 9K3LNS3KHP
-#   3. build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys   (prints the public key)
+#   3. build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys --account lampo   (prints the public key)
 #   4. cp Packaging/release.env.example Packaging/release.env and fill it in.
 #
 # The version is MARKETING_VERSION in project.yml; the build number is the commit count,
@@ -31,7 +31,7 @@ step() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 fail() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
 LAMPO_FEED_URL="" LAMPO_DOWNLOAD_URL_PREFIX="" LAMPO_SPARKLE_PUBLIC_KEY=""
-LAMPO_WEBSITE_URL="" LAMPO_REPOSITORY_URL="" NOTARY_PROFILE="lampo-notary"
+LAMPO_WEBSITE_URL="" LAMPO_REPOSITORY_URL="" NOTARY_PROFILE="lampo-notary" LAMPO_SPARKLE_ACCOUNT="lampo"
 if [[ -f Packaging/release.env ]]; then
     # shellcheck disable=SC1091
     source Packaging/release.env
@@ -123,8 +123,11 @@ if [[ $SKIP_APPCAST -eq 0 ]]; then
         cp "Packaging/ReleaseNotes/$VERSION.html" "$APPCAST_DIR/Lampo-$VERSION.html"
     fi
     # Signs the zip with the EdDSA private key from the login keychain.
-    build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_appcast \
-        --download-url-prefix "$LAMPO_DOWNLOAD_URL_PREFIX/v$VERSION/" "$APPCAST_DIR"
+    # The key is stored under its own account (generate_keys --account lampo), apart from other apps'.
+    APPCAST_LINK=()
+    [[ -n "$LAMPO_REPOSITORY_URL" ]] && APPCAST_LINK=(--link "$LAMPO_REPOSITORY_URL/releases/tag/v$VERSION")
+    build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_appcast --account "$LAMPO_SPARKLE_ACCOUNT" \
+        ${APPCAST_LINK[@]+"${APPCAST_LINK[@]}"} --download-url-prefix "$LAMPO_DOWNLOAD_URL_PREFIX/v$VERSION/" "$APPCAST_DIR"
     cp "$APPCAST_DIR/appcast.xml" "$OUT/appcast.xml"
 fi
 
