@@ -1,218 +1,329 @@
 # Lampo
 
-**L'intelligenza del tuo Mac, a una scorciatoia di distanza. Sul tuo testo, sul tuo schermo, nelle tue app.**
+**Your Mac's intelligence, one shortcut away. On your text, your screen, your apps.**
 
-Lampo vive nella barra dei menu e porta il modello di Apple che gira sul tuo Mac dove serve:
-sul testo che hai selezionato, sulla finestra che stai guardando, su quello che hai copiato.
-Selezioni, premi un tasto, il testo cambia al suo posto.
+Lampo is a menu bar app for macOS 27 that brings Apple's on-device language model to wherever you are
+working: the text you select in any app, the window in front of you, what you just copied, what you say.
+Select, press a key, and the text changes in place. No chat window to copy into, no account, no API key,
+no subscription.
 
-![Il pannello Vetro: una domanda, la risposta in streaming, il badge "Sul Mac"](docs/media/vetro.gif)
+![The Lampo panel: a question, the answer streaming in, and the "On Mac" badge (Italian UI)](docs/media/vetro.gif)
 
-> *In English:* Lampo is a menu bar app that brings Apple's on-device model to your context: the text
-> you select in any app, the window in front of you, your clipboard. Fast, offline, free and private.
-> The app is in English and Italian.
+The app is available in **English** (default) and **Italian**.
 
-## Perché Lampo
+## Why Lampo
 
-1. **Velocissimo.** Si apre in un istante e risponde subito, senza attese di rete né caricamenti.
-2. **Funziona offline.** In treno, in aereo, senza Wi-Fi: il modello è già sul tuo Mac.
-3. **Gratis, per sempre.** Nessun abbonamento, nessun limite di richieste, nessuna chiave API, nessun account.
-4. **Privato per davvero.** Quello che scrivi e selezioni non lascia il Mac. Il cloud privato di Apple
-   si usa solo quando lo chiedi tu, e Lampo te lo dice sempre.
-5. **Lavora dove sei.** Selezioni, premi un tasto, il testo cambia al suo posto. Nessun copia-incolla in una chat.
-6. **Vede quello che vedi.** Chiedi spiegazioni su qualsiasi finestra: un errore, un grafico, un modulo.
-7. **Su misura.** Crea azioni personali, ognuna con la sua scorciatoia e il suo prompt.
-8. **Nativo e leggero.** Fatto per macOS, discreto nella barra dei menu, consumi minimi.
+1. **Instant.** The panel opens in a blink and answers right away: no network round trip, no loading.
+2. **Works offline.** On a train, on a plane, without Wi-Fi: the model is already on your Mac.
+3. **Free, forever.** No subscription, no request limits, no API keys, no sign-up.
+4. **Private for real.** What you write and select never leaves your Mac. Apple's Private Cloud Compute
+   is used only when you ask for it, and a badge always tells you where every answer was computed.
+5. **Works where you are.** Select, press a shortcut, and the result replaces the text in place, in any
+   app: Mail, Notes, Pages, Safari, and also Chrome, Slack, VS Code and other Electron apps.
+6. **Sees what you see.** Ask about any window: an error message, a chart, a form, a web page.
+7. **Hears you.** Hold a key, talk, release: clean, punctuated text appears at the cursor.
+8. **Turns text into things.** A sentence becomes a calendar event, a list becomes reminders, an email
+   signature becomes a contact, rows of text become a table, always behind a confirmation card.
+9. **Yours to shape.** Create your own actions, each with its own prompt and shortcut.
+10. **Native and light.** Built in Swift for macOS, discreet in the menu bar, minimal resource usage.
 
-## Come si usa
+## What Lampo brings to Italy (and the rest of the EU)
 
-### Vetro: chiedi da qualsiasi app
+Apple's new **Siri AI**, the version that understands what is on your screen and works with your
+personal context, launched in September 2026 **in beta and in English only**. French, Japanese, Korean,
+Portuguese and Spanish were announced next; **Italian is not on the list**. On iPhone, iPad and Apple
+Watch, Siri AI is not available in the EU at all for now
+([Apple Newsroom](https://www.apple.com/newsroom/2026/09/siri-ai-a-profoundly-more-capable-and-personal-assistant-is-here/)).
 
-Premi **⌥⇧Spazio**: il pannello si apre sopra l'app che stai usando, senza toglierle il controllo.
-Scrivi una domanda e la risposta arriva in streaming. Se hai selezionato del testo, Lampo lo aggiunge
-come contesto. Poi puoi copiare (⌘C), inserire la risposta nell'app sotto (⌘↩), fare una domanda di
-seguito o chiedere di approfondire. I calcoli ("12 * 3,5") li fa Lampo stesso, senza modello.
+Apple Intelligence itself, including the on-device model that apps can use, does support Italian. Lampo
+builds on that model, so on a Mac set to Italian you can already:
 
-### Lente: riscrivi dove sei
+- **ask about what's on your screen, in Italian** ("cosa significa questo errore?", "riassumi questa
+  pagina"), with the window's text read on the Mac so codes and figures come through exactly;
+- **correct, rewrite and translate the text you select in any app, with one keystroke**, including the
+  apps where Apple's Writing Tools don't appear (Chrome, Slack, VS Code, Electron apps);
+- **draft replies in the language of the message** while you give instructions in Italian;
+- **dictate in Italian** and get clean text, without hesitations, typed at the cursor;
+- **turn Italian sentences into events and reminders**: "cena con Marco giovedì alle 20" → the right day
+  and time in your calendar, after you confirm.
 
-Seleziona un testo in qualsiasi app e premi la scorciatoia di un'azione. La Lente mostra l'anteprima
-accanto alla selezione; ↩ sostituisce il testo al suo posto e ⌘Z lo riporta com'era. Tab passa
-all'azione successiva. Gli appunti restano quelli che avevi.
+Everything runs on the Mac, under European privacy expectations: no data leaves your computer unless you
+explicitly ask for Private Cloud Compute.
 
-- **Riscrivi** (⌥⇧R) ha quattro toni nella Lente: più chiaro, formale, amichevole, più breve.
-  Lampo ricorda l'ultimo che hai scelto.
-- **Traduci** (⌥⇧T) usa la Traduzione di Apple, non il modello: è più precisa, gira sul Mac e
-  funziona anche senza Apple Intelligence. Traduce nella tua lingua; se il testo è già nella tua
-  lingua, lo traduce in quella che hai scelto l'ultima volta. Nella Lente puoi cambiare lingua.
-  Le lingue si scaricano in Impostazioni di Sistema › Generali › Lingua e Zona › Lingue di traduzione.
+## Lampo vs. what macOS already has
 
-**Rispetto agli Strumenti di scrittura di Apple:** correggere e riscrivere li fa anche macOS, ma
-dal menu contestuale e solo nelle app che li supportano. Lampo li mette a un tasto di distanza e
-funziona anche in Chrome, Slack, VS Code e nelle altre app Electron. Per questo "Più formale",
-"Più breve" e "Riassumi" sono spente di default (Riscrivi le copre): puoi riaccenderle in
-Impostazioni › Azioni.
+| | Apple Writing Tools | Siri AI (Sept 2026) | **Lampo** |
+|---|---|---|---|
+| Correct and rewrite selected text | ✓ from the context menu, in supported apps | | ✓ one shortcut, in any app, ⌘Z to undo |
+| Ask about the current window | | ✓ English only (beta) | ✓ in any language Apple Intelligence supports, Italian included |
+| Translate with a shortcut | | | ✓ Apple Translation, on device |
+| Dictate and clean up | macOS Dictation types what you say | | ✓ on device, hesitations removed, typed at the cursor |
+| Event / reminder / contact / table from text | | | ✓ with a confirmation card |
+| Custom actions with your own prompts | | | ✓ |
+| Shows where each answer ran | | | ✓ "On Mac" / "Private Cloud" badge |
 
-<!-- GIF da registrare: docs/media/lente.gif (vedi docs/media/README.md) -->
+## Features
 
-| Azione | Scorciatoia |
+| Action | Shortcut |
 |---|---|
-| Apri Lampo | ⌥⇧Spazio |
-| Correggi | ⌥⇧C |
-| Riscrivi | ⌥⇧R |
-| Traduci | ⌥⇧T |
-| Rispondi | ⌥⇧M |
-| Detta | ⌥⇧D (tieni premuto, o premi due volte) |
-| Chiedi allo schermo | ⌥⇧S |
-| Crea evento | ⌥⇧E |
-| Crea promemoria | ⌥⇧P |
-| Estrai | ⌥⇧X |
+| Open Lampo (the panel) | ⌥⇧Space |
+| Correct | ⌥⇧C |
+| Rewrite | ⌥⇧R |
+| Translate | ⌥⇧T |
+| Reply | ⌥⇧M |
+| Dictate | ⌥⇧D (hold to talk, or press once to start and again to stop) |
+| Ask the screen | ⌥⇧S |
+| Create event | ⌥⇧E |
+| Create reminder | ⌥⇧P |
+| Extract | ⌥⇧X |
 
-Ogni scorciatoia si cambia in Impostazioni › Scorciatoie. In Impostazioni › Azioni puoi accendere o
-spegnere le azioni, modificarle, crearne di nuove con il tuo prompt (o con la Traduzione di Apple verso
-una lingua fissa, per esempio "Traduci in tedesco") e provarle su un testo di esempio. Ogni azione può
-mostrare l'anteprima, sostituire subito il testo, copiarlo o aprire la risposta nel pannello.
+Every shortcut can be changed in Settings › Shortcuts; Lampo warns you when a shortcut is already taken.
 
-### Rispondi
+### The panel: ask from any app
 
-Seleziona un'email o un messaggio e premi **⌥⇧M**: Lampo scrive una bozza di risposta nella lingua del
-messaggio, senza firma e senza inventare date o promesse. Nel pannello puoi cambiarla scrivendo in
-italiano ("più breve", "di' che giovedì alle 15 va bene"): la risposta resta nella lingua del messaggio.
-⌘C la copia, ⌘↩ la scrive dove c'è il cursore (mai sopra il messaggio selezionato).
+Press **⌥⇧Space** and the panel opens above the app you are using, without taking it over. Type a
+question and the answer streams in. Text you have selected, your clipboard or the front window can be
+attached as context (they show as chips you can remove). Then copy the answer (⌘C), insert it into the
+app below as plain text (⌘↩), ask a follow-up, "Go deeper", or "Think harder" with Private Cloud Compute
+when it is available. Calculations ("12 * 3.5") are computed by Lampo itself, without the model.
 
-### Detta e sistema
+### The Lens: rewrite in place
 
-Tieni premuto **⌥⇧D** e parla, poi rilascia: Lampo trascrive sul Mac, toglie le esitazioni ("ehm",
-"uhm"), mette la punteggiatura e scrive il testo dove c'è il cursore, in qualsiasi app (⌘Z lo toglie).
-Per dettature lunghe premi ⌥⇧D una volta, parla, e premilo di nuovo per finire. Esc annulla.
+Select text in any app and press an action's shortcut. The Lens shows a preview next to the selection;
+↩ replaces the text in place and ⌘Z brings it back. Tab or → moves to the next action. Your clipboard is
+left as it was.
 
-- Il riconoscimento vocale è quello di Apple e gira sul Mac: serve solo il permesso del Microfono, e
-  Lampo ascolta solo mentre detti. Il modello vocale si scarica una volta da Apple, solo se lo confermi
-  (Impostazioni › Generali › Dettatura, dove scegli anche la lingua).
-- Il modello piccolo di Apple sistema il testo cambiandolo il meno possibile. Se non è disponibile, o la
-  dettatura è molto lunga, Lampo inserisce il testo così come l'hai detto.
-- Puoi creare azioni tue con "Input: Dettatura": per esempio "Detta un'email" con il tuo prompt, oppure
-  con risultato "Crea un evento" per dire "cena con Marco giovedì alle 20" e ritrovarti la scheda.
+- **Correct** (⌥⇧C) fixes spelling, grammar and punctuation, keeping the text's language.
+- **Rewrite** (⌥⇧R) has four tones: clearer, formal, friendly, shorter. Lampo remembers the last one.
+- **Translate** (⌥⇧T) uses Apple's Translation framework, not the language model: it is more accurate,
+  runs on the Mac and works even without Apple Intelligence. It translates into your language, or, when
+  the text is already in your language, into the language you picked last. Languages are downloaded in
+  System Settings › General › Language & Region › Translation Languages.
 
-### Chiedi allo schermo
+Long selections are summarized from an excerpt; Lampo tells you and never writes a truncated text back.
 
-**⌥⇧S** fotografa solo la finestra che stai usando (mai Lampo stesso, mai il resto dello schermo) e
-apre il pannello pronto per la domanda: "cosa significa questo errore?", "riassumi questa pagina".
-Il Mac legge anche il testo della finestra (riconoscimento del testo di Apple, sul Mac) e lo manda
-insieme all'immagine, così codici, cifre e scritte piccole arrivano esatti.
+### Reply
 
-<!-- GIF da registrare: docs/media/schermo.gif (vedi docs/media/README.md) -->
+Select an email or a message and press **⌥⇧M**: Lampo drafts a reply in the message's language, with no
+signature and no invented dates or promises. Refine it in the panel in your own language ("shorter",
+"say Thursday at 3 works"): the reply stays in the message's language. ⌘↩ types it at the cursor, never
+over the selected message.
 
-### Crea evento e Crea promemoria
+### Dictate
 
-Seleziona "cena con Marco giovedì alle 20" (o un'email con data e ora) e premi **⌥⇧E**: Lampo
-prepara l'evento con giorno, ora, luogo e titolo. **Non aggiunge nulla finché non confermi**: tutto è
-modificabile nella scheda. Per gli eventi Lampo chiede solo il permesso di scrittura, quindi non può
-leggere i tuoi calendari. **⌥⇧P** fa lo stesso con i Promemoria.
+Hold **⌥⇧D**, talk, and release: Lampo transcribes on the Mac with Apple's speech model, removes
+hesitations ("uhm", "ehm"), adds punctuation and types the text at the cursor in any app (⌘Z removes it).
+For long dictation press ⌥⇧D once, talk, and press it again. Esc cancels. The speech model is downloaded
+once from Apple, only after you confirm.
 
-Un elenco diventa più voci in una sola scheda: "latte, chiamare Luca domani, bolletta venerdì" dà tre
-promemoria, ognuno con la sua data. Togli la spunta a quelli che non vuoi e conferma una volta.
+### Ask the screen
 
-### Estrai
+**⌥⇧S** captures only the window you are using (never Lampo, never the rest of the screen) and opens the
+panel ready for your question. The window's text is also read on the Mac (Apple's Vision text
+recognition) and sent along with the image, so codes, totals and small print arrive exactly.
 
-Seleziona un testo e premi **⌥⇧X**: Lampo capisce cosa contiene e lo mette in una scheda.
+### Create event and Create reminder
 
-- **Contatto** (una firma email): nome, azienda, telefoni, email, indirizzo. "Aggiungi a Contatti" lo
-  apre in Contatti, che chiede conferma: Lampo non legge né modifica la tua rubrica.
-- **Tabella** (righe di dati): "Copia" la incolla come celle in Numbers o Excel; c'è anche "Copia come
-  Markdown".
-- **Cose da fare** (un'email con richieste): diventano promemoria da confermare, con le scadenze.
+Select "dinner with Marco Thursday at 8pm" (or an email with a date) and press **⌥⇧E**: Lampo prepares
+the event with day, time, place and title. **Nothing is added until you confirm**, and everything is
+editable on the card. For events Lampo asks for write-only access, so it can't read your calendars.
+**⌥⇧P** does the same for Reminders. A list ("milk, call Luca tomorrow, pay the bill Friday") becomes one
+card with several items, each with its own date; untick the ones you don't want and confirm once.
 
-Se Lampo sceglie il tipo sbagliato, cambialo in alto nella scheda. Senza Apple Intelligence usa regole
-semplici (numeri di telefono, email, colonne separate) e te lo dice.
+![The confirmation card of "Create event" (Italian UI)](docs/media/crea-evento.png)
 
-![La scheda di conferma di "Crea evento"](docs/media/crea-evento.png)
+### Extract
 
-### Comandi Rapidi e link
+Select some text and press **⌥⇧X**: Lampo works out what it contains and puts it on a card.
 
-- In **Comandi Rapidi** trovi "Chiedi a Lampo" (restituisce la risposta) ed "Esegui azione Lampo"
-  (esegue un'azione su un testo e restituisce il risultato).
-- Il link **`lampo://ask?q=…`** apre il pannello e fa la domanda, per esempio da Raycast, Alfred o un
-  segnalibro: `lampo://ask?q=Che%20ore%20sono%20a%20Tokyo%20se%20qui%20sono%20le%2015`.
-  Un link non può eseguire azioni né modificare testo.
+- **Contact** (an email signature): name, company, phones, emails, address. "Add to Contacts" opens it in
+  Contacts, which asks you to confirm: Lampo never reads or changes your address book.
+- **Table** (rows of data): "Copy" pastes as cells in Numbers or Excel; "Copy as Markdown" too.
+- **To-dos** (an email full of requests): they become reminders to confirm, with their due dates.
+
+Wrong type? Switch it at the top of the card. Without Apple Intelligence, simple rules (phone numbers,
+emails, separated columns) still work, and Lampo tells you.
+
+### Your own actions
+
+In Settings › Actions you can turn actions on and off, edit their prompts, and create new ones: with your
+own prompt (variables such as `{{selection}}`, `{{text_language}}`, `{{language}}`, `{{tone}}`), with
+Apple Translation into a fixed language ("Translate to German"), or with dictation as input. Each action
+can show a preview, replace the text right away, copy the result, or open the answer in the panel. "Try"
+runs it on a sample text before you use it.
+
+"More formal", "Shorter" and "Summarize" are off by default, because Rewrite and Apple's Writing Tools
+already cover them; you can turn them back on.
+
+### Shortcuts app and links
+
+- The **Shortcuts** app gets "Ask Lampo" (returns the answer) and "Run Lampo Action" (runs an action on a
+  text and returns the result).
+- The **`lampo://ask?q=…`** link opens the panel and asks the question, for example from Raycast, Alfred
+  or a bookmark: `lampo://ask?q=What%20time%20is%20it%20in%20Tokyo%20at%203pm%20here`. A link can't run
+  actions or change text.
 
 ## Privacy
 
-- Le richieste girano sul modello di Apple **sul tuo Mac**. Un badge dice sempre dove ha girato ogni risposta.
-- **Private Cloud Compute** (il cloud privato di Apple) si usa solo quando premi "Pensa di più", nelle
-  versioni che lo includono (richiede un'autorizzazione di Apple). Con **Solo sul Mac** attivo non si usa mai.
-- Lampo va online solo per **controllare gli aggiornamenti** (Sparkle), e solo se lo consenti.
-  Nessuna telemetria, nessun account, nessun dato di sistema inviato.
-- La **cronologia** è spenta di default. Se la accendi resta solo sul Mac
-  (`~/Library/Application Support/Lampo/history.json`) e spegnerla la cancella.
-- Permessi: Accessibilità (leggere e sostituire la selezione), Registrazione schermo (solo per
-  "Chiedi allo schermo"), Microfono (solo mentre detti), Calendari e Promemoria (solo quando confermi
-  un evento o un promemoria). Nessun accesso ai Contatti: un contatto estratto passa a Contatti, che
-  chiede conferma.
-- La dettatura gira sul Mac. L'unico download è il modello vocale di Apple, una volta e solo se confermi.
+- Requests run on Apple's model **on your Mac**. A badge always shows where each answer was computed.
+- **Private Cloud Compute** (Apple's private cloud) is used only when you press "Think harder", in builds
+  that include it (it needs an entitlement from Apple). With **Only on this Mac** turned on, it is never used.
+- Lampo goes online only to **check for updates** (Sparkle), and only if you allow it. The only other
+  downloads are Apple's own speech and translation models, after you confirm. No telemetry, no account,
+  no analytics.
+- **History** is off by default. When on, it stays on the Mac
+  (`~/Library/Application Support/Lampo/history.json`, up to 200 requests); turning it off deletes it.
+- Permissions, each asked one at a time by the welcome guide:
+  - **Accessibility**: read the selected text and replace it in place (the one Lampo really needs);
+  - **Screen Recording**: only for "Ask the screen";
+  - **Microphone**: only while you dictate;
+  - **Calendars** (write-only) and **Reminders**: only when you confirm an event or a reminder.
+  No access to Contacts: an extracted contact is handed to the Contacts app, which asks you.
 
-## Cosa non fa
+## What Lampo is not
 
-- **Non è un motore di ricerca né un'enciclopedia.** Il modello sul Mac è piccolo: è bravo a
-  riscrivere, riassumere, tradurre, estrarre e spiegare quello che ha davanti, non a ricordare fatti.
-  Per date, nomi e numeri controlla sempre la fonte.
-- Non naviga sul web e non legge i tuoi file, le tue email o i tuoi calendari.
-- Non sostituisce un testo troppo lungo: se deve usarne un estratto, te lo dice e ti lascia solo copiare.
+- **Not a search engine or an encyclopedia.** The on-device model is small: it is great at rewriting,
+  summarizing, translating, extracting and explaining what is in front of it, not at remembering facts.
+  Always check dates, names and numbers against the source.
+- It doesn't browse the web and doesn't read your files, emails or calendars.
+- It never writes back a text it could only read in part.
 
-## Requisiti
+## Requirements
 
-- macOS 27 su Mac con Apple silicon
-- Apple Intelligence attiva (Impostazioni di Sistema › Apple Intelligence e Siri)
+- **macOS 27** on a Mac with **Apple silicon**.
+- **Apple Intelligence** turned on (System Settings › Apple Intelligence & Siri) for the model-based
+  actions. Translate, the calculator and the rule-based Extract work without it.
 
-## Installazione
+## Installation
 
-Scarica l'ultima versione dalla pagina delle release, oppure con Homebrew (dal tap del progetto):
+Lampo is distributed outside the Mac App Store (it needs Accessibility, which sandboxed apps can't
+use), as a signed and notarized app with automatic updates through Sparkle.
+
+- **Download:** the notarized builds are published on the
+  [Releases](https://github.com/christianmusumeci00/Lampo/releases) page. Unzip and move `Lampo.app` to
+  `/Applications`.
+- **Homebrew:** each release also produces a cask (`Packaging/Homebrew`), to be published in a tap with
+  the first public release.
+
+No public release has been published yet: until then, [build it from source](#build-from-source).
+
+### First launch
+
+A step-by-step guide opens in the middle of the screen. It explains what Lampo does and its shortcuts,
+asks for the permissions one at a time (Accessibility, Screen Recording, Microphone, Calendars and
+Reminders) and sets a few preferences. While the guide is open Lampo has a Dock icon: if the window ends
+up behind System Settings, click the icon to bring it back (it also comes back by itself when you grant a
+permission). If Lampo restarts, the guide resumes where you left off; you can reopen it from the menu bar
+› Welcome Guide.
+
+Lampo starts in English. Switch to Italian in the first step of the guide or in Settings › General ›
+Language (Lampo restarts). Answers, Translate and Dictate keep following your Mac's language.
+
+## Build from source
+
+You need **Xcode 27** (macOS 27 SDK) and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
-brew install --cask lampo
+brew install xcodegen
 ```
-
-Al primo avvio una guida passo passo, al centro dello schermo, spiega cosa fa Lampo e le sue scorciatoie,
-poi chiede i permessi uno alla volta (Accessibilità, Registrazione schermo, Microfono, Calendari e Promemoria)
-e qualche preferenza. Finché la guida è aperta Lampo ha un'icona nel Dock: se la finestra finisce dietro
-Impostazioni di Sistema, un clic sull'icona la riporta davanti (torna davanti anche da sola quando concedi un
-permesso). Se Lampo si riavvia, la guida riparte dal passo in cui eri; si riapre dal menu › Guida di benvenuto.
-
-Lampo è in inglese; puoi passare all'italiano nel primo passo della guida o in Impostazioni › Generali › Lingua
-(Lampo si riavvia). La lingua delle risposte, della traduzione e della dettatura segue comunque il Mac.
-
-## Sviluppo
-
-Serve Xcode 27 e [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
-xcodegen generate
+git clone https://github.com/christianmusumeci00/Lampo.git
 ```
+
+```bash
+cd Lampo && xcodegen generate
+```
+
+The `.xcodeproj` is generated from `project.yml` and isn't committed. Open `Lampo.xcodeproj` in Xcode and
+run the **Lampo** scheme, or build from the command line:
+
+```bash
+xcodebuild -project Lampo.xcodeproj -scheme Lampo -derivedDataPath build/DerivedData -clonedSourcePackagesDirPath build/SourcePackages build
+```
+
+**Signing.** `project.yml` signs with the maintainer's team (`9K3LNS3KHP`). To build without that team,
+sign ad hoc:
+
+```bash
+xcodebuild -project Lampo.xcodeproj -scheme Lampo -derivedDataPath build/DerivedData -clonedSourcePackagesDirPath build/SourcePackages CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= build
+```
+
+or set your own `DEVELOPMENT_TEAM` in `project.yml` and run `xcodegen generate` again. With an ad hoc
+signature macOS treats every rebuild as a new app, so you may have to grant Accessibility again.
+
+**Tests** (Swift Testing; they need no permissions and no model, every system service has a mock):
 
 ```bash
 xcodebuild -project Lampo.xcodeproj -scheme Lampo -derivedDataPath build/DerivedData -clonedSourcePackagesDirPath build/SourcePackages test
 ```
 
-Convenzioni, comandi e decisioni: [CLAUDE.md](CLAUDE.md) e [docs/DECISIONS.md](docs/DECISIONS.md).
-Checklist manuale: [docs/MANUAL_QA.md](docs/MANUAL_QA.md).
+**Strings.** UI strings are English keys in `Lampo/Resources/Localizable.xcstrings` with Italian
+translations. After a build, `scripts/check-strings.sh` syncs the catalog and lists missing translations.
 
-### Pubblicare una versione
+**Manual testing.** Debug builds read a few environment variables to open the panel, ask a question or
+run an action at launch (`LAMPO_OPEN_PANEL`, `LAMPO_QA_QUERY`, `LAMPO_QA_ACTION`, …); see
+[CLAUDE.md](CLAUDE.md). Start Lampo from `/` so macOS doesn't ask for access to the folder the shell is in.
 
-`scripts/release.sh` esegue i test, archivia con la firma Developer ID, notarizza, crea lo zip,
-l'appcast di Sparkle e il cask Homebrew. Una tantum:
+### Project layout
 
-1. Un certificato "Developer ID Application" nel portachiavi.
-2. Le credenziali del servizio di notarizzazione:
-   `xcrun notarytool store-credentials lampo-notary --apple-id <id> --team-id 9K3LNS3KHP`
-3. La chiave EdDSA di Sparkle (resta nel portachiavi; il comando stampa la chiave pubblica):
+| Folder | What's inside |
+|---|---|
+| `Lampo/App` | App entry point, menu bar, app state |
+| `Lampo/Output`, `Lampo/Support` | Replace/paste/insert, clipboard, calculator, logging, design tokens |
+| `Lampo/Panel`, `Lampo/Lens` | The panel and the Lens (SwiftUI + AppKit windows) |
+| `Lampo/Model` | FoundationModels sessions, streaming, system instructions |
+| `Lampo/Actions` | Built-in and custom actions, prompt templates |
+| `Lampo/Context` | Selection (Accessibility, clipboard fallback), screen capture, text recognition |
+| `Lampo/Dictation` | SpeechAnalyzer-based dictation |
+| `Lampo/Structured` | Events, reminders, contacts, tables, to-dos (`@Generable` + date parsing) |
+| `Lampo/Translation` | Apple Translation |
+| `Lampo/Onboarding` | Welcome guide and permissions |
+| `Lampo/Settings`, `Lampo/History`, `Lampo/Hotkeys`, `Lampo/Integration`, `Lampo/Updates` | Settings, history, shortcuts, App Intents and links, Sparkle |
+| `LampoTests` | Unit tests and mocks |
+| `docs` | [Design decisions](docs/DECISIONS.md), [manual QA checklist](docs/MANUAL_QA.md), media |
+| `scripts`, `Packaging` | Release script, string check, icon, export options, Homebrew cask template |
+
+Conventions: Swift 6 language mode with complete strict concurrency and zero warnings; every
+system-touching service behind a protocol; design constants only in `Support/DesignTokens.swift`; SF
+Symbols only; user content is never logged. Details in [CLAUDE.md](CLAUDE.md) and
+[docs/DECISIONS.md](docs/DECISIONS.md).
+
+### Releasing
+
+`scripts/release.sh` runs the tests, archives with the Developer ID signature, notarizes, and produces
+the zip, the Sparkle appcast and the Homebrew cask. One-time setup:
+
+1. A "Developer ID Application" certificate in your keychain.
+2. Notarization credentials:
+   `xcrun notarytool store-credentials lampo-notary --apple-id <id> --team-id <team>`
+3. The Sparkle EdDSA key (it stays in the keychain; the command prints the public key):
    `build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys`
-4. `cp Packaging/release.env.example Packaging/release.env` e compila URL del feed, prefisso dei
-   download e chiave pubblica.
+4. `cp Packaging/release.env.example Packaging/release.env` and fill in the feed URL, the download prefix
+   and the public key. `release.env` is git-ignored.
 
-Poi:
+Then:
 
 ```bash
 scripts/release.sh
 ```
 
-Per una prova locale senza notarizzazione: `scripts/release.sh --skip-notarize --skip-appcast`.
-La versione è `MARKETING_VERSION` in `project.yml`; il numero di build è il numero di commit.
+For a local check without notarization or appcast:
+
+```bash
+scripts/release.sh --skip-notarize --skip-appcast
+```
+
+The version is `MARKETING_VERSION` in `project.yml`; the build number is the commit count.
+
+## Built with
+
+- [FoundationModels](https://developer.apple.com/documentation/foundationmodels), Translation,
+  Speech (SpeechAnalyzer), Vision, ScreenCaptureKit, EventKit, App Intents
+- [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) by Sindre Sorhus
+- [Sparkle](https://sparkle-project.org) for updates
+
+## License
+
+Lampo is released under the [MIT License](LICENSE). Apple, Apple Intelligence, Siri and macOS are
+trademarks of Apple Inc.; Lampo is an independent project, not affiliated with Apple.

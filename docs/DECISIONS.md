@@ -224,7 +224,8 @@ Checked against `FoundationModels.swiftmodule/arm64e-apple-macos.swiftinterface`
   current keys, the privacy promise, a warning if the model is unavailable, then the permissions page.
   It replaces the old first-launch permissions window; that window is still used when an action needs a
   permission.
-- **README** is in Italian with a short English summary. The panel GIF and the event card are captured
+- **README** was in Italian with a short English summary; since the public GitHub repository it is in English
+  (features, what it adds in Italy, install, build, release). The panel GIF and the event card are captured
   from Lampo's own window only. The Lens and screen GIFs need other apps on screen and are left to record
   by hand (`docs/media/README.md`).
 - **Fix found while recording:** Italian button labels ("Approfondisci") wrapped inside 34 pt buttons;
