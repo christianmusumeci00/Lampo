@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Lampo</title>
+        <item>
+            <title>1.0.0</title>
+            <pubDate>Mon, 09 Nov 2026 23:15:01 +0100</pubDate>
+            <link>https://github.com/christianmusumeci00/Lampo/releases/tag/v1.0.0</link>
+            <sparkle:version>17</sparkle:version>
+            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>27.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>Lampo 1.0</h2>
+<p>The first public release: Apple's on-device model on your selection, your screen and your clipboard.</p>
+<ul>
+  <li><b>Panel</b> (⌥⇧Space): ask from any app, with your selection, clipboard or window as context.</li>
+  <li><b>Correct, Rewrite, Translate</b> in place, in any app, with ⌘Z to undo.</li>
+  <li><b>Reply</b> (⌥⇧M) in the message's language; <b>Dictate</b> (⌥⇧D) on device, cleaned up and typed at the cursor.</li>
+  <li><b>Ask the screen</b> (⌥⇧S), <b>Create event / reminder</b> (⌥⇧E / ⌥⇧P) and <b>Extract</b> (⌥⇧X) contacts, tables and to-dos.</li>
+  <li>Your own actions, a step-by-step welcome guide, English and Italian.</li>
+</ul>
+<p>Everything runs on your Mac unless you ask for Private Cloud Compute.</p>
+]]></description>
+            <enclosure url="https://github.com/christianmusumeci00/Lampo/releases/download/v1.0.0/Lampo-1.0.0.zip" length="3233137" type="application/octet-stream" sparkle:edSignature="53wk2TOEldtOOeaWFZ2xuU7dpndZHzYf1Qe2BtNNv9XIQuKf6CPMnQJGO+5Tb7AnE8ZYlC6VMLmzRCHUEZ5LAA=="/>
+        </item>
+    </channel>
+</rss>
