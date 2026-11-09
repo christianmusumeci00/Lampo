@@ -202,10 +202,18 @@ use), as a signed and notarized app with automatic updates through Sparkle.
 - **Download:** get `Lampo-<version>.zip` from the
   [latest release](https://github.com/christianmusumeci00/Lampo/releases/latest), unzip it and move
   `Lampo.app` to `/Applications`.
-- **Homebrew:**
+- **Homebrew:** Homebrew 7 asks you to trust a third-party tap before it installs from it.
 
   ```bash
-  brew install --cask christianmusumeci00/tap/lampo
+  brew tap christianmusumeci00/tap
+  ```
+
+  ```bash
+  brew trust christianmusumeci00/tap
+  ```
+
+  ```bash
+  brew install --cask lampo
   ```
 
 Updates arrive automatically: Lampo checks the signed update feed (Sparkle) once you allow it (Lampo asks
